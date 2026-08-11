@@ -1,0 +1,95 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import 'package:kayal_userapp/presentation/controller/home_controller.dart';
+
+class CategoryList extends StatelessWidget {
+  const CategoryList({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = Get.find<HomeController>();
+
+    return SizedBox(
+      height: 48,
+      child: Obx(
+        () => ListView.separated(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 24,
+          ),
+          scrollDirection: Axis.horizontal,
+          itemCount: controller.categories.length,
+          separatorBuilder: (_, __) =>
+              const SizedBox(width: 8),
+          itemBuilder: (context, index) {
+            final item =
+                controller.categories[index];
+
+            final selected =
+                controller.selectedCategory.value ==
+                    index;
+
+            return GestureDetector(
+              onTap: () =>
+                  controller.selectCategory(index),
+              child: Container(
+                height: 42,
+                padding:
+                    const EdgeInsets.only(right: 12),
+                decoration: BoxDecoration(
+                  color: selected
+                      ? const Color(0xFFFFF5EF)
+                      : Colors.white,
+                  borderRadius:
+                      BorderRadius.circular(22),
+                  border: Border.all(
+                    color: const Color(0xFFFF823E),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 38,
+                      height: 38,
+                      margin:
+                          const EdgeInsets.only(
+                        left: 2,
+                      ),
+                      decoration:
+                          const BoxDecoration(
+                        shape: BoxShape.circle,
+                      ),
+                      child: ClipOval(
+                        child: Image.asset(
+                          item.image,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(width: 5),
+
+                    Text(
+                      item.name,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: selected
+                            ? const Color(
+                                0xFFFF6F2C,
+                              )
+                            : const Color(
+                                0xFF252B35,
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}

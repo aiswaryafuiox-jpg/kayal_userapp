@@ -1,0 +1,17 @@
+const String appLogo = 'assets/images/app_logo.png';
+const String splashBackground = 'assets/images/splash.png';
+const String onboardingImage1 = 'assets/images/onboarding1.png';
+const String onboardingImage2 = 'assets/images/onboarding2.png';
+const String onboardingImage3 = 'assets/images/onboarding3.png';
+const String editicon = 'assets/images/edit.svg';
+const String locationIcon = 'assets/images/location.png';
+const String confirmLocation = 'assets/images/confirm_location.png';
+const String hometop = 'assets/images/hometop.svg';
+const String profileImg = 'assets/images/profile.png';
+const String bannerImg = 'assets/images/banner.svg';
+const String menu1 = 'assets/images/menu1.png';
+const String menu2 = 'assets/images/menu2.png';
+const String menu3 = 'assets/images/menu3.png';
+const String menu4 = 'assets/images/menu4.png';
+const String menu5 = 'assets/images/menu5.png';
+const String homeImg = 'assets/images/homeimg.png';
