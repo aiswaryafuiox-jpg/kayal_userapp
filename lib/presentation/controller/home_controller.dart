@@ -24,26 +24,11 @@ class HomeController extends GetxController {
   final selectedCategory = 0.obs;
 
   final List<CategoryItem> categories = [
-    CategoryItem(
-      name: 'All',
-      image: 'assets/images/category_all.png',
-    ),
-    CategoryItem(
-      name: 'Pizza',
-      image: 'assets/images/pizza.png',
-    ),
-    CategoryItem(
-      name: 'Biryani',
-      image: 'assets/images/biryani.png',
-    ),
-    CategoryItem(
-      name: 'Biryani',
-      image: 'assets/images/biryani.png',
-    ),
-    CategoryItem(
-      name: 'Biryani',
-      image: 'assets/images/biryani.png',
-    ),
+    CategoryItem(name: 'All', image: 'assets/images/menu1.png'),
+    CategoryItem(name: 'Pizza', image: 'assets/images/menu2.png'),
+    CategoryItem(name: 'Biryani', image: 'assets/images/menu3.png'),
+    CategoryItem(name: 'Meals', image: 'assets/images/menu4.png'),
+    CategoryItem(name: 'Noodles', image: 'assets/images/menu5.png'),
   ];
 
   void selectCategory(int index) {
@@ -71,10 +56,10 @@ class HomeController extends GetxController {
   // RESTAURANTS
   // ==============================
 
-  final restaurants = <RestaurantItem>[
+  final List<RestaurantItem> restaurants = [
     RestaurantItem(
       name: 'Pizza Hub',
-      image: 'assets/images/restaurant.png',
+      image: 'assets/images/homeimg.png',
       cuisine: 'Italian Pizza',
       deliveryTime: '25-30 mins',
       distance: '2.8 Km',
@@ -83,14 +68,14 @@ class HomeController extends GetxController {
     ),
     RestaurantItem(
       name: 'Pizza Hub',
-      image: 'assets/images/restaurant.png',
+      image: 'assets/images/homeimg.png',
       cuisine: 'Italian Pizza',
       deliveryTime: '25-30 mins',
       distance: '2.8 Km',
       openingTime: '10:00 Am - 11:00 Pm',
       isOpen: false,
     ),
-  ].obs;
+  ];
 
   // ==============================
   // OFFER
@@ -111,28 +96,22 @@ class HomeController extends GetxController {
   }
 
   void startOfferTimer() {
-    _timer = Timer.periodic(
-      const Duration(seconds: 1),
-      (_) {
-        if (offerRemaining.value.inSeconds > 0) {
-          offerRemaining.value =
-              offerRemaining.value - const Duration(seconds: 1);
-        }
-      },
-    );
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (offerRemaining.value.inSeconds > 0) {
+        offerRemaining.value =
+            offerRemaining.value - const Duration(seconds: 1);
+      }
+    });
   }
 
   String get formattedOfferTime {
     final duration = offerRemaining.value;
 
-    final hours =
-        duration.inHours.toString().padLeft(2, '0');
+    final hours = duration.inHours.toString().padLeft(2, '0');
 
-    final minutes =
-        duration.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final minutes = duration.inMinutes.remainder(60).toString().padLeft(2, '0');
 
-    final seconds =
-        duration.inSeconds.remainder(60).toString().padLeft(2, '0');
+    final seconds = duration.inSeconds.remainder(60).toString().padLeft(2, '0');
 
     return '$hours:$minutes:$seconds';
   }
@@ -176,10 +155,7 @@ class CategoryItem {
   final String name;
   final String image;
 
-  CategoryItem({
-    required this.name,
-    required this.image,
-  });
+  CategoryItem({required this.name, required this.image});
 }
 
 // =======================================
