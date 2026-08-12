@@ -6,38 +6,38 @@ class SearchBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 24,
-      ),
-      child: Container(
-        height: 46,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 10,
-              offset: const Offset(0, 3),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 342),
+          child: Container(
+            height: 43,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.08),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: TextField(
-          decoration: InputDecoration(
-            hintText: 'Search Your Favorites Here !!',
-            hintStyle: const TextStyle(
-              fontSize: 12,
-              color: Color(0xFF777777),
-            ),
-            prefixIcon: const Icon(
-              Icons.search,
-              color: Color(0xFFFF6F2C),
-              size: 21,
-            ),
-            border: InputBorder.none,
-            contentPadding:
-                const EdgeInsets.symmetric(
-              vertical: 14,
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Search Your Favorites Here !!',
+                hintStyle: const TextStyle(
+                  fontSize: 11,
+                  color: Color(0xFF777777),
+                ),
+                prefixIcon: const Icon(
+                  Icons.search,
+                  color: Color(0xFFFF6F2C),
+                  size: 19,
+                ),
+                border: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(vertical: 14),
+              ),
             ),
           ),
         ),

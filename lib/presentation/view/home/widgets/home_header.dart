@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
 import 'package:kayal_userapp/core/const/app_images.dart';
 import 'package:kayal_userapp/presentation/controller/home_controller.dart';
+import 'package:kayal_userapp/presentation/widgets/app_embedded_image.dart';
 
 class HomeHeader extends StatelessWidget {
   const HomeHeader({super.key});
@@ -11,120 +13,111 @@ class HomeHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<HomeController>();
 
-    return Container(
-      height: 168,
+    return SizedBox(
+      height: 171,
       width: double.infinity,
-      padding: const EdgeInsets.only(
-        left: 24,
-        right: 24,
-        top: 18,
-      ),
-      decoration: const BoxDecoration(
-        color: Color(0xFFFF823E),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(30),
-          bottomRight: Radius.circular(30),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(26),
+          bottomRight: Radius.circular(26),
         ),
-      ),
-      child: Stack(
-        children: [
-          // Background food doodle
-          Positioned.fill(
-            child: Opacity(
-              opacity: 0.20,
-              child: Image.asset(
-                'assets/images/home_pattern.png',
-                fit: BoxFit.cover,
-              ),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            const AppEmbeddedImage(
+              asset: hometop,
+              fit: BoxFit.cover,
+              fallback: ColoredBox(color: Color(0xFFFF8A3D)),
             ),
-          ),
-
-          Row(
-            crossAxisAlignment:
-                CrossAxisAlignment.center,
-            children: [
-              // PROFILE IMAGE
-              Container(
-                width: 48,
-                height: 48,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white,
-                ),
-                child: ClipOval(
-                  child: Image.asset(
-                    'assets/images/profile.png',
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-
-              const SizedBox(width: 10),
-
-              // USER DETAILS
-              Expanded(
-                child: Column(
-                  mainAxisAlignment:
-                      MainAxisAlignment.center,
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Hello, John !',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-
-                    const SizedBox(height: 5),
-
-                    Row(
-                      children: const [
-                        Icon(
-                          Icons.location_on,
-                          size: 15,
-                          color: Colors.black,
-                        ),
-                        SizedBox(width: 3),
-                        Text(
-                          'Chennai, Tamil Nadu',
-                          style: TextStyle(
-                            color: Colors.black87,
-                            fontSize: 11,
-                          ),
+            Positioned(
+              left: 24,
+              right: 24,
+              top: 66,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    padding: const EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                      border: Border.all(color: Colors.white, width: 2),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color(0x22000000),
+                          blurRadius: 5,
+                          offset: Offset(0, 2),
                         ),
                       ],
                     ),
-                  ],
-                ),
+                    child: ClipOval(
+                      child: Image.asset(profileImg, fit: BoxFit.cover),
+                    ),
+                  ),
+                  const SizedBox(width: 7),
+                  const Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Hello, John !',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Color(0xFF1F2937),
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            height: 1.1,
+                          ),
+                        ),
+                        SizedBox(height: 5),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.location_on,
+                              size: 16,
+                              color: Color(0xFF1F2937),
+                            ),
+                            SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                'Chennai, Tamil Nadu',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: Color(0xFF1F2937),
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  _headerButton(
+                    asset: 'assets/images/heart.svg',
+                    onTap: controller.openFavorites,
+                  ),
+                  const SizedBox(width: 8),
+                  _headerButton(
+                    asset: 'assets/images/notificationicon.svg',
+                    onTap: controller.openNotifications,
+                  ),
+                ],
               ),
-
-              // FAVORITE
-              _headerButton(
-                icon: Icons.favorite_border,
-                onTap: controller.openFavorites,
-              ),
-
-              const SizedBox(width: 8),
-
-              // NOTIFICATION
-              _headerButton(
-                icon: Icons.notifications_none,
-                onTap: controller.openNotifications,
-              ),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _headerButton({
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
+  Widget _headerButton({required String asset, required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -132,13 +125,17 @@ class HomeHeader extends StatelessWidget {
         height: 46,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(11),
+          border: Border.all(color: const Color(0xFFE3E5E8), width: 1.2),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x33000000),
+              blurRadius: 5,
+              offset: Offset(0, 2),
+            ),
+          ],
         ),
-        child: Icon(
-          icon,
-          color: const Color(0xFF17202A),
-          size: 25,
-        ),
+        child: Center(child: SvgPicture.asset(asset, width: 22, height: 22)),
       ),
     );
   }

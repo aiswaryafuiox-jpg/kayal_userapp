@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import 'package:kayal_userapp/presentation/controller/home_controller.dart';
@@ -11,121 +12,110 @@ import 'package:kayal_userapp/presentation/view/home/widgets/restaurant_card.dar
 import 'package:kayal_userapp/presentation/view/home/widgets/offer_timer.dart';
 import 'package:kayal_userapp/presentation/widgets/search_bar_widget.dart';
 
-
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
 
-  final HomeController controller =
-      Get.put(HomeController());
+  final HomeController controller = Get.put(HomeController());
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFFFFCFA),
-
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light.copyWith(
+        statusBarColor: Colors.transparent,
+        systemStatusBarContrastEnforced: false,
+      ),
+      child: Scaffold(
+        backgroundColor: const Color(0xFFFFFCFA),
+        extendBody: true,
+        bottomNavigationBar: const SafeArea(top: false, child: BottomNavBar()),
+        body: SafeArea(
+          top: false,
+          bottom: false,
+          child: CustomScrollView(
+            physics: const ClampingScrollPhysics(),
+            cacheExtent: 500,
+            slivers: [
+              const SliverToBoxAdapter(
+                child: Stack(
+                  clipBehavior: Clip.none,
                   children: [
-                    // HEADER
-                    const HomeHeader(),
-
-                    // SEARCH
-                    const SearchBarWidget(),
-
-                    const SizedBox(height: 20),
-
-                    // BANNER
-                    const PromotionCarousel(),
-
-                    const SizedBox(height: 18),
-
-                    // FOOD MENU TITLE
-                    SectionTitle(
-                      title: 'Food Menu',
-                      onTap: controller.viewAllRestaurants,
+                    HomeHeader(),
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: -13,
+                      child: SearchBarWidget(),
                     ),
-
-                    const SizedBox(height: 10),
-
-                    // CATEGORIES
-                    const CategoryList(),
-
-                    const SizedBox(height: 22),
-
-                    // POPULAR
-                    SectionTitle(
-                      title: 'Popular Near you',
-                      onTap: controller.viewAllRestaurants,
-                    ),
-
-                    const SizedBox(height: 10),
-
-                    // RESTAURANTS
-                    Obx(
-                      () => ListView.separated(
-                        shrinkWrap: true,
-                        physics:
-                            const NeverScrollableScrollPhysics(),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                        ),
-                        itemCount:
-                            controller.restaurants.length,
-                        separatorBuilder: (_, __) =>
-                            const SizedBox(height: 14),
-                        itemBuilder: (context, index) {
-                          return RestaurantCard(
-                            restaurant:
-                                controller.restaurants[index],
-                          );
-                        },
-                      ),
-                    ),
-
-                    const SizedBox(height: 22),
-
-                    // MY OFFER
-                    SectionTitle(
-                      title: 'My Offer',
-                      onTap: controller.viewOffers,
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    const OfferTimer(),
-
-                    const SizedBox(height: 10),
-
-                    // OFFER RESTAURANT
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                      ),
-                      child: Obx(
-                        () => RestaurantCard(
-                          restaurant:
-                              controller.restaurants.first,
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 100),
                   ],
                 ),
               ),
-            ),
-
-            // BOTTOM NAVIGATION
-            const BottomNavBar(),
-          ],
+              const SliverToBoxAdapter(child: SizedBox(height: 34)),
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24),
+                  child: PromotionCarousel(),
+                ),
+              ),
+              const SliverToBoxAdapter(child: SizedBox(height: 18)),
+              SliverToBoxAdapter(
+                child: SectionTitle(
+                  title: 'Food Menu',
+                  onTap: controller.viewAllRestaurants,
+                ),
+              ),
+              const SliverToBoxAdapter(child: SizedBox(height: 9)),
+              const SliverToBoxAdapter(child: CategoryList()),
+              const SliverToBoxAdapter(child: SizedBox(height: 20)),
+              SliverToBoxAdapter(
+                child: SectionTitle(
+                  title: 'Popular Near you',
+                  onTap: controller.viewAllRestaurants,
+                ),
+              ),
+              const SliverToBoxAdapter(child: SizedBox(height: 10)),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) => Padding(
+                      padding: EdgeInsets.only(
+                        bottom: index == controller.restaurants.length - 1
+                            ? 0
+                            : 14,
+                      ),
+                      child: RepaintBoundary(
+                        child: RestaurantCard(
+                          restaurant: controller.restaurants[index],
+                        ),
+                      ),
+                    ),
+                    childCount: controller.restaurants.length,
+                  ),
+                ),
+              ),
+              const SliverToBoxAdapter(child: SizedBox(height: 20)),
+              SliverToBoxAdapter(
+                child: SectionTitle(
+                  title: 'My Offer',
+                  onTap: controller.viewOffers,
+                ),
+              ),
+              const SliverToBoxAdapter(child: SizedBox(height: 7)),
+              const SliverToBoxAdapter(child: OfferTimer()),
+              const SliverToBoxAdapter(child: SizedBox(height: 10)),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: RepaintBoundary(
+                    child: RestaurantCard(
+                      restaurant: controller.restaurants.first,
+                    ),
+                  ),
+                ),
+              ),
+              const SliverToBoxAdapter(child: SizedBox(height: 92)),
+            ],
+          ),
         ),
       ),
     );

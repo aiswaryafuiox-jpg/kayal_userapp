@@ -12,30 +12,23 @@ class OfferTimer extends StatelessWidget {
 
     return Container(
       height: 30,
-      margin: const EdgeInsets.symmetric(
-        horizontal: 24,
-      ),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 10,
-      ),
+      margin: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(4),
-        image: const DecorationImage(
-          image: AssetImage(
-            'assets/images/offer_background.png',
-          ),
-          fit: BoxFit.cover,
+        gradient: const LinearGradient(
+          colors: [Color(0xFF181C67), Color(0xFF3A145F), Color(0xFFFF8A3D)],
+          stops: [0, .7, 1],
         ),
       ),
       child: Row(
-        mainAxisAlignment:
-            MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Text(
-            'Limited Time Offer End in:',
+            'Limited Time Offer End in',
             style: TextStyle(
-              color: Color(0xFFFF823E),
-              fontSize: 11,
+              color: Colors.white,
+              fontSize: 10,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -43,12 +36,9 @@ class OfferTimer extends StatelessWidget {
           const SizedBox(width: 5),
 
           Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 6,
-              vertical: 2,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Color(0xFFFFF3EA),
               borderRadius: BorderRadius.circular(4),
             ),
             child: Obx(
@@ -56,7 +46,7 @@ class OfferTimer extends StatelessWidget {
                 controller.formattedOfferTime,
                 style: const TextStyle(
                   color: Color(0xFFFF823E),
-                  fontSize: 12,
+                  fontSize: 10,
                   fontWeight: FontWeight.w800,
                 ),
               ),
@@ -70,11 +60,10 @@ class OfferTimer extends StatelessWidget {
             child: const Text(
               'View',
               style: TextStyle(
-                color: Color(0xFFFF823E),
-                fontSize: 11,
+                color: Colors.white,
+                fontSize: 10,
                 fontWeight: FontWeight.w700,
-                decoration:
-                    TextDecoration.underline,
+                decoration: TextDecoration.underline,
               ),
             ),
           ),

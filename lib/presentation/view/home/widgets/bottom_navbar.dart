@@ -39,11 +39,8 @@ class BottomNavBar extends StatelessWidget {
     ];
 
     return Container(
-      height: 72,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 14,
-        vertical: 8,
-      ),
+      height: 64,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: const BorderRadius.only(
@@ -52,7 +49,7 @@ class BottomNavBar extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 12,
             offset: const Offset(0, -3),
           ),
@@ -60,67 +57,50 @@ class BottomNavBar extends StatelessWidget {
       ),
       child: Obx(
         () => Row(
-          mainAxisAlignment:
-              MainAxisAlignment.spaceAround,
-          children: List.generate(
-            items.length,
-            (index) {
-              final item = items[index];
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: List.generate(items.length, (index) {
+            final item = items[index];
 
-              final selected =
-                  controller.selectedBottomIndex.value ==
-                      index;
+            final selected = controller.selectedBottomIndex.value == index;
 
-              return GestureDetector(
-                onTap: () =>
-                    controller.changeBottomIndex(index),
-                child: AnimatedContainer(
-                  duration:
-                      const Duration(milliseconds: 250),
-                  padding:
-                      const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: selected
-                        ? const Color(0xFFFF823E)
-                        : Colors.transparent,
-                    borderRadius:
-                        BorderRadius.circular(22),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        selected
-                            ? item.selectedIcon
-                            : item.icon,
-                        size: 21,
-                        color: selected
-                            ? Colors.white
-                            : const Color(
-                                0xFF252B35,
-                              ),
-                      ),
-
-                      if (selected) ...[
-                        const SizedBox(width: 6),
-                        Text(
-                          item.label,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight:
-                                FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
+            return GestureDetector(
+              onTap: () => controller.changeBottomIndex(index),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 7,
                 ),
-              );
-            },
-          ),
+                decoration: BoxDecoration(
+                  color: selected
+                      ? const Color(0xFFFF823E)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(22),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      selected ? item.selectedIcon : item.icon,
+                      size: 20,
+                      color: selected ? Colors.white : const Color(0xFF252B35),
+                    ),
+
+                    if (selected) ...[
+                      const SizedBox(width: 6),
+                      Text(
+                        item.label,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            );
+          }),
         ),
       ),
     );
