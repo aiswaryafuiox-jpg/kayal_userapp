@@ -5,7 +5,7 @@ import 'package:kayal_userapp/core/const/app_images.dart';
 import 'package:kayal_userapp/core/utils/helper/texthelper.dart';
 import 'package:kayal_userapp/presentation/controller/onboarding_controller.dart';
 import 'package:kayal_userapp/presentation/widgets/app_button.dart';
-import 'package:kayal_userapp/presentation/widgets/custom_buttom.dart';
+
 
 
 class OnboardingScreen extends GetView<OnboardingController> {

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -56,7 +57,14 @@ class HomeController extends GetxController {
   final selectedBottomIndex = 0.obs;
 
   void changeBottomIndex(int index) {
+    if (selectedBottomIndex.value == index) return;
     selectedBottomIndex.value = index;
+
+    if (index == 0) {
+      Get.offAllNamed(AppRoutes.home);
+    } else if (index == 1) {
+      Get.offAllNamed(AppRoutes.category);
+    }
   }
 
   // ==============================

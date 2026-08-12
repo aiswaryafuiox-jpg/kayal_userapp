@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:kayal_userapp/core/const/app_color.dart';
 import 'package:kayal_userapp/core/const/app_images.dart';
 import 'package:kayal_userapp/core/utils/helper/texthelper.dart';
+import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
 import 'package:kayal_userapp/presentation/controller/auth/login_controller.dart';
 import 'package:kayal_userapp/presentation/widgets/app_button.dart';
 
@@ -92,7 +93,7 @@ class LoginScreen extends GetView<LoginController> {
                     Center(
                       child: GestureDetector(
                         key: const Key('sign-up-link'),
-                        // onTap: () => Get.toNamed<void>(AppRoutes.signIn),
+                        onTap: () => Get.toNamed<void>(AppRoutes.signin),
                         child: Text.rich(
                           TextSpan(
                             text: "Don't have an account? ",

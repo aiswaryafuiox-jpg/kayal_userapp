@@ -8,7 +8,7 @@ class BottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<HomeController>();
+    final controller = Get.put(HomeController());
 
     final items = [
       const _NavItem(
@@ -19,12 +19,12 @@ class BottomNavBar extends StatelessWidget {
       const _NavItem(
         icon: Icons.grid_view_outlined,
         selectedIcon: Icons.grid_view_rounded,
-        label: 'Menu',
+        label: 'Category',
       ),
       const _NavItem(
         icon: Icons.favorite_border,
         selectedIcon: Icons.favorite,
-        label: 'Favorite',
+        label: 'Wishlist',
       ),
       const _NavItem(
         icon: Icons.inventory_2_outlined,
@@ -67,9 +67,15 @@ class BottomNavBar extends StatelessWidget {
             (index) {
               final item = items[index];
 
-              final selected =
-                  controller.selectedBottomIndex.value ==
-                      index;
+              final currentRoute = Get.currentRoute;
+              int activeIndex = controller.selectedBottomIndex.value;
+              if (currentRoute == '/home') {
+                activeIndex = 0;
+              } else if (currentRoute == '/category') {
+                activeIndex = 1;
+              }
+              
+              final selected = activeIndex == index;
 
               return GestureDetector(
                 onTap: () =>
