@@ -4,7 +4,6 @@ import 'package:kayal_userapp/core/const/app_color.dart';
 import 'package:kayal_userapp/core/const/app_images.dart';
 import 'package:kayal_userapp/core/utils/helper/texthelper.dart';
 
-
 class BottomNavBar extends StatelessWidget {
   const BottomNavBar({
     required this.currentIndex,
@@ -14,6 +13,9 @@ class BottomNavBar extends StatelessWidget {
 
   final int currentIndex;
   final ValueChanged<int> onTap;
+
+  static const _animationDuration = Duration(milliseconds: 420);
+  static const _animationCurve = Curves.easeInOutCubicEmphasized;
 
   static const _items = [
     _NavigationItem(label: 'Home', icon: homeIcon),
@@ -44,39 +46,31 @@ class BottomNavBar extends StatelessWidget {
           height: 48,
           child: LayoutBuilder(
             builder: (context, constraints) {
-              const pillWidth = 112.0;
-              final cellWidth = constraints.maxWidth / _items.length;
-              final targetLeft =
-                  (cellWidth * currentIndex + (cellWidth - pillWidth) / 2)
-                      .clamp(0.0, constraints.maxWidth - pillWidth);
+              // The active destination owns a wider cell, so its pill cannot
+              // paint over a neighbouring icon. All widths use the same
+              // animation and always add up to the available bar width.
+              final selectedWidth = (constraints.maxWidth * 0.38).clamp(
+                96.0,
+                112.0,
+              );
+              final idleWidth =
+                  (constraints.maxWidth - selectedWidth) / (_items.length - 1);
 
-              return Stack(
+              return Row(
                 children: [
-                  Row(
-                    children: [
-                      for (var index = 0; index < _items.length; index++)
-                        Expanded(
-                          child: _BottomNavigationItem(
-                            item: _items[index],
-                            isSelected: currentIndex == index,
-                            onTap: () => onTap(index),
-                          ),
-                        ),
-                    ],
-                  ),
-                  AnimatedPositioned(
-                    duration: const Duration(milliseconds: 440),
-                    curve: Curves.easeInOutCubicEmphasized,
-                    left: targetLeft,
-                    top: 1,
-                    width: pillWidth,
-                    height: 46,
-                    child: IgnorePointer(
-                      child: _SelectedNavigationPill(
-                        item: _items[currentIndex],
+                  for (var index = 0; index < _items.length; index++)
+                    AnimatedContainer(
+                      key: Key('bottom-navigation-cell-$index'),
+                      duration: _animationDuration,
+                      curve: _animationCurve,
+                      width: currentIndex == index ? selectedWidth : idleWidth,
+                      height: 46,
+                      child: _BottomNavigationItem(
+                        item: _items[index],
+                        isSelected: currentIndex == index,
+                        onTap: () => onTap(index),
                       ),
                     ),
-                  ),
                 ],
               );
             },
@@ -110,19 +104,68 @@ class _BottomNavigationItem extends StatelessWidget {
           key: Key('bottom-navigation-${item.label.toLowerCase()}'),
           onTap: onTap,
           borderRadius: BorderRadius.circular(30),
-          child: Center(
-            child: AnimatedOpacity(
-              duration: const Duration(milliseconds: 240),
-              curve: Curves.easeOutCubic,
-              opacity: isSelected ? 0 : 1,
-              child: SvgPicture.asset(
-                item.icon,
-                width: 24,
-                height: 24,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.textprimary,
-                  BlendMode.srcIn,
+          child: AnimatedContainer(
+            duration: BottomNavBar._animationDuration,
+            curve: BottomNavBar._animationCurve,
+            padding: EdgeInsets.symmetric(horizontal: isSelected ? 10 : 4),
+            decoration: BoxDecoration(
+              gradient: isSelected
+                  ? const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFFFF9B59), AppColors.primary],
+                    )
+                  : null,
+              borderRadius: BorderRadius.circular(30),
+              boxShadow: isSelected
+                  ? [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.28),
+                        blurRadius: 12,
+                        offset: const Offset(0, 5),
+                      ),
+                    ]
+                  : const [],
+            ),
+            child: Center(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 260),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeInCubic,
+                transitionBuilder: (child, animation) => FadeTransition(
+                  opacity: animation,
+                  child: ScaleTransition(
+                    scale: Tween<double>(begin: 0.9, end: 1).animate(animation),
+                    child: child,
+                  ),
                 ),
+                child: isSelected
+                    ? Row(
+                        key: ValueKey('selected-${item.label}'),
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _NavigationIcon(item: item, color: AppColors.white),
+                          const SizedBox(width: 7),
+                          Flexible(
+                            child: Text(
+                              item.label,
+                              maxLines: 1,
+                              softWrap: false,
+                              overflow: TextOverflow.fade,
+                              style: TextHelper.button.copyWith(
+                                color: AppColors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    : _NavigationIcon(
+                        key: ValueKey('idle-${item.label}'),
+                        item: item,
+                        color: AppColors.textprimary,
+                      ),
               ),
             ),
           ),
@@ -132,79 +175,19 @@ class _BottomNavigationItem extends StatelessWidget {
   }
 }
 
-class _SelectedNavigationPill extends StatelessWidget {
-  const _SelectedNavigationPill({required this.item});
+class _NavigationIcon extends StatelessWidget {
+  const _NavigationIcon({required this.item, required this.color, super.key});
 
   final _NavigationItem item;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFFFF9B59), AppColors.primary],
-        ),
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.28),
-            blurRadius: 12,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 11),
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 280),
-          switchInCurve: Curves.easeOutCubic,
-          switchOutCurve: Curves.easeInCubic,
-          transitionBuilder: (child, animation) {
-            final slide = Tween<Offset>(
-              begin: const Offset(0.12, 0),
-              end: Offset.zero,
-            ).animate(animation);
-            return FadeTransition(
-              opacity: animation,
-              child: SlideTransition(
-                position: slide,
-                child: ScaleTransition(
-                  scale: Tween<double>(begin: 0.92, end: 1).animate(animation),
-                  child: child,
-                ),
-              ),
-            );
-          },
-          child: Row(
-            key: ValueKey(item.label),
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SvgPicture.asset(
-                item.icon,
-                width: 24,
-                height: 24,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.white,
-                  BlendMode.srcIn,
-                ),
-              ),
-              const SizedBox(width: 7),
-              Text(
-  item.label,
-  maxLines: 1,
-  softWrap: false,
-  style: TextHelper.button.copyWith(
-    color: AppColors.white,
-    fontSize: 13,
-    fontWeight: FontWeight.w600,
-  ),
-),
-            ],
-          ),
-        ),
-      ),
+    return SvgPicture.asset(
+      item.icon,
+      width: 24,
+      height: 24,
+      colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
     );
   }
 }
