@@ -4,7 +4,13 @@ import 'package:get/get.dart';
 import 'package:kayal_userapp/presentation/controller/splash_controller.dart';
 import 'package:kayal_userapp/presentation/view/splash/splash_screen.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   testWidgets('captures the premium energy moment', (tester) async {
     await tester.binding.setSurfaceSize(const Size(390, 844));
     await tester.pumpWidget(MaterialApp(home: SplashScreen()));

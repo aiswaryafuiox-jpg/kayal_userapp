@@ -19,6 +19,9 @@ class OtpController extends GetxController {
 
   String get phoneNumber {
     final argument = Get.arguments;
+    if (argument is Map && argument.containsKey('phoneNumber')) {
+      return argument['phoneNumber'] ?? '7685342317';
+    }
     return argument is String && argument.isNotEmpty ? argument : '7685342317';
   }
 
@@ -74,7 +77,13 @@ class OtpController extends GetxController {
       return;
     }
 
-    Get.offNamed<void>(AppRoutes.verificationSuccess);
+    final argument = Get.arguments;
+    dynamic nextArgs;
+    if (argument is Map) {
+      nextArgs = argument;
+    }
+
+    Get.offNamed<void>(AppRoutes.verificationSuccess, arguments: nextArgs);
   }
 
   void resendOtp() {

@@ -17,8 +17,6 @@ class OrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDelivered = order.status.toLowerCase() == 'delivered';
-
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(

@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:kayal_userapp/core/const/app_images.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CartItemModel {
   final String id;
@@ -96,7 +97,7 @@ class CartController extends GetxController {
     );
   }
 
-  void proceedToCheckout() {
+  Future<void> proceedToCheckout() async {
     if (cartItems.isEmpty) {
       Get.snackbar(
         'Cart Empty',
@@ -105,6 +106,17 @@ class CartController extends GetxController {
       );
       return;
     }
-    Get.toNamed(AppRoutes.orderSummary);
+    
+    final prefs = await SharedPreferences.getInstance();
+    final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+    
+    if (isLoggedIn) {
+      Get.toNamed(AppRoutes.orderSummary);
+    } else {
+      Get.toNamed(
+        AppRoutes.login,
+        arguments: {'redirect': AppRoutes.orderSummary},
+      );
+    }
   }
 }

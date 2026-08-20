@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OnboardingController extends GetxController {
   final PageController pageController = PageController();
@@ -14,7 +15,9 @@ class OnboardingController extends GetxController {
 
   Future<void> nextPage() async {
     if (currentPage.value >= pageCount - 1) {
-      Get.offAllNamed<void>(AppRoutes.login);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('hasSeenOnboarding', true);
+      Get.offAllNamed<void>(AppRoutes.location);
       return;
     }
 
@@ -36,7 +39,9 @@ class OnboardingController extends GetxController {
   }
 
   Future<void> skipToLastPage() async {
-    Get.offAllNamed<void>(AppRoutes.login);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('hasSeenOnboarding', true);
+    Get.offAllNamed<void>(AppRoutes.location);
   }
 
   @override

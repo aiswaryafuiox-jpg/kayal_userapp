@@ -4,8 +4,13 @@ import 'package:kayal_userapp/core/const/app_images.dart';
 import 'package:kayal_userapp/main.dart';
 import 'package:kayal_userapp/presentation/view/onboarding/onboarding_screen.dart';
 import 'package:kayal_userapp/presentation/view/splash/splash_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   testWidgets('plays the branded splash and continues to onboarding', (
     WidgetTester tester,
   ) async {

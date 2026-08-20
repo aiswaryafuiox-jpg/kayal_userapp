@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
 import 'package:kayal_userapp/presentation/controller/home_controller.dart';
 import 'package:kayal_userapp/presentation/controller/product_controller.dart';
+import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProductDetailController extends GetxController {
   final quantity = 1.obs;
@@ -62,7 +64,7 @@ class ProductDetailController extends GetxController {
     Get.snackbar('Success', 'Item added to cart');
   }
 
-  void placeOrder() {
+  Future<void> placeOrder() async {
     if (isRestaurantClosed.value) {
       Get.snackbar(
         'Restaurant Closed',
@@ -71,7 +73,18 @@ class ProductDetailController extends GetxController {
       );
       return;
     }
-    Get.toNamed('/orderSummary');
+    
+    final prefs = await SharedPreferences.getInstance();
+    final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+    
+    if (isLoggedIn) {
+      Get.toNamed(AppRoutes.orderSummary);
+    } else {
+      Get.toNamed(
+        AppRoutes.login,
+        arguments: {'redirect': AppRoutes.orderSummary},
+      );
+    }
   }
 
   void goBack() {

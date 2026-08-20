@@ -18,11 +18,18 @@ class LoginController extends GetxController {
       return;
     }
 
-    Get.toNamed<void>(AppRoutes.otpVerification, arguments: phoneNumber);
+    final arguments = Get.arguments;
+    dynamic nextArgs;
+    if (arguments is Map) {
+      nextArgs = {
+        'phoneNumber': phoneNumber,
+        'redirect': arguments['redirect'],
+      };
+    } else {
+      nextArgs = phoneNumber;
+    }
+
+    Get.toNamed<void>(AppRoutes.otpVerification, arguments: nextArgs);
   }
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
 }

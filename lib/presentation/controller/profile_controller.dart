@@ -6,6 +6,7 @@ import 'package:kayal_userapp/presentation/view/profile/edit_profile_screen.dart
 import 'package:kayal_userapp/presentation/view/profile/privacy_policy_screen.dart';
 import 'package:kayal_userapp/presentation/view/profile/terms_condition_screen.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileController extends GetxController {
   final userName = 'Lunna'.obs;
@@ -106,7 +107,9 @@ class ProfileController extends GetxController {
                   const SizedBox(width: 16),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
+                        final prefs = await SharedPreferences.getInstance();
+                        await prefs.setBool('isLoggedIn', false);
                         Get.offAllNamed(AppRoutes.login);
                       },
                       style: ElevatedButton.styleFrom(

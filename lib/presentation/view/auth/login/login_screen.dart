@@ -116,6 +116,20 @@ class LoginScreen extends GetView<LoginController> {
                       ),
                     ),
                     const SizedBox(height: 16),
+                    Center(
+                      child: TextButton(
+                        onPressed: () => Get.offAllNamed(AppRoutes.home),
+                        child: Text(
+                          'Continue as Guest',
+                          style: TextHelper.heading2.copyWith(
+                            color: AppColors.primary,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                   ],
                 ),
               ),
