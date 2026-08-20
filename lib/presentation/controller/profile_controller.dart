@@ -12,6 +12,18 @@ class ProfileController extends GetxController {
   final userName = 'Lunna'.obs;
   final phoneNumber = '+91 896745321'.obs;
   final profileImage = profileImg.obs; // Use appropriate image, maybe a user placeholder
+  final isLoggedIn = false.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    checkLoginStatus();
+  }
+
+  Future<void> checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    isLoggedIn.value = prefs.getBool('isLoggedIn') ?? false;
+  }
 
   void editProfile() {
     Get.to(() => const EditProfileScreen());
@@ -35,6 +47,10 @@ class ProfileController extends GetxController {
 
   void openFeedback() {
     Get.toNamed(AppRoutes.feedback);
+  }
+
+  void openHelpSupport() {
+    Get.toNamed(AppRoutes.helpSupport);
   }
 
   void openPrivacyPolicy() {

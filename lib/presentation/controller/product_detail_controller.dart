@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
 import 'package:kayal_userapp/presentation/controller/home_controller.dart';
 import 'package:kayal_userapp/presentation/controller/product_controller.dart';
+import 'package:kayal_userapp/presentation/controller/wishlist_controller.dart';
+import 'package:kayal_userapp/presentation/controller/cart_controller.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -31,6 +33,9 @@ class ProductDetailController extends GetxController {
         if (currentArgs['product'] != null &&
             currentArgs['product'] is ProductModel) {
           product.value = currentArgs['product'];
+          
+          final wishlistController = Get.find<WishlistController>();
+          isFavorite.value = wishlistController.isFavorite(product.value!.name);
         }
       } else if (currentArgs is RestaurantItem) {
         isRestaurantClosed.value = !currentArgs.isOpen;
@@ -49,7 +54,11 @@ class ProductDetailController extends GetxController {
   }
 
   void toggleFavorite() {
-    isFavorite.value = !isFavorite.value;
+    if (product.value != null) {
+      final wishlistController = Get.find<WishlistController>();
+      wishlistController.toggleProductFavorite(product.value!);
+      isFavorite.value = product.value!.isFavorite.value;
+    }
   }
 
   void addToCart() {
@@ -61,7 +70,20 @@ class ProductDetailController extends GetxController {
       );
       return;
     }
-    Get.snackbar('Success', 'Item added to cart');
+    
+    if (product.value != null) {
+      final cartController = Get.find<CartController>();
+      cartController.addItem(
+        id: product.value!.id,
+        name: product.value!.name,
+        type: product.value!.type,
+        isVeg: product.value!.isVeg,
+        oldPrice: product.value!.oldPrice,
+        newPrice: product.value!.newPrice,
+        image: product.value!.image,
+        quantity: quantity.value,
+      );
+    }
   }
 
   Future<void> placeOrder() async {

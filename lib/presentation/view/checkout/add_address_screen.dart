@@ -12,59 +12,61 @@ class AddAddressScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: CustomAppBar(
-        title: 'Add Address',
-        showBackButton: true,
-      ),
-      body: SafeArea(
-        child: Form(
-          key: controller.formKey,
-          child: Stack(
-            children: [
-              SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-                physics: const BouncingScrollPhysics(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildInputField('Full Name', controller.nameController),
-                    const SizedBox(height: 16),
-                    _buildInputField('Phone number', controller.phoneController, keyboardType: TextInputType.phone),
-                    const SizedBox(height: 16),
-                    _buildInputField('Pincode', controller.pincodeController, keyboardType: TextInputType.number),
-                    const SizedBox(height: 16),
-                    _buildInputField('Address', controller.addressController, maxLines: 4),
-                    const SizedBox(height: 16),
-                    _buildInputField('Landmark (Optional)', controller.landmarkController),
-                    const SizedBox(height: 16),
-                    _buildInputField('City', controller.cityController),
-                    const SizedBox(height: 16),
-                    _buildInputField('State', controller.stateController),
-                    const SizedBox(height: 16),
-                    _buildInputField('Location Type', controller.locationTypeController),
-                    
-                    // Space for bottom button
-                    const SizedBox(height: 100),
-                  ],
+    return Obx(
+      () => Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: CustomAppBar(
+          title: controller.isEdit.value ? 'Edit Address' : 'Add Address',
+          showBackButton: true,
+        ),
+        body: SafeArea(
+          child: Form(
+            key: controller.formKey,
+            child: Stack(
+              children: [
+                SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildInputField('Full Name', controller.nameController),
+                      const SizedBox(height: 16),
+                      _buildInputField('Phone number', controller.phoneController, keyboardType: TextInputType.phone),
+                      const SizedBox(height: 16),
+                      _buildInputField('Pincode', controller.pincodeController, keyboardType: TextInputType.number),
+                      const SizedBox(height: 16),
+                      _buildInputField('Address', controller.addressController, maxLines: 4),
+                      const SizedBox(height: 16),
+                      _buildInputField('Landmark (Optional)', controller.landmarkController),
+                      const SizedBox(height: 16),
+                      _buildInputField('City', controller.cityController),
+                      const SizedBox(height: 16),
+                      _buildInputField('State', controller.stateController),
+                      const SizedBox(height: 16),
+                      _buildInputField('Location Type', controller.locationTypeController),
+                      
+                      // Space for bottom button
+                      const SizedBox(height: 100),
+                    ],
+                  ),
                 ),
-              ),
-              
-              // Save Button at bottom
-              Positioned(
-                left: 24,
-                right: 24,
-                bottom: 24,
-                child: CustomButton(
-                  text: 'Save Address',
-                  onPressed: controller.saveAddress,
-                  height: 56,
-                  backgroundColor: AppColors.primary,
-                  borderRadius: 12,
+                
+                // Save Button at bottom
+                Positioned(
+                  left: 24,
+                  right: 24,
+                  bottom: 24,
+                  child: CustomButton(
+                    text: controller.isEdit.value ? 'Update Address' : 'Save Address',
+                    onPressed: controller.saveAddress,
+                    height: 56,
+                    backgroundColor: AppColors.primary,
+                    borderRadius: 12,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

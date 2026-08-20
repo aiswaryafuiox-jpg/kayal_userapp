@@ -9,7 +9,7 @@ import 'package:kayal_userapp/presentation/widgets/custom_buttom.dart';
 class CartScreen extends StatelessWidget {
   CartScreen({super.key});
 
-  final CartController controller = Get.put(CartController());
+  final CartController controller = Get.find<CartController>();
 
   @override
   Widget build(BuildContext context) {

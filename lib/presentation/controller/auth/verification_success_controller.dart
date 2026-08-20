@@ -35,18 +35,28 @@ class VerificationSuccessController extends GetxController
     ).animate(curvedAnimation);
 
     animationController.forward();
+    _saveLoginStatus();
     _homeTimer = Timer(const Duration(seconds: 5), () async {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('isLoggedIn', true);
-      
       final arguments = Get.arguments;
       if (arguments is Map && arguments['redirect'] != null) {
         final String redirectRoute = arguments['redirect'];
-        Get.offAllNamed<void>(redirectRoute);
+        if (redirectRoute == AppRoutes.home && arguments['tab'] != null) {
+          Get.offAllNamed<void>(
+            redirectRoute,
+            arguments: {'tab': arguments['tab']},
+          );
+        } else {
+          Get.offAllNamed<void>(redirectRoute);
+        }
       } else {
         Get.offAllNamed<void>(AppRoutes.location);
       }
     });
+  }
+
+  Future<void> _saveLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isLoggedIn', true);
   }
 
   @override

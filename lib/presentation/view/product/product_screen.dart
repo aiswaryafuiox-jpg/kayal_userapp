@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:kayal_userapp/core/const/app_images.dart';
+import 'package:kayal_userapp/presentation/controller/cart_controller.dart';
 import 'package:kayal_userapp/presentation/controller/product_controller.dart';
 import 'package:kayal_userapp/presentation/view/product/widgets/product_card.dart';
 import 'package:kayal_userapp/presentation/widgets/app_bar.dart';
@@ -30,11 +33,41 @@ class ProductScreen extends StatelessWidget {
                     color: Color(0xFFFF823E),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
-                    Icons.shopping_bag_outlined,
-                    color: Colors.white,
-                    size: 22,
-                  ),
+                  child: Obx(() {
+                    final cartController = Get.find<CartController>();
+                    final count = cartController.cartItems.fold<int>(
+                      0,
+                      (sum, item) => sum + item.quantity.value,
+                    );
+                    return Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        SvgPicture.asset(
+                          carticon,
+                          width: 22,
+                          height: 22,
+                          colorFilter: const ColorFilter.mode(
+                            Colors.white,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                        if (count > 0)
+                          Positioned(
+                            right: 7,
+                            top: 5,
+                            child: Text(
+                              '$count',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                                height: 1.0,
+                              ),
+                            ),
+                          ),
+                      ],
+                    );
+                  }),
                 ),
               ),
             ),

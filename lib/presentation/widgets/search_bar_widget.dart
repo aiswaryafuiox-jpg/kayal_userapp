@@ -23,21 +23,31 @@ class SearchBarWidget extends StatelessWidget {
                 ),
               ],
             ),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search Your Favorites Here !!',
-                hintStyle: const TextStyle(
-                  fontSize: 11,
-                  color: Color(0xFF777777),
-                ),
-                prefixIcon: const Icon(
+            child: Row(
+              children: [
+                const SizedBox(width: 16),
+                const Icon(
                   Icons.search,
                   color: Color(0xFFFF6F2C),
-                  size: 19,
+                  size: 20,
                 ),
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(vertical: 14),
-              ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: TextField(
+                    textAlignVertical: TextAlignVertical.center,
+                    decoration: const InputDecoration(
+                      hintText: 'Search Your Favorites Here !!',
+                      hintStyle: TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF777777),
+                      ),
+                      border: InputBorder.none,
+                      isDense: true,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),

@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:kayal_userapp/core/const/app_images.dart';
 import 'package:kayal_userapp/presentation/view/track_order/view_order_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OrderItem {
   final String title;
@@ -24,11 +25,18 @@ class OrderItem {
 
 class OrdersController extends GetxController {
   final ordersList = <OrderItem>[].obs;
+  final isLoggedIn = false.obs;
 
   @override
   void onInit() {
     super.onInit();
+    checkLoginStatus();
     fetchOrders();
+  }
+
+  Future<void> checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    isLoggedIn.value = prefs.getBool('isLoggedIn') ?? false;
   }
 
   void fetchOrders() {

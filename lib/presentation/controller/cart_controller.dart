@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kayal_userapp/core/const/app_images.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
@@ -72,6 +73,42 @@ class CartController extends GetxController {
         quantity: 1,
       ),
     ]);
+  }
+
+  void addItem({
+    required String id,
+    required String name,
+    required String type,
+    required bool isVeg,
+    required double oldPrice,
+    required double newPrice,
+    required String image,
+    int quantity = 1,
+  }) {
+    final index = cartItems.indexWhere((item) => item.name == name);
+    if (index != -1) {
+      cartItems[index].quantity.value += quantity;
+    } else {
+      cartItems.add(
+        CartItemModel(
+          id: id,
+          name: name,
+          type: type,
+          isVeg: isVeg,
+          oldPrice: oldPrice,
+          newPrice: newPrice,
+          image: image,
+          quantity: quantity,
+        ),
+      );
+    }
+    Get.snackbar(
+      'Cart',
+      '$name added to cart.',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: const Color(0xFFFFEBDC),
+      colorText: const Color(0xFF1F2937),
+    );
   }
 
   void incrementQuantity(int index) {

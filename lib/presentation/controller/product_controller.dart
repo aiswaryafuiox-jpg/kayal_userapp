@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 import 'package:kayal_userapp/core/const/app_images.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
 import 'package:kayal_userapp/presentation/controller/home_controller.dart';
+import 'package:kayal_userapp/presentation/controller/wishlist_controller.dart';
+import 'package:kayal_userapp/presentation/controller/cart_controller.dart';
 
 class ProductController extends GetxController {
   final products = <ProductModel>[].obs;
@@ -46,7 +48,9 @@ class ProductController extends GetxController {
   }
 
   void _loadProducts() {
-    products.assignAll([
+    final wishlistController = Get.find<WishlistController>();
+
+    final initialProducts = [
       ProductModel(
         id: '1',
         name: 'Veg Chilly Pizza',
@@ -101,14 +105,21 @@ class ProductController extends GetxController {
         newPrice: 150,
         image: productImg6,
       ),
-    ]);
+    ];
+
+    for (var product in initialProducts) {
+      product.isFavorite.value = wishlistController.isFavorite(product.name);
+    }
+
+    products.assignAll(initialProducts);
   }
 
   void toggleFavorite(String id) {
     final index = products.indexWhere((p) => p.id == id);
     if (index != -1) {
       final product = products[index];
-      product.isFavorite.value = !product.isFavorite.value;
+      final wishlistController = Get.find<WishlistController>();
+      wishlistController.toggleProductFavorite(product);
     }
   }
 
@@ -121,11 +132,22 @@ class ProductController extends GetxController {
       );
       return;
     }
-    Get.snackbar(
-      'Cart',
-      'Item added to cart',
-      snackPosition: SnackPosition.BOTTOM,
-    );
+    
+    final index = products.indexWhere((p) => p.id == id);
+    if (index != -1) {
+      final product = products[index];
+      final cartController = Get.find<CartController>();
+      cartController.addItem(
+        id: product.id,
+        name: product.name,
+        type: product.type,
+        isVeg: product.isVeg,
+        oldPrice: product.oldPrice,
+        newPrice: product.newPrice,
+        image: product.image,
+        quantity: 1,
+      );
+    }
   }
   
   void openFilter() {

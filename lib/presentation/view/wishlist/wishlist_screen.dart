@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kayal_userapp/core/const/app_color.dart';
 import 'package:kayal_userapp/presentation/controller/wishlist_controller.dart';
+import 'package:kayal_userapp/presentation/controller/cart_controller.dart';
 import 'package:kayal_userapp/presentation/widgets/app_bar.dart';
 import 'package:kayal_userapp/presentation/view/wishlist/widgets/wishlist_product_card.dart';
 
@@ -12,7 +13,7 @@ class WishlistScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(WishlistController());
+    final controller = Get.find<WishlistController>();
     final bool shouldShowBack = showBackButton ??
         (Get.arguments is Map
             ? (Get.arguments['showBackButton'] ?? false)
@@ -48,7 +49,17 @@ class WishlistScreen extends StatelessWidget {
               item: item,
               onFavoriteTap: () => controller.toggleFavorite(index),
               onAddTap: () {
-                // Handle add to cart functionality
+                final cartController = Get.find<CartController>();
+                cartController.addItem(
+                  id: index.toString(),
+                  name: item.title,
+                  type: item.type,
+                  isVeg: item.isVeg,
+                  oldPrice: item.originalPrice,
+                  newPrice: item.price,
+                  image: item.image,
+                  quantity: 1,
+                );
               },
             );
           },

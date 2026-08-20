@@ -49,15 +49,15 @@ import 'package:kayal_userapp/presentation/view/track_order/ratings_screen.dart'
 import 'package:kayal_userapp/presentation/controller/ratings_controller.dart';
 
 import 'package:kayal_userapp/presentation/view/wishlist/wishlist_screen.dart';
-import 'package:kayal_userapp/presentation/controller/wishlist_controller.dart';
 import 'package:kayal_userapp/presentation/view/track_order/orders_screen.dart';
 import 'package:kayal_userapp/presentation/controller/orders_controller.dart';
 import 'package:kayal_userapp/presentation/view/cart/cart_screen.dart';
-import 'package:kayal_userapp/presentation/controller/cart_controller.dart';
 import 'package:kayal_userapp/presentation/view/notification/notification_screen.dart';
 import 'package:kayal_userapp/presentation/controller/notification_controller.dart';
 import 'package:kayal_userapp/presentation/view/feedback/feedback_screen.dart';
 import 'package:kayal_userapp/presentation/controller/feedback_controller.dart';
+import 'package:kayal_userapp/presentation/view/profile/help_support_screen.dart';
+import 'package:kayal_userapp/presentation/controller/help_support_controller.dart';
 
 class AppRoutes {
   static const String splash = '/splash';
@@ -87,6 +87,7 @@ class AppRoutes {
   static const String cart = '/cart';
   static const String notifications = '/notifications';
   static const String feedback = '/feedback';
+  static const String helpSupport = '/helpSupport';
   static const String orderDeliveredSuccess = '/orderDeliveredSuccess';
   static const String ratings = '/ratings';
 
@@ -214,7 +215,6 @@ class AppRoutes {
     GetPage(
       name: wishlist,
       page: () => const WishlistScreen(showBackButton: true),
-      binding: BindingsBuilder.put(WishlistController.new),
     ),
     GetPage(
       name: orders,
@@ -224,7 +224,6 @@ class AppRoutes {
     GetPage(
       name: cart,
       page: () => CartScreen(),
-      binding: BindingsBuilder.put(CartController.new),
     ),
     GetPage(
       name: notifications,
@@ -235,6 +234,11 @@ class AppRoutes {
       name: feedback,
       page: () => FeedbackScreen(),
       binding: BindingsBuilder.put(FeedbackController.new),
+    ),
+    GetPage(
+      name: helpSupport,
+      page: () => HelpSupportScreen(),
+      binding: BindingsBuilder.put(HelpSupportController.new),
     ),
   ];
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:kayal_userapp/core/const/app_color.dart';
 
 import 'package:kayal_userapp/presentation/controller/home_controller.dart';
 
@@ -32,9 +33,11 @@ class CategoryList extends StatelessWidget {
                 height: 38,
                 padding: const EdgeInsets.only(right: 10),
                 decoration: BoxDecoration(
-                  color: selected ? const Color(0xFFFFF5EF) : Colors.white,
+                  color: selected ? AppColors.primary : Colors.white,
                   borderRadius: BorderRadius.circular(22),
-                  border: Border.all(color: const Color(0xFFFF823E)),
+                  border: Border.all(
+                    color: selected ? AppColors.primary : const Color(0xFFE2E8F0),
+                  ),
                 ),
                 child: Row(
                   children: [
@@ -56,7 +59,7 @@ class CategoryList extends StatelessWidget {
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
                         color: selected
-                            ? const Color(0xFFFF6F2C)
+                            ? Colors.white
                             : const Color(0xFF252B35),
                       ),
                     ),

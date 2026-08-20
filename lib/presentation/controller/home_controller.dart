@@ -3,6 +3,7 @@ import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeController extends GetxController {
   // ==============================
@@ -42,8 +43,9 @@ class HomeController extends GetxController {
   final selectedBottomIndex = 0.obs;
   final pageController = PageController();
 
-  void changeBottomIndex(int index) {
+  Future<void> changeBottomIndex(int index) async {
     if (selectedBottomIndex.value == index) return;
+
     selectedBottomIndex.value = index;
     pageController.jumpToPage(index);
   }
@@ -89,6 +91,17 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
     startOfferTimer();
+
+    final arguments = Get.arguments;
+    if (arguments is Map && arguments['tab'] != null) {
+      final int tabIndex = arguments['tab'];
+      selectedBottomIndex.value = tabIndex;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (pageController.hasClients) {
+          pageController.jumpToPage(tabIndex);
+        }
+      });
+    }
   }
 
   void startOfferTimer() {

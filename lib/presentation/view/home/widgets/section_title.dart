@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kayal_userapp/core/const/app_color.dart';
 import 'package:kayal_userapp/core/utils/helper/texthelper.dart';
 
 class SectionTitle extends StatelessWidget {
@@ -19,18 +20,20 @@ class SectionTitle extends StatelessWidget {
           ),
           const Spacer(),
 
-          GestureDetector(
-            onTap: onTap,
-            child: const Text(
-              'View',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFFFF6F2C),
-                decoration: TextDecoration.underline,
+          if (onTap != null)
+            GestureDetector(
+              onTap: onTap,
+              child: const Text(
+                'View',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primary,
+                  decoration: TextDecoration.underline,
+                  decorationColor: AppColors.primary,
+                ),
               ),
             ),
-          ),
         ],
       ),
     );

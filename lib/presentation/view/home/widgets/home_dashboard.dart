@@ -90,13 +90,13 @@ class HomeDashboardWidget extends StatelessWidget {
           const SliverToBoxAdapter(child: SizedBox(height: 20)),
           SliverToBoxAdapter(
             child: SectionTitle(
-              title: 'My Offer',
-              onTap: controller.viewOffers,
+              title: 'Near Me',
+              // onTap: controller.viewOffers,
             ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 7)),
-          const SliverToBoxAdapter(child: OfferTimer()),
-          const SliverToBoxAdapter(child: SizedBox(height: 10)),
+          // const SliverToBoxAdapter(child: OfferTimer()),
+          // const SliverToBoxAdapter(child: SizedBox(height: 10)),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),

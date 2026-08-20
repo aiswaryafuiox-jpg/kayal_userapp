@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:kayal_userapp/core/const/app_images.dart';
 import 'package:kayal_userapp/presentation/controller/product_detail_controller.dart';
@@ -333,14 +334,20 @@ class ProductDetailScreen extends StatelessWidget {
                           child: Container(
                             width: 56,
                             height: 56,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFFECE0),
-                              borderRadius: BorderRadius.circular(16),
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFFFECE0),
+                              shape: BoxShape.circle,
                             ),
-                            child: const Icon(
-                              Icons.shopping_cart_outlined,
-                              color: Color(0xFFFF823E),
-                              size: 28,
+                            child: Center(
+                              child: SvgPicture.asset(
+                                carticon,
+                                width: 24,
+                                height: 24,
+                                colorFilter: const ColorFilter.mode(
+                                  Color(0xFFFF823E),
+                                  BlendMode.srcIn,
+                                ),
+                              ),
                             ),
                           ),
                         ),

@@ -19,7 +19,14 @@ class CheckoutController extends GetxController {
   }
 
   void editAddress(int index) {
-    Get.snackbar('Edit', 'Edit address tapped for ${addresses[index]['type']}');
+    Get.toNamed(
+      '/addAddress',
+      arguments: {
+        'index': index,
+        'address': addresses[index],
+        'isEdit': true,
+      },
+    );
   }
 
   void addNewAddress() {
