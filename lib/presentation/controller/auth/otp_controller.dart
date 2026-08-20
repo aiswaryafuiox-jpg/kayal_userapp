@@ -74,7 +74,7 @@ class OtpController extends GetxController {
       return;
     }
 
-    Get.offNamed<void>(AppRoutes.location);
+    Get.offNamed<void>(AppRoutes.verificationSuccess);
   }
 
   void resendOtp() {
@@ -115,7 +115,6 @@ class OtpController extends GetxController {
   void onClose() {
     _timer?.cancel();
     otpFocusNode.removeListener(_handleFocusChange);
-    otpController.dispose();
     otpFocusNode.dispose();
     super.onClose();
   }

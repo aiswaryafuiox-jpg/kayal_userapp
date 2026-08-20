@@ -9,13 +9,15 @@ class RestaurantCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isOpen = restaurant.isOpen;
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(7),
+        borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -34,16 +36,19 @@ class RestaurantCard extends StatelessWidget {
                   topLeft: Radius.circular(8),
                   topRight: Radius.circular(8),
                 ),
-                child: Image.asset(
-                  restaurant.image,
-                  width: double.infinity,
-                  height: 145,
-                  fit: BoxFit.cover,
+                child: Opacity(
+                  opacity: isOpen ? 1.0 : 0.45,
+                  child: Image.asset(
+                    restaurant.image,
+                    width: double.infinity,
+                    height: 145,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
 
-              // FREE DELIVERY
-              if (restaurant.isOpen)
+              // FREE DELIVERY BADGE
+              if (isOpen)
                 Positioned(
                   left: 10,
                   bottom: 10,
@@ -76,10 +81,12 @@ class RestaurantCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 6),
             child: Text(
               restaurant.name,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF252B35),
+                color: isOpen
+                    ? const Color(0xFF252B35)
+                    : const Color(0xFF8C9199),
               ),
             ),
           ),
@@ -91,11 +98,19 @@ class RestaurantCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Row(
               children: [
-                _detailItem(Icons.restaurant_menu, restaurant.cuisine),
+                _detailItem(
+                  Icons.restaurant_menu,
+                  restaurant.cuisine,
+                  isOpen: isOpen,
+                ),
 
                 const SizedBox(width: 16),
 
-                _detailItem(Icons.access_time, restaurant.deliveryTime),
+                _detailItem(
+                  Icons.access_time,
+                  restaurant.deliveryTime,
+                  isOpen: isOpen,
+                ),
               ],
             ),
           ),
@@ -106,61 +121,95 @@ class RestaurantCard extends StatelessWidget {
           // STATUS
           // ==========================
           Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 12, 9),
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
             child: Row(
               children: [
                 Icon(
-                  restaurant.isOpen ? Icons.circle_outlined : Icons.access_time,
-                  size: 12,
-                  color: restaurant.isOpen ? Colors.green : Colors.red,
+                  Icons.access_time,
+                  size: 13,
+                  color: isOpen
+                      ? const Color(0xFF22C55E)
+                      : const Color(0xFFFF383C),
                 ),
 
                 const SizedBox(width: 4),
 
                 Text(
-                  restaurant.isOpen ? 'Open' : 'Closed',
+                  isOpen ? 'Opened' : 'Closed',
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
-                    color: restaurant.isOpen ? Colors.green : Colors.red,
+                    color: isOpen
+                        ? const Color(0xFF22C55E)
+                        : const Color(0xFFFF383C),
                   ),
                 ),
 
-                const SizedBox(width: 8),
+                const SizedBox(width: 6),
 
-                const Text('|', style: TextStyle(color: Colors.grey)),
+                const Text(
+                  '|',
+                  style: TextStyle(
+                    color: Color(0xFFD1D5DB),
+                    fontSize: 10,
+                  ),
+                ),
 
-                const SizedBox(width: 8),
+                const SizedBox(width: 6),
 
                 Text(
                   restaurant.openingTime,
-                  style: const TextStyle(fontSize: 9, color: Color(0xFF555555)),
+                  style: TextStyle(
+                    fontSize: 9,
+                    color: isOpen
+                        ? const Color(0xFF555555)
+                        : const Color(0xFF8C9199),
+                  ),
                 ),
 
                 const Spacer(),
 
-                const Icon(
+                Icon(
                   Icons.location_on_outlined,
-                  color: Colors.red,
-                  size: 12,
+                  color: isOpen
+                      ? const Color(0xFFFF383C)
+                      : const Color(0xFFFCA5A5),
+                  size: 13,
                 ),
 
-                const SizedBox(width: 2),
+                const SizedBox(width: 3),
+
+                Text(
+                  'Distance',
+                  style: TextStyle(
+                    color: isOpen
+                        ? const Color(0xFFFF383C)
+                        : const Color(0xFFFCA5A5),
+                    fontSize: 9,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+
+                const SizedBox(width: 6),
 
                 const Text(
-                  'Distance',
-                  style: TextStyle(color: Colors.red, fontSize: 9),
+                  '|',
+                  style: TextStyle(
+                    color: Color(0xFFD1D5DB),
+                    fontSize: 10,
+                  ),
                 ),
 
-                const SizedBox(width: 7),
-
-                const Text('|', style: TextStyle(color: Colors.grey)),
-
-                const SizedBox(width: 7),
+                const SizedBox(width: 6),
 
                 Text(
                   restaurant.distance,
-                  style: const TextStyle(fontSize: 9, color: Color(0xFF555555)),
+                  style: TextStyle(
+                    fontSize: 9,
+                    color: isOpen
+                        ? const Color(0xFF555555)
+                        : const Color(0xFF8C9199),
+                  ),
                 ),
               ],
             ),
@@ -170,14 +219,21 @@ class RestaurantCard extends StatelessWidget {
     );
   }
 
-  Widget _detailItem(IconData icon, String text) {
+  Widget _detailItem(IconData icon, String text, {required bool isOpen}) {
     return Row(
       children: [
-        Icon(icon, color: const Color(0xFFFF6F2C), size: 12),
+        Icon(
+          icon,
+          color: isOpen ? const Color(0xFFFF6F2C) : const Color(0xFFD1A996),
+          size: 12,
+        ),
         const SizedBox(width: 4),
         Text(
           text,
-          style: const TextStyle(fontSize: 10, color: Color(0xFF252B35)),
+          style: TextStyle(
+            fontSize: 10,
+            color: isOpen ? const Color(0xFF252B35) : const Color(0xFF8C9199),
+          ),
         ),
       ],
     );

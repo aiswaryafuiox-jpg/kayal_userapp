@@ -3,6 +3,8 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 
+import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
+
 class LocationConfirmController extends GetxController {
   final isLoading = false.obs;
 
@@ -58,7 +60,7 @@ class LocationConfirmController extends GetxController {
 
   void confirmLocation() {
     Get.offAllNamed(
-      '/home',
+      AppRoutes.notificationUpdate,
       arguments: {
         'latitude': position.latitude,
         'longitude': position.longitude,

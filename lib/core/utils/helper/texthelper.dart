@@ -2,24 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kayal_userapp/core/const/app_color.dart';
 
-
 class TextHelper {
   static TextStyle get heading1 {
-    return GoogleFonts.poppins(
+    return const TextStyle(
+      fontFamily: 'Poppins',
       fontSize: 18,
       fontWeight: FontWeight.w700,
       color: AppColors.textprimary,
     );
   }
   static TextStyle get heading2 {
-    return GoogleFonts.poppins(
+    return const TextStyle(
+      fontFamily: 'Poppins',
       fontSize: 14,
       fontWeight: FontWeight.w400,
       color: AppColors.textprimary,
     );
   }
    static TextStyle get heading3 {
-    return GoogleFonts.poppins(
+    return const TextStyle(
+      fontFamily: 'Poppins',
       fontSize: 20,
       fontWeight: FontWeight.w700,
       color: AppColors.textprimary,

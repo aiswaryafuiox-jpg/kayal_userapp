@@ -1,9 +1,20 @@
 import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
 
 class LiveTrackingController extends GetxController {
   final MapController mapController = MapController();
+
+  @override
+  void onInit() {
+    super.onInit();
+    Future.delayed(const Duration(seconds: 5), () {
+      if (Get.currentRoute == AppRoutes.liveTracking) {
+        Get.offNamed(AppRoutes.orderDeliveredSuccess);
+      }
+    });
+  }
 
   // Coordinates
   final LatLng restaurantLocation = const LatLng(48.0772, 7.3585); // Example location

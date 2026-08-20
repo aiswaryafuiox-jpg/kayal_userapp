@@ -103,6 +103,6 @@ class LocationController extends GetxController {
   }
 
   void notNow() {
-    Get.offAllNamed('/home');
+    Get.offAllNamed(AppRoutes.home);
   }
 }

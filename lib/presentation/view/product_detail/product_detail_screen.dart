@@ -11,6 +11,8 @@ class ProductDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    controller.updateArguments(Get.arguments);
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Stack(
@@ -21,12 +23,14 @@ class ProductDetailScreen extends StatelessWidget {
             left: 0,
             right: 0,
             height: MediaQuery.of(context).size.height * 0.55,
-            child: Image.asset(
-              productImg2,
-              fit: BoxFit.cover,
+            child: Obx(
+              () => Image.asset(
+                controller.product.value?.image ?? productImg2,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
-          
+
           // Header Buttons
           SafeArea(
             child: Padding(
@@ -42,6 +46,13 @@ class ProductDetailScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.08),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
                       child: const Icon(
                         Icons.arrow_back_ios_new,
@@ -56,9 +67,16 @@ class ProductDetailScreen extends StatelessWidget {
                       child: Container(
                         width: 44,
                         height: 44,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           color: Colors.white,
                           shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.08),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
                         child: Icon(
                           controller.isFavorite.value
@@ -81,7 +99,7 @@ class ProductDetailScreen extends StatelessWidget {
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
-              height: MediaQuery.of(context).size.height * 0.50,
+              height: MediaQuery.of(context).size.height * 0.52,
               padding: const EdgeInsets.all(24),
               decoration: const BoxDecoration(
                 color: Colors.white,
@@ -98,73 +116,87 @@ class ProductDetailScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Expanded(
-                        child: Text(
-                          'Chicken Pizza',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF252B35),
-                          ),
-                        ),
-                      ),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          const Text(
-                            '₹220',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xFF9E9E9E),
-                              decoration: TextDecoration.lineThrough,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          const Text(
-                            '₹180',
-                            style: TextStyle(
+                      Expanded(
+                        child: Obx(
+                          () => Text(
+                            controller.product.value?.name ?? 'Chicken Pizza',
+                            style: const TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.w700,
                               color: Color(0xFF252B35),
                             ),
                           ),
-                        ],
+                        ),
+                      ),
+                      Obx(
+                        () => Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              '₹${controller.product.value?.oldPrice.toInt() ?? 220}',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xFF9E9E9E),
+                                decoration: TextDecoration.lineThrough,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '₹${controller.product.value?.newPrice.toInt() ?? 180}',
+                              style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF252B35),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 12),
 
                   // Non-Veg Tag
-                  Row(
-                    children: [
-                      Container(
-                        width: 16,
-                        height: 16,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.red),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        alignment: Alignment.center,
-                        child: Container(
-                          width: 8,
-                          height: 8,
-                          decoration: const BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
+                  Obx(
+                    () => Row(
+                      children: [
+                        Container(
+                          width: 16,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color:
+                                  (controller.product.value?.isVeg ?? false)
+                                      ? Colors.green
+                                      : Colors.red,
+                            ),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          alignment: Alignment.center,
+                          child: Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color:
+                                  (controller.product.value?.isVeg ?? false)
+                                      ? Colors.green
+                                      : Colors.red,
+                              shape: BoxShape.circle,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'Non-Veg',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF6B7280),
+                        const SizedBox(width: 8),
+                        Text(
+                          controller.product.value?.type ?? 'Non-Veg',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF6B7280),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 12),
 
@@ -200,7 +232,7 @@ class ProductDetailScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 18),
 
                   // Description
                   const Text(
@@ -211,12 +243,12 @@ class ProductDetailScreen extends StatelessWidget {
                       color: Color(0xFF252B35),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   const Expanded(
                     child: SingleChildScrollView(
                       physics: BouncingScrollPhysics(),
                       child: Text(
-                        "Our Chicken Burger is made with a crispy, golden-fried chicken fillet served in a soft toasted bun. Layered with fresh lettuce, juicy tomatoes, creamy mayonnaise, and melted cheese, every bite is packed with rich flavor. It's the perfect choice for a delicious and satisfying meal.",
+                        "Our Chicken Burger is made with a crispy, golden-fried chicken fillet served in a soft toasted bun. Layered with fresh lettuce, juicy tomatoes, creamy mayonnaise, and melted cheese, every bite is packed with rich flavor.  it's the perfect choice for a delicious and satisfying meal.",
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
@@ -228,8 +260,8 @@ class ProductDetailScreen extends StatelessWidget {
                   ),
 
                   // Bottom Section
-                  const SizedBox(height: 16),
-                  
+                  const SizedBox(height: 14),
+
                   // Quantity
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -242,24 +274,29 @@ class ProductDetailScreen extends StatelessWidget {
                           color: Color(0xFF252B35),
                         ),
                       ),
-                      Container(
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFF823E),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            GestureDetector(
-                              onTap: controller.decrementQuantity,
-                              child: const Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 12),
-                                child: Icon(Icons.remove, color: Colors.white, size: 16),
+                      Obx(
+                        () => Container(
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFF823E),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              GestureDetector(
+                                onTap: controller.decrementQuantity,
+                                child: const Padding(
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 12),
+                                  child: Icon(
+                                    Icons.remove,
+                                    color: Colors.white,
+                                    size: 16,
+                                  ),
+                                ),
                               ),
-                            ),
-                            Obx(
-                              () => Text(
+                              Text(
                                 '${controller.quantity.value}',
                                 style: const TextStyle(
                                   fontSize: 14,
@@ -267,51 +304,62 @@ class ProductDetailScreen extends StatelessWidget {
                                   color: Colors.white,
                                 ),
                               ),
-                            ),
-                            GestureDetector(
-                              onTap: controller.incrementQuantity,
-                              child: const Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 12),
-                                child: Icon(Icons.add, color: Colors.white, size: 16),
+                              GestureDetector(
+                                onTap: controller.incrementQuantity,
+                                child: const Padding(
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 12),
+                                  child: Icon(
+                                    Icons.add,
+                                    color: Colors.white,
+                                    size: 16,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 18),
 
                   // Buttons
-                  Row(
-                    children: [
-                      GestureDetector(
-                        onTap: controller.addToCart,
-                        child: Container(
-                          width: 56,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFF3ED),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: const Icon(
-                            Icons.shopping_cart_outlined,
-                            color: Color(0xFFFF823E),
-                            size: 28,
+                  Obx(
+                    () => Row(
+                      children: [
+                        GestureDetector(
+                          onTap: controller.addToCart,
+                          child: Container(
+                            width: 56,
+                            height: 56,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFECE0),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: const Icon(
+                              Icons.shopping_cart_outlined,
+                              color: Color(0xFFFF823E),
+                              size: 28,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: CustomButton(
-                          text: 'Place Order',
-                          onPressed: controller.placeOrder,
-                          height: 56,
-                          backgroundColor: const Color(0xFFFF823E),
-                          borderRadius: 16,
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: CustomButton(
+                            text: 'Place Order',
+                            onPressed: controller.placeOrder,
+                            height: 56,
+                            backgroundColor:
+                                controller.isRestaurantClosed.value
+                                    ? const Color(0xFFFFDECD)
+                                    : const Color(0xFFFF823E),
+                            textColor: Colors.white,
+                            borderRadius: 16,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),

@@ -5,11 +5,13 @@ class CategoryGrid extends StatelessWidget {
   const CategoryGrid({
     required this.categories,
     required this.onCategoryTap,
+    this.isClosed = false,
     super.key,
   });
 
   final List<Map<String, String>> categories;
   final Function(String) onCategoryTap;
+  final bool isClosed;
 
   @override
   Widget build(BuildContext context) {
@@ -30,17 +32,13 @@ class CategoryGrid extends StatelessWidget {
         24,
         0,
         24,
-        20,
+        100,
       ),
       itemCount: categories.length,
-      gridDelegate:
-          const SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-
         crossAxisSpacing: 20,
-
         mainAxisSpacing: 14,
-
         childAspectRatio: 0.92,
       ),
       itemBuilder: (context, index) {
@@ -49,6 +47,7 @@ class CategoryGrid extends StatelessWidget {
         return CategoryCard(
           name: category['name']!,
           image: category['image']!,
+          isClosed: isClosed,
           onTap: () {
             onCategoryTap(
               category['name']!,

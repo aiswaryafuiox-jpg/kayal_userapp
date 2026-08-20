@@ -1,11 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kayal_userapp/core/const/app_images.dart';
+import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
+import 'package:kayal_userapp/presentation/controller/home_controller.dart';
 
 class CategoryController extends GetxController {
   final searchController = TextEditingController();
 
   final searchText = ''.obs;
+  final isRestaurantClosed = false.obs;
+  final closedNotes =
+      'This restaurant is currently unavailable.\nOpens today 10:00 AM'.obs;
+  dynamic restaurantData;
+
+  @override
+  void onInit() {
+    super.onInit();
+    updateArguments(Get.arguments);
+  }
+
+  void updateArguments([dynamic args]) {
+    final currentArgs = args ?? Get.arguments;
+    if (currentArgs != null) {
+      restaurantData = currentArgs;
+      if (currentArgs is RestaurantItem) {
+        isRestaurantClosed.value = !currentArgs.isOpen;
+        if (!currentArgs.isOpen) {
+          closedNotes.value =
+              'This restaurant is currently unavailable.\n${currentArgs.openingTime}';
+        }
+      } else if (currentArgs is Map) {
+        if (currentArgs['isClosed'] != null) {
+          isRestaurantClosed.value = currentArgs['isClosed'] == true;
+        }
+        if (currentArgs['notes'] != null) {
+          closedNotes.value = currentArgs['notes'];
+        }
+        if (currentArgs['restaurant'] != null &&
+            currentArgs['restaurant'] is RestaurantItem) {
+          final RestaurantItem r = currentArgs['restaurant'];
+          isRestaurantClosed.value = !r.isOpen;
+          if (!r.isOpen) {
+            closedNotes.value =
+                'This restaurant is currently unavailable.\n${r.openingTime}';
+          }
+        }
+      }
+    }
+  }
 
   final categories = <Map<String, String>>[
     {
@@ -72,7 +114,15 @@ class CategoryController extends GetxController {
     debugPrint('Selected category: $category');
 
     // Navigate to product listing
-    Get.toNamed('/product');
+    Get.toNamed(
+      AppRoutes.product,
+      arguments: {
+        'category': category,
+        'isClosed': isRestaurantClosed.value,
+        'notes': closedNotes.value,
+        'restaurant': restaurantData,
+      },
+    );
   }
 
   void goBack() {

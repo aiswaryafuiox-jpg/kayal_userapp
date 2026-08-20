@@ -250,118 +250,118 @@ class TrackOrderScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
 
-                  // Tips Card
-                  Obx(() {
-                    if (controller.tipAmount.value > 0) {
-                      return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFDCFCE7),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 48,
-                              height: 48,
-                              decoration: BoxDecoration(
-                                color: AppColors.green,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              alignment: Alignment.center,
-                              child: const Icon(
-                                Icons.check,
-                                color: Colors.white,
-                                size: 24,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Tip Added',
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.grey,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Thank you your tip of \$${controller.tipAmount.value} has been sent',
-                                    style: const TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      color: Color(0xFF6B7280),
-                                      height: 1.4,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
+                  // // Tips Card
+                  // Obx(() {
+                  //   if (controller.tipAmount.value > 0) {
+                  //     return Container(
+                  //       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                  //       decoration: BoxDecoration(
+                  //         color: const Color(0xFFDCFCE7),
+                  //         borderRadius: BorderRadius.circular(16),
+                  //       ),
+                  //       child: Row(
+                  //         children: [
+                  //           Container(
+                  //             width: 48,
+                  //             height: 48,
+                  //             decoration: BoxDecoration(
+                  //               color: AppColors.green,
+                  //               borderRadius: BorderRadius.circular(12),
+                  //             ),
+                  //             alignment: Alignment.center,
+                  //             child: const Icon(
+                  //               Icons.check,
+                  //               color: Colors.white,
+                  //               size: 24,
+                  //             ),
+                  //           ),
+                  //           const SizedBox(width: 16),
+                  //           Expanded(
+                  //             child: Column(
+                  //               crossAxisAlignment: CrossAxisAlignment.start,
+                  //               children: [
+                  //                 const Text(
+                  //                   'Tip Added',
+                  //                   style: TextStyle(
+                  //                     fontSize: 15,
+                  //                     fontWeight: FontWeight.w700,
+                  //                     color: AppColors.grey,
+                  //                   ),
+                  //                 ),
+                  //                 const SizedBox(height: 4),
+                  //                 Text(
+                  //                   'Thank you your tip of \$${controller.tipAmount.value} has been sent',
+                  //                   style: const TextStyle(
+                  //                     fontSize: 13,
+                  //                     fontWeight: FontWeight.w500,
+                  //                     color: Color(0xFF6B7280),
+                  //                     height: 1.4,
+                  //                   ),
+                  //                 ),
+                  //               ],
+                  //             ),
+                  //           ),
+                  //         ],
+                  //       ),
+                  //     );
+                  //   }
                     
-                    return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                      decoration: BoxDecoration(
-                        color: AppColors.checkoutbackground,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Row(
-                        children: [
-                          GestureDetector(
-                            onTap: controller.addTip,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: const Text(
-                                'Add Tips',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.primary,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          const Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Enjoying our service',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.grey,
-                                  ),
-                                ),
-                                SizedBox(height: 4),
-                                Text(
-                                  'Thank you delivery partner with a tip',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    color: Color(0xFF6B7280),
-                                    height: 1.4,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
+                  //   return Container(
+                  //     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                  //     decoration: BoxDecoration(
+                  //       color: AppColors.checkoutbackground,
+                  //       borderRadius: BorderRadius.circular(16),
+                  //     ),
+                  //     child: Row(
+                  //       children: [
+                  //         GestureDetector(
+                  //           onTap: controller.addTip,
+                  //           child: Container(
+                  //             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  //             decoration: BoxDecoration(
+                  //               color: Colors.white,
+                  //               borderRadius: BorderRadius.circular(8),
+                  //             ),
+                  //             child: const Text(
+                  //               'Add Tips',
+                  //               style: TextStyle(
+                  //                 fontSize: 14,
+                  //                 fontWeight: FontWeight.w700,
+                  //                 color: AppColors.primary,
+                  //               ),
+                  //             ),
+                  //           ),
+                  //         ),
+                  //         const SizedBox(width: 16),
+                  //         const Expanded(
+                  //           child: Column(
+                  //             crossAxisAlignment: CrossAxisAlignment.start,
+                  //             children: [
+                  //               Text(
+                  //                 'Enjoying our service',
+                  //                 style: TextStyle(
+                  //                   fontSize: 14,
+                  //                   fontWeight: FontWeight.w700,
+                  //                   color: AppColors.grey,
+                  //                 ),
+                  //               ),
+                  //               SizedBox(height: 4),
+                  //               Text(
+                  //                 'Thank you delivery partner with a tip',
+                  //                 style: TextStyle(
+                  //                   fontSize: 12,
+                  //                   fontWeight: FontWeight.w500,
+                  //                   color: Color(0xFF6B7280),
+                  //                   height: 1.4,
+                  //                 ),
+                  //               ),
+                  //             ],
+                  //           ),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   );
+                  // }),
 
                   // Space for bottom button
                   const SizedBox(height: 100),

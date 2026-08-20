@@ -1,14 +1,48 @@
 import 'package:get/get.dart';
 import 'package:kayal_userapp/core/const/app_images.dart';
+import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
+import 'package:kayal_userapp/presentation/controller/home_controller.dart';
 
 class ProductController extends GetxController {
-  
   final products = <ProductModel>[].obs;
-  
+  final isRestaurantClosed = false.obs;
+  final closedNotes =
+      'This restaurant is currently unavailable.\nOpens today at 10:00 AM'.obs;
+
   @override
   void onInit() {
     super.onInit();
+    updateArguments(Get.arguments);
     _loadProducts();
+  }
+
+  void updateArguments([dynamic args]) {
+    final currentArgs = args ?? Get.arguments;
+    if (currentArgs != null) {
+      if (currentArgs is RestaurantItem) {
+        isRestaurantClosed.value = !currentArgs.isOpen;
+        if (!currentArgs.isOpen) {
+          closedNotes.value =
+              'This restaurant is currently unavailable.\n${currentArgs.openingTime}';
+        }
+      } else if (currentArgs is Map) {
+        if (currentArgs['isClosed'] != null) {
+          isRestaurantClosed.value = currentArgs['isClosed'] == true;
+        }
+        if (currentArgs['notes'] != null) {
+          closedNotes.value = currentArgs['notes'];
+        }
+        if (currentArgs['restaurant'] != null &&
+            currentArgs['restaurant'] is RestaurantItem) {
+          final RestaurantItem r = currentArgs['restaurant'];
+          isRestaurantClosed.value = !r.isOpen;
+          if (!r.isOpen) {
+            closedNotes.value =
+                'This restaurant is currently unavailable.\n${r.openingTime}';
+          }
+        }
+      }
+    }
   }
 
   void _loadProducts() {
@@ -79,6 +113,14 @@ class ProductController extends GetxController {
   }
 
   void addToCart(String id) {
+    if (isRestaurantClosed.value) {
+      Get.snackbar(
+        'Restaurant Unavailable',
+        'Cannot add items to cart while restaurant is closed.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
     Get.snackbar(
       'Cart',
       'Item added to cart',
@@ -95,11 +137,7 @@ class ProductController extends GetxController {
   }
   
   void viewCart() {
-    Get.snackbar(
-      'Cart',
-      'Navigating to cart...',
-      snackPosition: SnackPosition.BOTTOM,
-    );
+    Get.toNamed(AppRoutes.cart);
   }
 }
 

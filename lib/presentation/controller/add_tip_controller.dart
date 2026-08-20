@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
 import 'package:kayal_userapp/presentation/controller/track_order_controller.dart';
 
 class AddTipController extends GetxController {
@@ -38,7 +39,7 @@ class AddTipController extends GetxController {
       Get.find<TrackOrderController>().tipAmount.value = tip;
     }
 
-    // Unconditionally go to Track Order Screen with a forward navigation
-    Get.toNamed('/trackOrder', arguments: {'tip': tip});
+    // Go to Ratings (Review) Screen
+    Get.toNamed(AppRoutes.ratings);
   }
 }

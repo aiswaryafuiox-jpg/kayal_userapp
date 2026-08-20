@@ -40,16 +40,12 @@ class HomeController extends GetxController {
   // ==============================
 
   final selectedBottomIndex = 0.obs;
+  final pageController = PageController();
 
   void changeBottomIndex(int index) {
     if (selectedBottomIndex.value == index) return;
     selectedBottomIndex.value = index;
-
-    if (index == 0) {
-      Get.offAllNamed(AppRoutes.home);
-    } else if (index == 1) {
-      Get.offAllNamed(AppRoutes.category);
-    }
+    pageController.jumpToPage(index);
   }
 
   // ==============================
@@ -72,7 +68,7 @@ class HomeController extends GetxController {
       cuisine: 'Italian Pizza',
       deliveryTime: '25-30 mins',
       distance: '2.8 Km',
-      openingTime: '10:00 Am - 11:00 Pm',
+      openingTime: 'Opens at - 10:00 Am',
       isOpen: false,
     ),
   ];
@@ -119,6 +115,7 @@ class HomeController extends GetxController {
   @override
   void onClose() {
     _timer?.cancel();
+    pageController.dispose();
     super.onClose();
   }
 
@@ -127,7 +124,7 @@ class HomeController extends GetxController {
   // ==============================
 
   void openNotifications() {
-    debugPrint('Notification clicked');
+    Get.toNamed(AppRoutes.notifications);
   }
 
   void openFavorites() {
@@ -138,8 +135,16 @@ class HomeController extends GetxController {
     debugPrint('Profile clicked');
   }
 
+  void viewCategories() {
+    changeBottomIndex(1);
+  }
+
   void viewAllRestaurants() {
-    debugPrint('View all restaurants');
+    Get.toNamed(AppRoutes.popularNearYou);
+  }
+
+  void onRestaurantTap(RestaurantItem restaurant) {
+    Get.toNamed(AppRoutes.category, arguments: restaurant);
   }
 
   void viewOffers() {
