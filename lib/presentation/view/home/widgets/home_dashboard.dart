@@ -4,7 +4,6 @@ import 'package:kayal_userapp/presentation/controller/home_controller.dart';
 import 'package:kayal_userapp/presentation/view/home/widgets/banner_slider.dart';
 import 'package:kayal_userapp/presentation/view/home/widgets/category_list.dart';
 import 'package:kayal_userapp/presentation/view/home/widgets/home_header.dart';
-import 'package:kayal_userapp/presentation/view/home/widgets/offer_timer.dart';
 import 'package:kayal_userapp/presentation/view/home/widgets/restaurant_card.dart';
 import 'package:kayal_userapp/presentation/view/home/widgets/section_title.dart';
 import 'package:kayal_userapp/presentation/widgets/search_bar_widget.dart';
@@ -61,55 +60,61 @@ class HomeDashboardWidget extends StatelessWidget {
             ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 10)),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            sliver: SliverList(
-               delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final restaurant = controller.restaurants[index];
-                  return Padding(
-                    padding: EdgeInsets.only(
-                      bottom: index == controller.restaurants.length - 1
-                          ? 0
-                          : 14,
-                    ),
-                    child: RepaintBoundary(
-                      child: GestureDetector(
-                        onTap: () => controller.onRestaurantTap(restaurant),
-                        child: RestaurantCard(
-                          restaurant: restaurant,
+          Obx(
+            () => SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final restaurant = controller.restaurants[index];
+                    return Padding(
+                      padding: EdgeInsets.only(
+                        bottom: index == controller.restaurants.length - 1
+                            ? 0
+                            : 14,
+                      ),
+                      child: RepaintBoundary(
+                        child: GestureDetector(
+                          onTap: () => controller.onRestaurantTap(restaurant),
+                          child: RestaurantCard(
+                            restaurant: restaurant,
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                },
-                childCount: controller.restaurants.length,
+                    );
+                  },
+                  childCount: controller.restaurants.length,
+                ),
               ),
             ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 20)),
-          SliverToBoxAdapter(
+          const SliverToBoxAdapter(
             child: SectionTitle(
               title: 'Near Me',
-              // onTap: controller.viewOffers,
             ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 7)),
-          // const SliverToBoxAdapter(child: OfferTimer()),
-          // const SliverToBoxAdapter(child: SizedBox(height: 10)),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: RepaintBoundary(
-                child: GestureDetector(
-                  onTap: () =>
-                      controller.onRestaurantTap(controller.restaurants.first),
-                  child: RestaurantCard(
-                    restaurant: controller.restaurants.first,
+          Obx(
+            () {
+              if (controller.restaurants.isEmpty) {
+                return const SliverToBoxAdapter(child: SizedBox.shrink());
+              }
+              final firstRestaurant = controller.restaurants.first;
+              return SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: RepaintBoundary(
+                    child: GestureDetector(
+                      onTap: () => controller.onRestaurantTap(firstRestaurant),
+                      child: RestaurantCard(
+                        restaurant: firstRestaurant,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],

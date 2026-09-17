@@ -18,10 +18,13 @@ class EditProfileScreen extends StatelessWidget {
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: CustomButton(
-            text: 'Save Profile',
-            backgroundColor: AppColors.primary,
-            onPressed: controller.saveProfile,
+          child: Obx(
+            () => CustomButton(
+              text: 'Save Profile',
+              backgroundColor: AppColors.primary,
+              isLoading: controller.isSaving.value,
+              onPressed: controller.saveProfile,
+            ),
           ),
         ),
       ),
@@ -40,21 +43,67 @@ class EditProfileScreen extends StatelessWidget {
                     decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                     ),
-                    child: ClipOval(
-                      child: Obx(() => Image.asset(
-                            controller.profileImage.value,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => const ColoredBox(
-                              color: Colors.grey,
-                              child: Icon(Icons.person,
-                                  color: Colors.white, size: 50),
-                            ),
-                          )),
+                    child: Stack(
+                      children: [
+                        Positioned.fill(
+                          child: ClipOval(
+                            child: Obx(() {
+                              final imgUrl = controller.profileImageUrl.value;
+                              if (imgUrl.isNotEmpty && imgUrl.startsWith('http')) {
+                                return Image.network(
+                                  imgUrl,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Image.asset(
+                                    controller.profileImage.value,
+                                    fit: BoxFit.cover,
+                                  ),
+                                );
+                              }
+                              return Image.asset(
+                                controller.profileImage.value,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const ColoredBox(
+                                  color: Colors.grey,
+                                  child: Icon(Icons.person,
+                                      color: Colors.white, size: 50),
+                                ),
+                              );
+                            }),
+                          ),
+                        ),
+                        Obx(() {
+                          if (controller.isUploadingPhoto.value) {
+                            return Positioned.fill(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.45),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Center(
+                                  child: SizedBox(
+                                    width: 28,
+                                    height: 28,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.5,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        }),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 12),
                   GestureDetector(
-                    onTap: controller.changePhoto,
+                    onTap: controller.isUploadingPhoto.value
+                        ? null
+                        : controller.changePhoto,
                     child: const Text(
                       'Change Photo',
                       style: TextStyle(
@@ -73,14 +122,14 @@ class EditProfileScreen extends StatelessWidget {
             _buildTextField(
               label: 'Full Name',
               controller: controller.fullNameController,
-              hintText: 'Lunaa',
+              hintText: 'John Doe',
             ),
             const SizedBox(height: 20),
 
             _buildTextField(
               label: 'Phone number',
               controller: controller.phoneController,
-              hintText: '+91 98564362789',
+              hintText: '7685342317',
               keyboardType: TextInputType.phone,
             ),
             const SizedBox(height: 20),
@@ -88,7 +137,7 @@ class EditProfileScreen extends StatelessWidget {
             _buildTextField(
               label: 'Email Address',
               controller: controller.emailController,
-              hintText: 'lunaa@gmail.com',
+              hintText: 'john@example.com',
               keyboardType: TextInputType.emailAddress,
             ),
             const SizedBox(height: 20),
@@ -96,7 +145,7 @@ class EditProfileScreen extends StatelessWidget {
             _buildTextField(
               label: 'Delivery Address',
               controller: controller.addressController,
-              hintText: '23, barathi street\nChennai, Tamil nadu-624001',
+              hintText: '23, barathi street, Chennai',
               maxLines: 3,
             ),
             const SizedBox(height: 20),
@@ -137,7 +186,7 @@ class EditProfileScreen extends StatelessWidget {
           maxLines: maxLines,
           style: const TextStyle(
             fontSize: 14,
-            color: Color(0xFF9CA3AF), // Grey color similar to hint in design
+            color: Color(0xFF1F2937),
           ),
           decoration: InputDecoration(
             hintText: hintText,
@@ -150,13 +199,13 @@ class EditProfileScreen extends StatelessWidget {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(
-                color: AppColors.primary.withOpacity(0.2),
+                color: AppColors.primary.withValues(alpha: 0.2),
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(
-                color: AppColors.primary.withOpacity(0.2),
+                color: AppColors.primary.withValues(alpha: 0.2),
               ),
             ),
             focusedBorder: OutlineInputBorder(

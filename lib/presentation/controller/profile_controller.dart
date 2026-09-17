@@ -1,18 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kayal_userapp/core/const/app_images.dart';
-
+import 'package:kayal_userapp/core/di/service_locator.dart';
+import 'package:kayal_userapp/core/service/api_service.dart';
+import 'package:kayal_userapp/core/service/local_storage_service.dart';
+import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
+import 'package:kayal_userapp/data/model/get_profile_response_model.dart';
+import 'package:kayal_userapp/data/repository/get_profile_repository_impl.dart';
+import 'package:kayal_userapp/data/repository/logout_repository_impl.dart';
+import 'package:kayal_userapp/domain/usecase/get_profile_usecase.dart';
+import 'package:kayal_userapp/domain/usecase/logout_usecase.dart';
 import 'package:kayal_userapp/presentation/view/profile/edit_profile_screen.dart';
 import 'package:kayal_userapp/presentation/view/profile/privacy_policy_screen.dart';
 import 'package:kayal_userapp/presentation/view/profile/terms_condition_screen.dart';
-import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileController extends GetxController {
-  final userName = 'Lunna'.obs;
-  final phoneNumber = '+91 896745321'.obs;
-  final profileImage = profileImg.obs; // Use appropriate image, maybe a user placeholder
+  final GetProfileUseCase _getProfileUseCase;
+  final LogoutUseCase _logoutUseCase;
+
+  ProfileController({
+    GetProfileUseCase? getProfileUseCase,
+    LogoutUseCase? logoutUseCase,
+  })  : _getProfileUseCase = getProfileUseCase ??
+            (sl.isRegistered<GetProfileUseCase>()
+                ? sl<GetProfileUseCase>()
+                : GetProfileUseCase(GetProfileRepositoryImpl(ApiService()))),
+        _logoutUseCase = logoutUseCase ??
+            (sl.isRegistered<LogoutUseCase>()
+                ? sl<LogoutUseCase>()
+                : LogoutUseCase(LogoutRepositoryImpl(ApiService())));
+
+  final profileData = Rxn<ProfileDataModel>();
+  final userName = 'User'.obs;
+  final phoneNumber = ''.obs;
+  final email = ''.obs;
+  final profileImageUrl = ''.obs;
+  final profileImage = profileImg.obs;
+
   final isLoggedIn = false.obs;
+  final isLoading = false.obs;
+  final errorMessage = ''.obs;
 
   @override
   void onInit() {
@@ -22,11 +50,55 @@ class ProfileController extends GetxController {
 
   Future<void> checkLoginStatus() async {
     final prefs = await SharedPreferences.getInstance();
-    isLoggedIn.value = prefs.getBool('isLoggedIn') ?? false;
+    final token = prefs.getString('auth_token') ??
+        prefs.getString('token') ??
+        LocalStorageService().getString('auth_token');
+
+    final loggedIn = (token != null && token.isNotEmpty) ||
+        (prefs.getBool('isLoggedIn') ?? false);
+    isLoggedIn.value = loggedIn;
+
+    if (loggedIn) {
+      await fetchProfile();
+    }
+  }
+
+  Future<void> fetchProfile() async {
+    isLoading.value = true;
+    errorMessage.value = '';
+
+    try {
+      final response = await _getProfileUseCase();
+      if (response.success && response.data != null) {
+        final data = response.data!;
+        profileData.value = data;
+
+        if (data.fullName.isNotEmpty) {
+          userName.value = data.fullName;
+        }
+        if (data.phone.isNotEmpty) {
+          phoneNumber.value = data.phone;
+        }
+        if (data.email.isNotEmpty) {
+          email.value = data.email;
+        }
+        if (data.profileImage != null && data.profileImage!.isNotEmpty) {
+          profileImageUrl.value = data.profileImage!;
+        }
+      } else {
+        errorMessage.value = response.formattedErrorMessage.isNotEmpty
+            ? response.formattedErrorMessage
+            : 'Failed to fetch profile details';
+      }
+    } catch (e) {
+      errorMessage.value = e.toString().replaceAll('Exception: ', '');
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   void editProfile() {
-    Get.to(() => const EditProfileScreen());
+    Get.to(() => const EditProfileScreen(), arguments: profileData.value);
   }
 
   void openMyOrders() {
@@ -61,7 +133,10 @@ class ProfileController extends GetxController {
     Get.to(() => const TermsConditionScreen());
   }
 
+  final isLoggingOut = false.obs;
+
   void logOut() {
+    isLoggingOut.value = false;
     Get.dialog(
       Dialog(
         shape: RoundedRectangleBorder(
@@ -75,7 +150,7 @@ class ProfileController extends GetxController {
             children: [
               const Icon(
                 Icons.logout,
-                color: Color(0xFFF03636), // AppColors.red equivalent
+                color: Color(0xFFF03636),
                 size: 32,
               ),
               const SizedBox(height: 16),
@@ -102,7 +177,11 @@ class ProfileController extends GetxController {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () => Get.back(),
+                      onPressed: () {
+                        if (!isLoggingOut.value) {
+                          Get.back();
+                        }
+                      },
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Color(0xFFF03636)),
                         shape: RoundedRectangleBorder(
@@ -122,27 +201,65 @@ class ProfileController extends GetxController {
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        final prefs = await SharedPreferences.getInstance();
-                        await prefs.setBool('isLoggedIn', false);
-                        Get.offAllNamed(AppRoutes.login);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFF03636),
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                    child: Obx(
+                      () => ElevatedButton(
+                        onPressed: isLoggingOut.value
+                            ? null
+                            : () async {
+                                isLoggingOut.value = true;
+                                try {
+                                  await _logoutUseCase();
+                                } catch (_) {
+                                  // Continue clearing local session even if API call fails
+                                } finally {
+                                  final prefs = await SharedPreferences.getInstance();
+                                  await prefs.setBool('isLoggedIn', false);
+                                  await prefs.remove('auth_token');
+                                  await prefs.remove('token');
+                                  await LocalStorageService().remove('auth_token');
+                                  await LocalStorageService().remove('user_id');
+                                  await LocalStorageService().saveBool('is_logged_in', false);
+
+                                  isLoggedIn.value = false;
+                                  profileData.value = null;
+                                  userName.value = 'User';
+                                  phoneNumber.value = '';
+                                  email.value = '';
+                                  profileImageUrl.value = '';
+                                  isLoggingOut.value = false;
+
+                                  if (Get.isDialogOpen ?? false) {
+                                    Get.back();
+                                  }
+                                  Get.offAllNamed(AppRoutes.login);
+                                }
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFF03636),
+                          disabledBackgroundColor: const Color(0xFFF03636).withValues(alpha: 0.6),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                      ),
-                      child: const Text(
-                        'Yes, Sure',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
+                        child: isLoggingOut.value
+                            ? const SizedBox(
+                                height: 18,
+                                width: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                ),
+                              )
+                            : const Text(
+                                'Yes, Sure',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
                       ),
                     ),
                   ),

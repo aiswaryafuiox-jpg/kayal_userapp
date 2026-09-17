@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kayal_userapp/core/const/app_color.dart';
 import 'package:kayal_userapp/presentation/controller/wishlist_controller.dart';
-import 'package:kayal_userapp/presentation/controller/cart_controller.dart';
 import 'package:kayal_userapp/presentation/widgets/app_bar.dart';
 import 'package:kayal_userapp/presentation/view/wishlist/widgets/wishlist_product_card.dart';
 
@@ -26,43 +25,69 @@ class WishlistScreen extends StatelessWidget {
         showBackButton: shouldShowBack,
       ),
       body: Obx(() {
-        if (controller.wishlistItems.isEmpty) {
-          return const Center(child: Text("Your wishlist is empty"));
+        if (controller.isLoading.value) {
+          return const Center(
+            child: CircularProgressIndicator(
+              color: AppColors.primary,
+            ),
+          );
         }
-        return GridView.builder(
-          padding: const EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: 20,
-            bottom: 100,
-          ),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 0.74,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-          ),
-          itemCount: controller.wishlistItems.length,
-          itemBuilder: (context, index) {
-            final item = controller.wishlistItems[index];
-            return WishlistProductCard(
-              item: item,
-              onFavoriteTap: () => controller.toggleFavorite(index),
-              onAddTap: () {
-                final cartController = Get.find<CartController>();
-                cartController.addItem(
-                  id: index.toString(),
-                  name: item.title,
-                  type: item.type,
-                  isVeg: item.isVeg,
-                  oldPrice: item.originalPrice,
-                  newPrice: item.price,
-                  image: item.image,
+
+        if (controller.wishlistItems.isEmpty) {
+          return RefreshIndicator(
+            color: AppColors.primary,
+            onRefresh: () => controller.fetchWishlist(),
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              children: const [
+                SizedBox(height: 120),
+                Center(
+                  child: Text(
+                    "Your wishlist is empty",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF6B7280),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return RefreshIndicator(
+          color: AppColors.primary,
+          onRefresh: () => controller.fetchWishlist(),
+          child: GridView.builder(
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
+            padding: const EdgeInsets.only(
+              left: 16,
+              right: 16,
+              top: 20,
+              bottom: 100,
+            ),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 0.74,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+            ),
+            itemCount: controller.wishlistItems.length,
+            itemBuilder: (context, index) {
+              final item = controller.wishlistItems[index];
+              return WishlistProductCard(
+                item: item,
+                onFavoriteTap: () => controller.toggleFavorite(index),
+                onAddTap: () => controller.addToCartFromWishlist(
+                  item: item,
                   quantity: 1,
-                );
-              },
-            );
-          },
+                ),
+              );
+            },
+          ),
         );
       }),
     );

@@ -28,26 +28,111 @@ class OrdersScreen extends StatelessWidget {
         showBackButton: shouldShowBack,
       ),
       body: Obx(() {
-        final Widget content = controller.ordersList.isEmpty
-            ? const Center(child: Text("You have no orders"))
-            : ListView.separated(
-                padding: const EdgeInsets.only(
-                  left: 16,
-                  right: 16,
-                  top: 20,
-                  bottom: 100,
+        Widget content;
+
+        if (controller.isLoading.value && controller.ordersList.isEmpty) {
+          content = const Center(
+            child: CircularProgressIndicator(color: AppColors.primary),
+          );
+        } else if (controller.errorMessage.value.isNotEmpty &&
+            controller.ordersList.isEmpty) {
+          content = Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.error_outline,
+                    size: 48,
+                    color: Colors.grey,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    controller.errorMessage.value,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF6B7280),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => controller.fetchOrders(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text(
+                      'Retry',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        } else if (controller.ordersList.isEmpty) {
+          content = RefreshIndicator(
+            onRefresh: () => controller.fetchOrders(isRefresh: true),
+            color: AppColors.primary,
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              children: [
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.6,
+                  child: const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.receipt_long_outlined,
+                          size: 56,
+                          color: Color(0xFFD1D5DB),
+                        ),
+                        SizedBox(height: 12),
+                        Text(
+                          "You have no orders yet",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF6B7280),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                itemCount: controller.ordersList.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 16),
-                itemBuilder: (context, index) {
-                  final order = controller.ordersList[index];
-                  return OrderCard(
-                    order: order,
-                    onViewTap: () => controller.viewOrderDetails(index),
-                    onReorderTap: () => controller.reOrder(index),
-                  );
-                },
-              );
+              ],
+            ),
+          );
+        } else {
+          content = RefreshIndicator(
+            onRefresh: () => controller.fetchOrders(isRefresh: true),
+            color: AppColors.primary,
+            child: ListView.separated(
+              padding: const EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 20,
+                bottom: 100,
+              ),
+              physics: const AlwaysScrollableScrollPhysics(),
+              itemCount: controller.ordersList.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 16),
+              itemBuilder: (context, index) {
+                final order = controller.ordersList[index];
+                return OrderCard(
+                  order: order,
+                  onViewTap: () => controller.viewOrderDetails(order),
+                  onReorderTap: () => controller.reOrder(order),
+                );
+              },
+            ),
+          );
+        }
 
         if (!controller.isLoggedIn.value) {
           return Stack(
@@ -56,7 +141,7 @@ class OrdersScreen extends StatelessWidget {
                 imageFilter: ImageFilter.blur(sigmaX: 7.0, sigmaY: 7.0),
                 child: content,
               ),
-              Container(color: Colors.black.withOpacity(0.12)),
+              Container(color: Colors.black.withValues(alpha: 0.12)),
               Center(
                 child: Container(
                   margin: const EdgeInsets.symmetric(horizontal: 28),
@@ -66,7 +151,7 @@ class OrdersScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),

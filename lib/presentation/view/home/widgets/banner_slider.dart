@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:kayal_userapp/core/const/app_color.dart';
 import 'package:kayal_userapp/core/const/app_images.dart';
+import 'package:kayal_userapp/presentation/controller/home_controller.dart';
 import 'package:kayal_userapp/presentation/widgets/app_embedded_image.dart';
-
 
 class PromotionCarousel extends StatefulWidget {
   const PromotionCarousel({super.key});
@@ -13,7 +14,6 @@ class PromotionCarousel extends StatefulWidget {
 }
 
 class _PromotionCarouselState extends State<PromotionCarousel> {
-  static const _bannerCount = 3;
   late final PageController _pageController;
   Timer? _loopTimer;
   var _currentBanner = 0;
@@ -22,7 +22,7 @@ class _PromotionCarouselState extends State<PromotionCarousel> {
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: 999);
-    _loopTimer = Timer.periodic(const Duration(seconds: 3), (_) {
+    _loopTimer = Timer.periodic(const Duration(seconds: 4), (_) {
       if (!_pageController.hasClients) {
         return;
       }
@@ -42,65 +42,94 @@ class _PromotionCarouselState extends State<PromotionCarousel> {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.circular(7),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x24000000),
-            blurRadius: 12,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 8, 8, 7),
-        child: Column(
-          children: [
-            SizedBox(
-              height: 150,
-              width: double.infinity,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: PageView.builder(
-                  controller: _pageController,
-                  onPageChanged: (page) {
-                    setState(() => _currentBanner = page % _bannerCount);
-                  },
-                  itemBuilder: (context, page) {
-                    return const AppEmbeddedImage(
-                      asset: bannerImg,
-                      fit: BoxFit.cover,
-                      fallback: ColoredBox(color: Color(0xFFFFC400)),
-                    );
-                  },
-                ),
-              ),
-            ),
-            const SizedBox(height: 6),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                for (var index = 0; index < _bannerCount; index++)
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 280),
-                    curve: Curves.easeOutCubic,
-                    width: index == _currentBanner ? 18 : 7,
-                    height: 5,
-                    margin: const EdgeInsets.symmetric(horizontal: 2),
-                    decoration: BoxDecoration(
-                      color: index == _currentBanner
-                          ? AppColors.primary
-                          : const Color(0xFFFFE4D2),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                  ),
-              ],
+    final homeController = Get.isRegistered<HomeController>()
+        ? Get.find<HomeController>()
+        : null;
+
+    return Obx(() {
+      final banners = homeController?.apiBanners ?? [];
+      final bannerCount = banners.isNotEmpty ? banners.length : 3;
+
+      return DecoratedBox(
+        decoration: BoxDecoration(
+          color: AppColors.background,
+          borderRadius: BorderRadius.circular(7),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x24000000),
+              blurRadius: 12,
+              offset: Offset(0, 4),
             ),
           ],
         ),
-      ),
-    );
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 7),
+          child: Column(
+            children: [
+              SizedBox(
+                height: 150,
+                width: double.infinity,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: PageView.builder(
+                    controller: _pageController,
+                    onPageChanged: (page) {
+                      setState(() => _currentBanner = page % bannerCount);
+                    },
+                    itemBuilder: (context, page) {
+                      final itemIndex = page % bannerCount;
+                      if (banners.isNotEmpty && itemIndex < banners.length) {
+                        final banner = banners[itemIndex];
+                        final imageUrl = banner.image;
+                        if (imageUrl != null && imageUrl.isNotEmpty) {
+                          if (imageUrl.startsWith('http://') ||
+                              imageUrl.startsWith('https://')) {
+                            return Image.network(
+                              imageUrl,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, _, _) => const AppEmbeddedImage(
+                                asset: bannerImg,
+                                fit: BoxFit.cover,
+                                fallback:
+                                    ColoredBox(color: Color(0xFFFFC400)),
+                              ),
+                            );
+                          }
+                        }
+                      }
+                      return const AppEmbeddedImage(
+                        asset: bannerImg,
+                        fit: BoxFit.cover,
+                        fallback: ColoredBox(color: Color(0xFFFFC400)),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  for (var index = 0; index < bannerCount; index++)
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 280),
+                      curve: Curves.easeOutCubic,
+                      width: index == _currentBanner ? 18 : 7,
+                      height: 5,
+                      margin: const EdgeInsets.symmetric(horizontal: 2),
+                      decoration: BoxDecoration(
+                        color: index == _currentBanner
+                            ? AppColors.primary
+                            : const Color(0xFFFFE4D2),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    });
   }
 }

@@ -44,7 +44,35 @@ class SuccessScreen extends StatelessWidget {
                           height: 1.3,
                         ),
                       ),
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 12),
+
+                      // Order ID Badge
+                      Obx(() {
+                        final id = controller.customOrderId.value;
+                        if (id.isEmpty) return const SizedBox.shrink();
+                        return Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: AppColors.primary.withValues(alpha: 0.2),
+                            ),
+                          ),
+                          child: Text(
+                            'Order ID: $id',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        );
+                      }),
+                      const SizedBox(height: 32),
                       
                       // Food Illustration PNG
                       Image.asset(
@@ -72,7 +100,7 @@ class SuccessScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
+                          color: Colors.black.withValues(alpha: 0.04),
                           blurRadius: 20,
                           offset: const Offset(0, 4),
                         ),
@@ -95,11 +123,11 @@ class SuccessScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 16),
-                        const Expanded(
+                        Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
+                              const Text(
                                 'ESTIMATED DELIVERY',
                                 style: TextStyle(
                                   fontSize: 12,
@@ -108,15 +136,17 @@ class SuccessScreen extends StatelessWidget {
                                   letterSpacing: 0.5,
                                 ),
                               ),
-                              SizedBox(height: 4),
-                              Text(
-                                '25 - 35 Minutes',
-                                style: TextStyle(
+                              const SizedBox(height: 4),
+                              Obx(() => Text(
+                                controller.estimatedDelivery.value.isNotEmpty
+                                    ? controller.estimatedDelivery.value
+                                    : '25 - 35 Minutes',
+                                style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.grey,
                                 ),
-                              ),
+                              )),
                             ],
                           ),
                         ),

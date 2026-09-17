@@ -60,6 +60,7 @@ class AddAddressScreen extends StatelessWidget {
                   child: CustomButton(
                     text: controller.isEdit.value ? 'Update Address' : 'Save Address',
                     onPressed: controller.saveAddress,
+                    isLoading: controller.isLoading.value,
                     height: 56,
                     backgroundColor: AppColors.primary,
                     borderRadius: 12,

@@ -25,10 +25,33 @@ class ProductDetailScreen extends StatelessWidget {
             right: 0,
             height: MediaQuery.of(context).size.height * 0.55,
             child: Obx(
-              () => Image.asset(
-                controller.product.value?.image ?? productImg2,
-                fit: BoxFit.cover,
-              ),
+              () {
+                final img = controller.product.value?.image ??
+                    controller.productDetail.value?.image ??
+                    productImg2;
+                final isNetwork =
+                    img.startsWith('http://') || img.startsWith('https://');
+
+                if (isNetwork) {
+                  return Image.network(
+                    img,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Image.asset(
+                      productImg2,
+                      fit: BoxFit.cover,
+                    ),
+                  );
+                }
+
+                return Image.asset(
+                  img,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Image.asset(
+                    productImg2,
+                    fit: BoxFit.cover,
+                  ),
+                );
+              },
             ),
           ),
 
@@ -120,7 +143,9 @@ class ProductDetailScreen extends StatelessWidget {
                       Expanded(
                         child: Obx(
                           () => Text(
-                            controller.product.value?.name ?? 'Chicken Pizza',
+                            controller.product.value?.name ??
+                                controller.productDetail.value?.name ??
+                                'Product Details',
                             style: const TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.w700,
@@ -130,110 +155,139 @@ class ProductDetailScreen extends StatelessWidget {
                         ),
                       ),
                       Obx(
-                        () => Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              '₹${controller.product.value?.oldPrice.toInt() ?? 220}',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFF9E9E9E),
-                                decoration: TextDecoration.lineThrough,
+                        () {
+                          final oldPrice = controller.product.value?.oldPrice ??
+                              controller.productDetail.value?.oldPrice ??
+                              0.0;
+                          final price = controller.product.value?.newPrice ??
+                              controller.productDetail.value?.price ??
+                              0.0;
+
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              if (oldPrice > price && price > 0) ...[
+                                Text(
+                                  '₹${oldPrice.toInt()}',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Color(0xFF9E9E9E),
+                                    decoration: TextDecoration.lineThrough,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                              ],
+                              Text(
+                                '₹${price.toInt()}',
+                                style: const TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF252B35),
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              '₹${controller.product.value?.newPrice.toInt() ?? 180}',
-                              style: const TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF252B35),
-                              ),
-                            ),
-                          ],
-                        ),
+                            ],
+                          );
+                        },
                       ),
                     ],
                   ),
                   const SizedBox(height: 12),
 
-                  // Non-Veg Tag
+                  // Veg / Non-Veg Tag
                   Obx(
-                    () => Row(
-                      children: [
-                        Container(
-                          width: 16,
-                          height: 16,
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color:
-                                  (controller.product.value?.isVeg ?? false)
-                                      ? Colors.green
-                                      : Colors.red,
-                            ),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          alignment: Alignment.center,
-                          child: Container(
-                            width: 8,
-                            height: 8,
+                    () {
+                      final isVeg = controller.product.value?.isVeg ??
+                          controller.productDetail.value?.isVeg ??
+                          false;
+                      final type = controller.product.value?.type ??
+                          controller.productDetail.value?.type ??
+                          'Non-Veg';
+
+                      return Row(
+                        children: [
+                          Container(
+                            width: 16,
+                            height: 16,
                             decoration: BoxDecoration(
-                              color:
-                                  (controller.product.value?.isVeg ?? false)
-                                      ? Colors.green
-                                      : Colors.red,
-                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: isVeg ? Colors.green : Colors.red,
+                              ),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            alignment: Alignment.center,
+                            child: Container(
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                color: isVeg ? Colors.green : Colors.red,
+                                shape: BoxShape.circle,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          controller.product.value?.type ?? 'Non-Veg',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: Color(0xFF6B7280),
+                          const SizedBox(width: 8),
+                          Text(
+                            type,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF6B7280),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      );
+                    },
                   ),
                   const SizedBox(height: 12),
 
                   // Offer Badge
-                  Row(
-                    children: [
-                      const Text(
-                        'Offer',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF4B5563),
+                  Obx(
+                    () {
+                      final offer = controller.offerPercentage.value.isNotEmpty
+                          ? controller.offerPercentage.value
+                          : (controller.productDetail.value?.offerPercentage ?? '');
+
+                      if (offer.isEmpty) {
+                        return const SizedBox.shrink();
+                      }
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Row(
+                          children: [
+                            const Text(
+                              'Offer',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF4B5563),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE8F5E9),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                offer,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF2E7D32),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFE8F5E9),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: const Text(
-                          '20 %',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF2E7D32),
-                          ),
-                        ),
-                      ),
-                    ],
+                      );
+                    },
                   ),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 6),
 
                   // Description
                   const Text(
@@ -245,17 +299,26 @@ class ProductDetailScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Expanded(
+                  Expanded(
                     child: SingleChildScrollView(
-                      physics: BouncingScrollPhysics(),
-                      child: Text(
-                        "Our Chicken Burger is made with a crispy, golden-fried chicken fillet served in a soft toasted bun. Layered with fresh lettuce, juicy tomatoes, creamy mayonnaise, and melted cheese, every bite is packed with rich flavor.  it's the perfect choice for a delicious and satisfying meal.",
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          color: Color(0xFF6B7280),
-                          height: 1.5,
-                        ),
+                      physics: const BouncingScrollPhysics(),
+                      child: Obx(
+                        () {
+                          final desc = controller.description.value.isNotEmpty
+                              ? controller.description.value
+                              : (controller.productDetail.value?.description ??
+                                  "Our Chicken Burger is made with a crispy, golden-fried chicken fillet served in a soft toasted bun. Layered with fresh lettuce, juicy tomatoes, creamy mayonnaise, and melted cheese, every bite is packed with rich flavor. It's the perfect choice for a delicious and satisfying meal.");
+
+                          return Text(
+                            desc,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              color: Color(0xFF6B7280),
+                              height: 1.5,
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ),

@@ -1,35 +1,96 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:kayal_userapp/core/di/service_locator.dart';
+import 'package:kayal_userapp/core/service/api_service.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
+import 'package:kayal_userapp/data/repository/login_otp_repository_impl.dart';
+import 'package:kayal_userapp/domain/usecase/login_otp_usecase.dart';
 import 'package:kayal_userapp/presentation/widgets/app_notification.dart';
 
-
 class LoginController extends GetxController {
-  final TextEditingController phoneController = TextEditingController();
+  final LoginOtpUseCase _loginOtpUseCase;
 
-  void login() {
+  LoginController({LoginOtpUseCase? loginOtpUseCase})
+      : _loginOtpUseCase = loginOtpUseCase ??
+            (sl.isRegistered<LoginOtpUseCase>()
+                ? sl<LoginOtpUseCase>()
+                : LoginOtpUseCase(LoginOtpRepositoryImpl(ApiService())));
+
+  final TextEditingController phoneController = TextEditingController();
+  final RxBool isLoading = false.obs;
+
+  Future<void> login() async {
+    FocusManager.instance.primaryFocus?.unfocus();
+
     final phoneNumber = phoneController.text.trim();
+
+    if (phoneNumber.isEmpty) {
+      AppNotification.showError(
+        title: 'Phone Number Required',
+        message: 'Please enter your phone number.',
+      );
+      return;
+    }
 
     if (phoneNumber.length < 10) {
       AppNotification.showError(
-        title: 'Invalid phone number',
+        title: 'Invalid Phone Number',
         message: 'Enter a valid 10-digit phone number.',
       );
       return;
     }
 
-    final arguments = Get.arguments;
-    dynamic nextArgs;
-    if (arguments is Map) {
-      nextArgs = {
-        'phoneNumber': phoneNumber,
-        'redirect': arguments['redirect'],
-      };
-    } else {
-      nextArgs = phoneNumber;
-    }
+    try {
+      isLoading.value = true;
 
-    Get.toNamed<void>(AppRoutes.otpVerification, arguments: nextArgs);
+      final response = await _loginOtpUseCase(
+        phoneNumber: phoneNumber,
+      );
+
+      if (response.success) {
+        AppNotification.showSuccess(
+          title: 'OTP Sent',
+          message: response.message.isNotEmpty
+              ? response.message
+              : 'OTP sent successfully',
+        );
+
+        final arguments = Get.arguments;
+        final nextArgs = {
+          'phoneNumber': phoneNumber,
+          'otp': response.data?.otp,
+          'expiresIn': response.data?.expiresIn,
+          'isSignUp': false,
+          if (arguments is Map && arguments['redirect'] != null)
+            'redirect': arguments['redirect'],
+          if (arguments is Map && arguments['tab'] != null)
+            'tab': arguments['tab'],
+        };
+
+        Get.toNamed<void>(AppRoutes.otpVerification, arguments: nextArgs);
+      } else {
+        final errorMsg = response.formattedErrorMessage.isNotEmpty
+            ? response.formattedErrorMessage
+            : response.message;
+        AppNotification.showError(
+          title: 'Login Failed',
+          message: errorMsg.isNotEmpty ? errorMsg : 'Failed to send OTP.',
+        );
+      }
+    } catch (e) {
+      debugPrint('login error: $e');
+      AppNotification.showError(
+        title: 'Error',
+        message: 'Something went wrong. Please try again.',
+      );
+    } finally {
+      isLoading.value = false;
+    }
   }
 
+  @override
+  void onClose() {
+    phoneController.dispose();
+    super.onClose();
+  }
 }

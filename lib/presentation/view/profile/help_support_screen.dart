@@ -132,12 +132,15 @@ class HelpSupportScreen extends StatelessWidget {
               const Spacer(),
               
               // Submit Button
-              CustomButton(
-                text: 'Submit',
-                onPressed: controller.submitHelpSupport,
-                height: 54,
-                backgroundColor: const Color(0xFFFF823E),
-                borderRadius: 12,
+              Obx(
+                () => CustomButton(
+                  text: 'Submit',
+                  onPressed: controller.submitHelpSupport,
+                  isLoading: controller.isLoading.value,
+                  height: 54,
+                  backgroundColor: const Color(0xFFFF823E),
+                  borderRadius: 12,
+                ),
               ),
               const SizedBox(height: 12),
             ],

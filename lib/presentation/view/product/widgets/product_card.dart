@@ -47,12 +47,32 @@ class ProductCard extends StatelessWidget {
                     ),
                     child: Opacity(
                       opacity: isClosed ? 0.45 : 1.0,
-                      child: Image.asset(
-                        product.image,
-                        width: double.infinity,
-                        height: double.infinity,
-                        fit: BoxFit.cover,
-                      ),
+                      child: product.image.startsWith('http://') ||
+                              product.image.startsWith('https://')
+                          ? Image.network(
+                              product.image,
+                              width: double.infinity,
+                              height: double.infinity,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, _, _) => Image.asset(
+                                'assets/images/product1.png',
+                                width: double.infinity,
+                                height: double.infinity,
+                                fit: BoxFit.cover,
+                              ),
+                            )
+                          : Image.asset(
+                              product.image,
+                              width: double.infinity,
+                              height: double.infinity,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, _, _) => Image.asset(
+                                'assets/images/product1.png',
+                                width: double.infinity,
+                                height: double.infinity,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                     ),
                   ),
                   Positioned(

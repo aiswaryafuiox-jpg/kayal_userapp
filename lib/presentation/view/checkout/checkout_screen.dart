@@ -40,98 +40,151 @@ class CheckoutScreen extends StatelessWidget {
                   // Addresses List
                   Obx(
                     () {
+                      if (controller.isLoadingAddresses.value) {
+                        return const Center(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 32),
+                            child: CircularProgressIndicator(
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        );
+                      }
+
+                      if (controller.addresses.isEmpty) {
+                        return Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: AppColors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: const Color(0xFFF0F0F0),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.location_off_outlined,
+                                size: 40,
+                                color: AppColors.grey.withValues(alpha: 0.5),
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'No saved addresses found',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.grey,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              const Text(
+                                'Add a new address to proceed with checkout',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xFF9CA3AF),
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+
                       // Explicitly read the observable so Obx tracks it and rebuilds the list
                       final _ = controller.selectedAddressIndex.value;
                       
                       return ListView.separated(
                         shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: controller.addresses.length,
-                      separatorBuilder: (context, index) => const SizedBox(height: 16),
-                      itemBuilder: (context, index) {
-                        final address = controller.addresses[index];
-                        final isSelected = controller.selectedAddressIndex.value == index;
-                        
-                        return GestureDetector(
-                          onTap: () => controller.selectAddress(index),
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: isSelected 
-                                  ? AppColors.checkoutbackground 
-                                  : AppColors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: controller.addresses.length,
+                        separatorBuilder: (context, index) => const SizedBox(height: 16),
+                        itemBuilder: (context, index) {
+                          final address = controller.addresses[index];
+                          final isSelected = controller.selectedAddressIndex.value == index;
+                          
+                          return GestureDetector(
+                            onTap: () => controller.selectAddress(index),
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
                                 color: isSelected 
                                     ? AppColors.checkoutbackground 
-                                    : const Color(0xFFF0F0F0),
-                                width: 1.5,
+                                    : AppColors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: isSelected 
+                                      ? AppColors.checkoutbackground 
+                                      : const Color(0xFFF0F0F0),
+                                  width: 1.5,
+                                ),
+                                boxShadow: isSelected ? [] : [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.02),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  )
+                                ],
                               ),
-                              boxShadow: isSelected ? [] : [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.02),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
-                                )
-                              ],
-                            ),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          address['type'] ?? 'Address',
+                                          style: const TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w700,
+                                            color: AppColors.grey,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 12),
+                                        Text(
+                                          address['address'] ?? '',
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w400,
+                                            color: AppColors.grey,
+                                            height: 1.4,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Text(
-                                        address['type']!,
-                                        style: const TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w700,
-                                          color: AppColors.grey,
+                                      GestureDetector(
+                                        onTap: () => controller.editAddress(index),
+                                        child: const Text(
+                                          'Edit Address',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w500,
+                                            color: AppColors.primary,
+                                          ),
                                         ),
                                       ),
-                                      const SizedBox(height: 12),
-                                      Text(
-                                        address['address']!,
-                                        style: const TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w400,
-                                          color: AppColors.grey,
-                                          height: 1.4,
-                                        ),
+                                      const SizedBox(height: 14),
+                                      Icon(
+                                        isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
+                                        color: AppColors.primary,
+                                        size: 24,
                                       ),
                                     ],
                                   ),
-                                ),
-                                const SizedBox(width: 16),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () => controller.editAddress(index),
-                                      child: const Text(
-                                        'Edit Address',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500,
-                                          color: AppColors.primary,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 14),
-                                    Icon(
-                                      isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
-                                      color: AppColors.primary,
-                                      size: 24,
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
                       );
                     },
                   ),

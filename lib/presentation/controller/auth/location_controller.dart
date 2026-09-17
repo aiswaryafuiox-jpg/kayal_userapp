@@ -64,34 +64,46 @@ class LocationController extends GetxController {
         return;
       }
 
-      // 6. Get current location
-      final Position position =
-          await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          timeLimit: Duration(seconds: 20),
-        ),
-      );
+      // 6. Get current location with timeout and fallback
+      Position? position;
+      try {
+        position = await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.medium,
+            timeLimit: Duration(seconds: 10),
+          ),
+        );
+      } catch (_) {
+        position = await Geolocator.getLastKnownPosition();
+      }
 
       isLoading.value = false;
 
-      debugPrint(
-        'Latitude: ${position.latitude}',
-      );
+      // If position is retrieved or fallback position
+      final effectivePosition = position ??
+          Position(
+            latitude: 13.0827,
+            longitude: 80.2707,
+            timestamp: DateTime.now(),
+            accuracy: 0.0,
+            altitude: 0.0,
+            altitudeAccuracy: 0.0,
+            heading: 0.0,
+            headingAccuracy: 0.0,
+            speed: 0.0,
+            speedAccuracy: 0.0,
+          );
 
-      debugPrint(
-        'Longitude: ${position.longitude}',
-      );
+      debugPrint('Latitude: ${effectivePosition.latitude}');
+      debugPrint('Longitude: ${effectivePosition.longitude}');
 
-      // IMPORTANT:
       // Go to Confirm Location screen
       Get.toNamed(
         AppRoutes.confirmlocation,
-        arguments: position,
+        arguments: effectivePosition,
       );
     } catch (e) {
       isLoading.value = false;
-
       debugPrint('LOCATION ERROR: $e');
 
       Get.snackbar(
@@ -103,6 +115,6 @@ class LocationController extends GetxController {
   }
 
   void notNow() {
-    Get.offAllNamed(AppRoutes.home);
+    Get.offAllNamed(AppRoutes.notificationUpdate);
   }
 }

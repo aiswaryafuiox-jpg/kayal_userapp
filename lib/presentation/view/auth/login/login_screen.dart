@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:kayal_userapp/core/const/app_color.dart';
 import 'package:kayal_userapp/core/const/app_images.dart';
 import 'package:kayal_userapp/core/utils/helper/texthelper.dart';
-import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
 import 'package:kayal_userapp/presentation/controller/auth/login_controller.dart';
 import 'package:kayal_userapp/presentation/widgets/app_button.dart';
 
@@ -83,53 +82,66 @@ class LoginScreen extends GetView<LoginController> {
                       ),
                     ),
                     const Spacer(),
-                    AppButton(
-                      text: 'Login',
-                      style: TextHelper.button,
-                      width: double.infinity,
-                      onPressed: controller.login,
-                    ),
-                    const SizedBox(height: 8),
-                    Center(
-                      child: GestureDetector(
-                        key: const Key('sign-up-link'),
-                        onTap: () => Get.toNamed<void>(AppRoutes.signin),
-                        child: Text.rich(
-                          TextSpan(
-                            text: "Don't have an account? ",
-                            style: TextHelper.heading2.copyWith(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w400,
-                            ),
-                            children: [
-                              TextSpan(
-                                text: 'Sign up',
-                                style: TextHelper.heading2.copyWith(
-                                  color: AppColors.primary,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w400,
+                    Obx(
+                      () => controller.isLoading.value
+                          ? const Center(
+                              child: SizedBox(
+                                height: 48,
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    color: AppColors.primary,
+                                  ),
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                      ),
+                            )
+                          : AppButton(
+                              text: 'Login',
+                              style: TextHelper.button,
+                              width: double.infinity,
+                              onPressed: controller.login,
+                            ),
                     ),
-                    const SizedBox(height: 16),
-                    Center(
-                      child: TextButton(
-                        onPressed: () => Get.offAllNamed(AppRoutes.home),
-                        child: Text(
-                          'Continue as Guest',
-                          style: TextHelper.heading2.copyWith(
-                            color: AppColors.primary,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
+                    // const SizedBox(height: 8),
+                    // Center(
+                    //   child: GestureDetector(
+                    //     key: const Key('sign-up-link'),
+                    //     onTap: () => Get.toNamed<void>(AppRoutes.signin),
+                    //     child: Text.rich(
+                    //       TextSpan(
+                    //         text: "Don't have an account? ",
+                    //         style: TextHelper.heading2.copyWith(
+                    //           fontSize: 12,
+                    //           fontWeight: FontWeight.w400,
+                    //         ),
+                    //         children: [
+                    //           TextSpan(
+                    //             text: 'Sign up',
+                    //             style: TextHelper.heading2.copyWith(
+                    //               color: AppColors.primary,
+                    //               fontSize: 12,
+                    //               fontWeight: FontWeight.w400,
+                    //             ),
+                    //           ),
+                    //         ],
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
+                    // const SizedBox(height: 16),
+                    // Center(
+                    //   child: TextButton(
+                    //     onPressed: () => Get.offAllNamed(AppRoutes.home),
+                    //     child: Text(
+                    //       'Continue as Guest',
+                    //       style: TextHelper.heading2.copyWith(
+                    //         color: AppColors.primary,
+                    //         fontSize: 14,
+                    //         fontWeight: FontWeight.w600,
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
+                    const SizedBox(height: 36),
                   ],
                 ),
               ),

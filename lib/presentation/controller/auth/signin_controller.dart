@@ -1,7 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:kayal_userapp/core/di/service_locator.dart';
+import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
+import 'package:kayal_userapp/core/service/api_service.dart';
+import 'package:kayal_userapp/data/repository/signup_repository_impl.dart';
+import 'package:kayal_userapp/domain/usecase/signup_usecase.dart';
+import 'package:kayal_userapp/presentation/widgets/app_notification.dart';
 
 class SignupController extends GetxController {
+  final SignupUseCase _signupUseCase;
+
+  SignupController({SignupUseCase? signupUseCase})
+      : _signupUseCase = signupUseCase ??
+            (sl.isRegistered<SignupUseCase>()
+                ? sl<SignupUseCase>()
+                : SignupUseCase(SignupRepositoryImpl(ApiService())));
+
   // ==============================
   // TEXT CONTROLLERS
   // ==============================
@@ -24,68 +38,77 @@ class SignupController extends GetxController {
   Future<void> signUp() async {
     FocusManager.instance.primaryFocus?.unfocus();
 
-    if (firstNameController.text.trim().isEmpty) {
+    final firstName = firstNameController.text.trim();
+    final lastName = lastNameController.text.trim();
+    final phone = phoneController.text.trim();
+    final email = emailController.text.trim();
+
+    if (firstName.isEmpty) {
       showError('Please enter first name');
       return;
     }
 
-    if (lastNameController.text.trim().isEmpty) {
+    if (lastName.isEmpty) {
       showError('Please enter last name');
       return;
     }
 
-    if (phoneController.text.trim().isEmpty) {
+    if (phone.isEmpty) {
       showError('Please enter phone number');
       return;
     }
 
-    if (phoneController.text.trim().length < 10) {
-      showError('Please enter a valid phone number');
+    if (phone.length < 10) {
+      showError('Please enter a valid 10-digit phone number');
       return;
     }
 
-    if (emailController.text.trim().isEmpty) {
+    if (email.isEmpty) {
       showError('Please enter email');
       return;
     }
 
-    if (!GetUtils.isEmail(emailController.text.trim())) {
-      showError('Please enter a valid email');
+    if (!GetUtils.isEmail(email)) {
+      showError('Please enter a valid email address');
       return;
     }
 
     try {
       isLoading.value = true;
 
-      // ==============================
-      // API CALL HERE
-      // ==============================
-
-      await Future.delayed(
-        const Duration(seconds: 2),
+      final response = await _signupUseCase(
+        firstName: firstName,
+        lastName: lastName,
+        phoneNumber: phone,
+        email: email,
       );
 
-      debugPrint(
-        'First Name: ${firstNameController.text}',
-      );
+      if (response.success) {
+        AppNotification.showSuccess(
+          title: 'Success',
+          message: response.message.isNotEmpty
+              ? response.message
+              : 'OTP sent for registration',
+        );
 
-      debugPrint(
-        'Last Name: ${lastNameController.text}',
-      );
-
-      debugPrint(
-        'Phone: ${phoneController.text}',
-      );
-
-      debugPrint(
-        'Email: ${emailController.text}',
-      );
-
-      // Example navigation
-      // Get.toNamed('/otp');
-
+        Get.toNamed(
+          AppRoutes.otpVerification,
+          arguments: {
+            'phoneNumber': phone,
+            'tempUserId': response.data?.tempUserId,
+            'otp': response.data?.otp,
+            'isSignUp': true,
+          },
+        );
+      } else {
+        final errorMsg = response.formattedErrorMessage.isNotEmpty
+            ? response.formattedErrorMessage
+            : response.message;
+        showError(errorMsg.isNotEmpty ? errorMsg : 'Registration failed');
+      }
     } catch (e) {
-      showError('Something went wrong');
+      debugPrint('Signup error: $e');
+      showError('Failed to sign up. Please try again.');
     } finally {
       isLoading.value = false;
     }
@@ -93,15 +116,12 @@ class SignupController extends GetxController {
 
   void goToLogin() {
     Get.back();
-    // Or:
-    // Get.toNamed('/login');
   }
 
   void showError(String message) {
-    Get.snackbar(
-      'Sign up',
-      message,
-      snackPosition: SnackPosition.BOTTOM,
+    AppNotification.showError(
+      title: 'Sign Up Error',
+      message: message,
     );
   }
 

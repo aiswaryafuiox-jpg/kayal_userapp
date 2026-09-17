@@ -1,7 +1,22 @@
 import 'package:flutter/material.dart';
 
 class SearchBarWidget extends StatelessWidget {
-  const SearchBarWidget({super.key});
+  final TextEditingController? controller;
+  final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onSubmitted;
+  final VoidCallback? onTap;
+  final bool readOnly;
+  final String hintText;
+
+  const SearchBarWidget({
+    super.key,
+    this.controller,
+    this.onChanged,
+    this.onSubmitted,
+    this.onTap,
+    this.readOnly = false,
+    this.hintText = 'Search Your Favorites Here !!',
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,10 +49,15 @@ class SearchBarWidget extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: TextField(
+                    controller: controller,
+                    onChanged: onChanged,
+                    onSubmitted: onSubmitted,
+                    onTap: onTap,
+                    readOnly: readOnly,
                     textAlignVertical: TextAlignVertical.center,
-                    decoration: const InputDecoration(
-                      hintText: 'Search Your Favorites Here !!',
-                      hintStyle: TextStyle(
+                    decoration: InputDecoration(
+                      hintText: hintText,
+                      hintStyle: const TextStyle(
                         fontSize: 13,
                         color: Color(0xFF777777),
                       ),

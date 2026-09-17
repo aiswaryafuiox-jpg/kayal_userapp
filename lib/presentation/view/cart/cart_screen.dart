@@ -21,6 +21,14 @@ class CartScreen extends StatelessWidget {
       ),
       body: SafeArea(
         child: Obx(() {
+          if (controller.isLoadingCart.value) {
+            return const Center(
+              child: CircularProgressIndicator(
+                color: Color(0xFFFF823E),
+              ),
+            );
+          }
+
           if (controller.cartItems.isEmpty) {
             return const Center(
               child: Text(
@@ -42,7 +50,7 @@ class CartScreen extends StatelessWidget {
                   physics: const BouncingScrollPhysics(),
                   padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
                   itemCount: controller.cartItems.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 16),
+                  separatorBuilder: (context, index) => const SizedBox(height: 16),
                   itemBuilder: (context, index) {
                     final item = controller.cartItems[index];
                     return _buildCartItemCard(item, index);
@@ -126,7 +134,7 @@ class CartScreen extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -138,12 +146,32 @@ class CartScreen extends StatelessWidget {
           // Product Image
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: Image.asset(
-              item.image,
-              width: 86,
-              height: 86,
-              fit: BoxFit.cover,
-            ),
+            child: item.image.startsWith('http://') ||
+                    item.image.startsWith('https://')
+                ? Image.network(
+                    item.image,
+                    width: 86,
+                    height: 86,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Image.asset(
+                      productImg3,
+                      width: 86,
+                      height: 86,
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                : Image.asset(
+                    item.image,
+                    width: 86,
+                    height: 86,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Image.asset(
+                      productImg3,
+                      width: 86,
+                      height: 86,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
           ),
           const SizedBox(width: 14),
 

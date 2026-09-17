@@ -36,14 +36,18 @@ class TrackOrderScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Oder ID #1025',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.grey,
-                    ),
-                  ),
+                  Obx(() {
+                    final rawId = controller.customOrderId.value;
+                    final displayId = rawId.startsWith('#') ? rawId : '#$rawId';
+                    return Text(
+                      'Order ID $displayId',
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.grey,
+                      ),
+                    );
+                  }),
                   const SizedBox(height: 4),
                   const Text(
                     'Placed on 8 june 2026, 10:30pm',

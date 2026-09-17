@@ -88,29 +88,51 @@ class OtpVerificationScreen extends GetView<OtpController> {
                           alpha: 0.55,
                         ),
                       ),
-                      child: Text(
-                        'Resend OTP',
-                        style: TextHelper.heading2.copyWith(
-                          color: controller.canResend
-                              ? Colors.green
-                              : Colors.green.withValues(alpha: 0.55),
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          decoration: TextDecoration.underline,
-                          decorationColor: controller.canResend
-                              ? Colors.green
-                              : Colors.green.withValues(alpha: 0.55),
-                        ),
-                      ),
+                      child: controller.isResending.value
+                          ? const SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.green,
+                              ),
+                            )
+                          : Text(
+                              'Resend OTP',
+                              style: TextHelper.heading2.copyWith(
+                                color: controller.canResend
+                                    ? Colors.green
+                                    : Colors.green.withValues(alpha: 0.55),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                decoration: TextDecoration.underline,
+                                decorationColor: controller.canResend
+                                    ? Colors.green
+                                    : Colors.green.withValues(alpha: 0.55),
+                              ),
+                            ),
                     ),
                   ],
                 ),
               ),
               const Spacer(),
-              AppButton(
-                text: 'Continue',
-                width: double.infinity,
-                onPressed: controller.verifyOtp,
+              Obx(
+                () => controller.isLoading.value
+                    ? const Center(
+                        child: SizedBox(
+                          height: 48,
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ),
+                      )
+                    : AppButton(
+                        text: 'Continue',
+                        width: double.infinity,
+                        onPressed: controller.verifyOtp,
+                      ),
               ),
             ],
           ),

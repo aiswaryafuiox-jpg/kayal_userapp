@@ -2,10 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kayal_userapp/core/const/app_color.dart';
 import 'package:kayal_userapp/core/const/app_images.dart';
+import 'package:kayal_userapp/core/di/service_locator.dart';
+import 'package:kayal_userapp/core/service/api_service.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
+import 'package:kayal_userapp/data/model/categories_response_model.dart';
+import 'package:kayal_userapp/data/repository/categories_repository_impl.dart';
+import 'package:kayal_userapp/domain/usecase/get_categories_usecase.dart';
 import 'package:kayal_userapp/presentation/controller/home_controller.dart';
 
 class CategoryController extends GetxController {
+  final GetCategoriesUseCase _getCategoriesUseCase;
+
+  CategoryController({GetCategoriesUseCase? getCategoriesUseCase})
+      : _getCategoriesUseCase = getCategoriesUseCase ??
+            (sl.isRegistered<GetCategoriesUseCase>()
+                ? sl<GetCategoriesUseCase>()
+                : GetCategoriesUseCase(
+                    CategoriesRepositoryImpl(ApiService())));
+
   final searchController = TextEditingController();
 
   final searchText = ''.obs;
@@ -16,10 +30,38 @@ class CategoryController extends GetxController {
       'This restaurant is currently unavailable.\nOpens today 10:00 AM'.obs;
   dynamic restaurantData;
 
+  final RxBool isLoading = false.obs;
+  final RxList<CategoryModel> apiCategories = <CategoryModel>[].obs;
+
   @override
   void onInit() {
     super.onInit();
     updateArguments(Get.arguments);
+    fetchCategories();
+  }
+
+  Future<void> fetchCategories() async {
+    try {
+      isLoading.value = true;
+      final response = await _getCategoriesUseCase();
+      if (response.success && response.data.isNotEmpty) {
+        apiCategories.assignAll(response.data);
+        categories.assignAll(
+          response.data.map(
+            (c) => {
+              'name': c.name,
+              'image': (c.image != null && c.image!.isNotEmpty)
+                  ? c.image!
+                  : categoryImg1,
+            },
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('fetchCategories error: $e');
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   void updateArguments([dynamic args]) {
@@ -67,11 +109,11 @@ class CategoryController extends GetxController {
     },
     {
       'name': 'Chinese',
-      'image':categoryImg4,
+      'image': categoryImg4,
     },
     {
       'name': 'Biriyani',
-      'image':categoryImg5,
+      'image': categoryImg5,
     },
     {
       'name': 'Beverages',
@@ -85,7 +127,7 @@ class CategoryController extends GetxController {
       'name': 'Chinese',
       'image': categoryImg4,
     },
-  ];
+  ].obs;
 
   List<Map<String, String>> get filteredCategories {
     if (searchText.value.trim().isEmpty) {
@@ -312,11 +354,16 @@ class CategoryController extends GetxController {
   void selectCategory(String category) {
     debugPrint('Selected category: $category');
 
+    final matched = apiCategories.firstWhereOrNull(
+      (c) => c.name.trim().toLowerCase() == category.trim().toLowerCase(),
+    );
+
     // Navigate to product listing
     Get.toNamed(
       AppRoutes.product,
       arguments: {
         'category': category,
+        'categoryId': matched?.id,
         'isClosed': isRestaurantClosed.value,
         'notes': closedNotes.value,
         'restaurant': restaurantData,

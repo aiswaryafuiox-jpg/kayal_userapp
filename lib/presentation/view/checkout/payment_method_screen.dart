@@ -68,7 +68,7 @@ class PaymentMethodScreen extends StatelessWidget {
                                 ),
                                 boxShadow: isSelected ? [] : [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.02),
+                                    color: Colors.black.withValues(alpha: 0.02),
                                     blurRadius: 10,
                                     offset: const Offset(0, 4),
                                   )
@@ -119,12 +119,15 @@ class PaymentMethodScreen extends StatelessWidget {
               left: 24,
               right: 24,
               bottom: 24,
-              child: CustomButton(
-                text: 'Pay Now',
-                onPressed: controller.payNow,
-                height: 56,
-                backgroundColor: AppColors.primary,
-                borderRadius: 12,
+              child: Obx(
+                () => CustomButton(
+                  text: 'Pay Now',
+                  onPressed: controller.payNow,
+                  isLoading: controller.isLoading.value,
+                  height: 56,
+                  backgroundColor: AppColors.primary,
+                  borderRadius: 12,
+                ),
               ),
             ),
           ],

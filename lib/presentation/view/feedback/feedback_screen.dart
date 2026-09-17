@@ -74,12 +74,15 @@ class FeedbackScreen extends StatelessWidget {
               const Spacer(),
 
               // Submit Button
-              CustomButton(
-                text: 'Submit',
-                onPressed: controller.submitFeedback,
-                height: 54,
-                backgroundColor: const Color(0xFFFF823E),
-                borderRadius: 16,
+              Obx(
+                () => CustomButton(
+                  text: 'Submit',
+                  onPressed: controller.submitFeedback,
+                  isLoading: controller.isLoading.value,
+                  height: 54,
+                  backgroundColor: const Color(0xFFFF823E),
+                  borderRadius: 16,
+                ),
               ),
               const SizedBox(height: 12),
             ],

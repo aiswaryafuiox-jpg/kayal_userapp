@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kayal_userapp/core/const/app_color.dart';
-import 'package:kayal_userapp/presentation/controller/orders_controller.dart';
+import 'package:kayal_userapp/core/const/app_images.dart';
+import 'package:kayal_userapp/data/model/get_orders_response_model.dart';
 
 class OrderCard extends StatelessWidget {
-  final OrderItem order;
+  final UserOrderItemModel order;
   final VoidCallback onViewTap;
   final VoidCallback onReorderTap;
 
@@ -17,6 +18,34 @@ class OrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Color statusBgColor;
+    Color statusTextColor;
+
+    switch (order.rawStatus.toUpperCase().trim()) {
+      case 'CANCELLED':
+        statusBgColor = const Color(0xFFFFEBEE);
+        statusTextColor = const Color(0xFFE53935);
+        break;
+      case 'PENDING':
+        statusBgColor = const Color(0xFFFFF3E0);
+        statusTextColor = const Color(0xFFE65100);
+        break;
+      case 'FOOD_READY':
+        statusBgColor = const Color(0xFFE3F2FD);
+        statusTextColor = const Color(0xFF1565C0);
+        break;
+      case 'OUT_FOR_DELIVERY':
+      case 'OUT OF DELIVERY':
+        statusBgColor = const Color(0xFFEDE7F6);
+        statusTextColor = const Color(0xFF512DA8);
+        break;
+      case 'DELIVERED':
+      default:
+        statusBgColor = const Color(0xFFE8F5E9);
+        statusTextColor = const Color(0xFF2E7D32);
+        break;
+    }
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -24,7 +53,7 @@ class OrderCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -33,22 +62,34 @@ class OrderCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Product Image
+          // Product Image (Network or Asset Fallback)
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: Image.asset(
-              order.image,
+            child: SizedBox(
               width: 86,
               height: 86,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  width: 86,
-                  height: 86,
-                  color: Colors.grey.shade100,
-                  child: const Icon(Icons.image, color: Colors.grey),
-                );
-              },
+              child: (order.imageUrl != null &&
+                      order.imageUrl!.trim().startsWith('http'))
+                  ? Image.network(
+                      order.imageUrl!.trim(),
+                      width: 86,
+                      height: 86,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Image.asset(
+                          productImg1,
+                          width: 86,
+                          height: 86,
+                          fit: BoxFit.cover,
+                        );
+                      },
+                    )
+                  : Image.asset(
+                      productImg1,
+                      width: 86,
+                      height: 86,
+                      fit: BoxFit.cover,
+                    ),
             ),
           ),
           const SizedBox(width: 14),
@@ -67,7 +108,7 @@ class OrderCard extends StatelessWidget {
                         children: [
                           Flexible(
                             child: Text(
-                              order.title,
+                              order.productName,
                               style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
@@ -83,7 +124,9 @@ class OrderCard extends StatelessWidget {
                             height: 12,
                             decoration: BoxDecoration(
                               border: Border.all(
-                                color: order.isVeg ? AppColors.green : AppColors.red,
+                                color: order.isVeg
+                                    ? AppColors.green
+                                    : AppColors.red,
                                 width: 1,
                               ),
                               borderRadius: BorderRadius.circular(3),
@@ -93,7 +136,9 @@ class OrderCard extends StatelessWidget {
                                 width: 6,
                                 height: 6,
                                 decoration: BoxDecoration(
-                                  color: order.isVeg ? AppColors.green : AppColors.red,
+                                  color: order.isVeg
+                                      ? AppColors.green
+                                      : AppColors.red,
                                   shape: BoxShape.circle,
                                 ),
                               ),
@@ -119,20 +164,35 @@ class OrderCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
 
-                // Type
-                Text(
-                  order.type,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF6B7280),
-                  ),
+                // Type & Order ID
+                Row(
+                  children: [
+                    Text(
+                      order.type,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF6B7280),
+                      ),
+                    ),
+                    if (order.orderId.isNotEmpty) ...[
+                      const SizedBox(width: 8),
+                      Text(
+                        '#${order.orderId}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF9CA3AF),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
                 const SizedBox(height: 4),
 
                 // Date and Time
                 Text(
-                  order.datetime,
+                  order.date,
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
@@ -143,7 +203,7 @@ class OrderCard extends StatelessWidget {
 
                 // Price
                 Text(
-                  '₹${order.price.toInt()}',
+                  '₹${order.totalAmount.toInt()}',
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -158,31 +218,30 @@ class OrderCard extends StatelessWidget {
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 5),
+                          horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
-                        color: order.status.toLowerCase() == 'cancelled'
-                            ? const Color(0xFFFFEBEE)
-                            : const Color(0xFFE8F5E9),
+                        color: statusBgColor,
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
-                        order.status,
+                        order.displayStatus,
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
-                          color: order.status.toLowerCase() == 'cancelled'
-                              ? const Color(0xFFE53935)
-                              : const Color(0xFF2E7D32),
+                          color: statusTextColor,
                         ),
                       ),
                     ),
                     const SizedBox(width: 10),
                     InkWell(
                       onTap: () {
-                        if (order.status
-                            .toLowerCase()
-                            .contains('out of delivery')) {
+                        if (order.isOutForDelivery) {
                           Get.toNamed('/liveTracking');
+                        } else if (order.isTrackable) {
+                          Get.toNamed('/trackOrder', arguments: {
+                            'order_id': order.orderId,
+                            'custom_order_id': '#${order.orderId}',
+                          });
                         } else {
                           onReorderTap();
                         }
@@ -196,9 +255,9 @@ class OrderCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
-                          order.status.toLowerCase().contains('out of delivery')
-                              ? 'Track Order'
-                              : 'Re-Order',
+                          order.isOutForDelivery
+                              ? 'Live Track'
+                              : (order.isTrackable ? 'Track Order' : 'Re-Order'),
                           style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,

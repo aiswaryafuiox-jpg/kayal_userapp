@@ -38,12 +38,32 @@ class RestaurantCard extends StatelessWidget {
                 ),
                 child: Opacity(
                   opacity: isOpen ? 1.0 : 0.45,
-                  child: Image.asset(
-                    restaurant.image,
-                    width: double.infinity,
-                    height: 145,
-                    fit: BoxFit.cover,
-                  ),
+                  child: restaurant.image.startsWith('http://') ||
+                          restaurant.image.startsWith('https://')
+                      ? Image.network(
+                          restaurant.image,
+                          width: double.infinity,
+                          height: 145,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => Image.asset(
+                            'assets/images/homeimg.png',
+                            width: double.infinity,
+                            height: 145,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : Image.asset(
+                          restaurant.image,
+                          width: double.infinity,
+                          height: 145,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => Image.asset(
+                            'assets/images/homeimg.png',
+                            width: double.infinity,
+                            height: 145,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                 ),
               ),
 

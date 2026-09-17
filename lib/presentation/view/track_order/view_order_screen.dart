@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kayal_userapp/core/const/app_color.dart';
+import 'package:kayal_userapp/core/const/app_images.dart';
 import 'package:kayal_userapp/presentation/controller/view_order_controller.dart';
 import 'package:kayal_userapp/presentation/widgets/app_bar.dart';
 import 'package:kayal_userapp/presentation/widgets/custom_buttom.dart';
@@ -137,7 +138,7 @@ class ViewOrderScreen extends StatelessWidget {
                 border: Border.all(color: const Color(0xFFFFF0E6), width: 1.2),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
+                    color: Colors.black.withValues(alpha: 0.02),
                     blurRadius: 8,
                     offset: const Offset(0, 3),
                   ),
@@ -207,133 +208,307 @@ class ViewOrderScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFFFF0E6), width: 1.2),
-              ),
-              child: Row(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.asset(
-                      controller.itemImage,
-                      width: 76,
-                      height: 76,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Obx(
-                          () => Text(
-                            controller.itemName.value,
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF252B35),
+            Obx(() {
+              if (controller.orderItemsList.isNotEmpty) {
+                return Column(
+                  children: controller.orderItemsList.map((item) {
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: const Color(0xFFFFF0E6),
+                          width: 1.2,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: SizedBox(
+                              width: 76,
+                              height: 76,
+                              child: (item.imageUrl != null &&
+                                      item.imageUrl!.startsWith('http'))
+                                  ? Image.network(
+                                      item.imageUrl!,
+                                      width: 76,
+                                      height: 76,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              Image.asset(
+                                        productImg1,
+                                        width: 76,
+                                        height: 76,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    )
+                                  : Image.asset(
+                                      productImg1,
+                                      width: 76,
+                                      height: 76,
+                                      fit: BoxFit.cover,
+                                    ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Container(
-                              width: 12,
-                              height: 12,
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: controller.itemIsVeg.value
-                                      ? AppColors.green
-                                      : AppColors.red,
-                                  width: 1,
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item.name,
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF252B35),
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                borderRadius: BorderRadius.circular(3),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    Container(
+                                      width: 12,
+                                      height: 12,
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: item.isVeg
+                                              ? AppColors.green
+                                              : AppColors.red,
+                                          width: 1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(3),
+                                      ),
+                                      child: Center(
+                                        child: Container(
+                                          width: 6,
+                                          height: 6,
+                                          decoration: BoxDecoration(
+                                            color: item.isVeg
+                                                ? AppColors.green
+                                                : AppColors.red,
+                                            shape: BoxShape.circle,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      item.foodType,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        color: Color(0xFF6B7280),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+                                Row(
+                                  children: [
+                                    if (item.mrp > item.sellPrice) ...[
+                                      Text(
+                                        '₹${item.mrp.toInt()}',
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          color: Color(0xFF9CA3AF),
+                                          decoration: TextDecoration.lineThrough,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 6),
+                                    ],
+                                    Text(
+                                      '₹${item.sellPrice.toInt()}',
+                                      style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFFFF823E),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFF823E),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              'Qty: ${item.qty}',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
                               ),
-                              child: Center(
-                                child: Container(
-                                  width: 6,
-                                  height: 6,
-                                  decoration: BoxDecoration(
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                );
+              }
+
+              // Single Item Fallback
+              return Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: const Color(0xFFFFF0E6),
+                    width: 1.2,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Obx(() {
+                        final url = controller.itemImageUrl.value;
+                        if (url.isNotEmpty && url.startsWith('http')) {
+                          return Image.network(
+                            url,
+                            width: 76,
+                            height: 76,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Image.asset(
+                              controller.itemImage,
+                              width: 76,
+                              height: 76,
+                              fit: BoxFit.cover,
+                            ),
+                          );
+                        }
+                        return Image.asset(
+                          controller.itemImage,
+                          width: 76,
+                          height: 76,
+                          fit: BoxFit.cover,
+                        );
+                      }),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Obx(
+                            () => Text(
+                              controller.itemName.value,
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF252B35),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Container(
+                                width: 12,
+                                height: 12,
+                                decoration: BoxDecoration(
+                                  border: Border.all(
                                     color: controller.itemIsVeg.value
                                         ? AppColors.green
                                         : AppColors.red,
-                                    shape: BoxShape.circle,
+                                    width: 1,
+                                  ),
+                                  borderRadius: BorderRadius.circular(3),
+                                ),
+                                child: Center(
+                                  child: Container(
+                                    width: 6,
+                                    height: 6,
+                                    decoration: BoxDecoration(
+                                      color: controller.itemIsVeg.value
+                                          ? AppColors.green
+                                          : AppColors.red,
+                                      shape: BoxShape.circle,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 6),
-                            Obx(
-                              () => Text(
-                                controller.itemIsVeg.value
-                                    ? 'Veg'
-                                    : 'Non-Veg',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: Color(0xFF6B7280),
+                              const SizedBox(width: 6),
+                              Obx(
+                                () => Text(
+                                  controller.itemIsVeg.value
+                                      ? 'Veg'
+                                      : 'Non-Veg',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: Color(0xFF6B7280),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        Row(
-                          children: [
-                            Obx(
-                              () => Text(
-                                '₹${controller.itemOriginalPrice.value}',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: Color(0xFF9CA3AF),
-                                  decoration: TextDecoration.lineThrough,
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              Obx(
+                                () => Text(
+                                  '₹${controller.itemOriginalPrice.value}',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: Color(0xFF9CA3AF),
+                                    decoration: TextDecoration.lineThrough,
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 6),
-                            Obx(
-                              () => Text(
-                                '₹${controller.itemDiscountPrice.value}',
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700,
-                                  color: Color(0xFFFF823E),
+                              const SizedBox(width: 6),
+                              Obx(
+                                () => Text(
+                                  '₹${controller.itemDiscountPrice.value}',
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFFFF823E),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFF823E),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Obx(
-                      () => Text(
-                        'Qty: ${controller.itemQty.value}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFF823E),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Obx(
+                        () => Text(
+                          'Qty: ${controller.itemQty.value}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ),
+                  ],
+                ),
+              );
+            }),
             const SizedBox(height: 20),
 
             // Delivery Address

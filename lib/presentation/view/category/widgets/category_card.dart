@@ -46,21 +46,34 @@ class CategoryCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(5),
                 child: Opacity(
                   opacity: isClosed ? 0.45 : 1.0,
-                  child: Image.asset(
-                    image,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: const Color(0xFFF5F5F5),
-                        child: const Icon(
-                          Icons.fastfood,
-                          color: Colors.grey,
-                          size: 40,
+                  child: image.startsWith('http://') ||
+                          image.startsWith('https://')
+                      ? Image.network(
+                          image,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => Container(
+                            color: const Color(0xFFF5F5F5),
+                            child: const Icon(
+                              Icons.fastfood,
+                              color: Colors.grey,
+                              size: 40,
+                            ),
+                          ),
+                        )
+                      : Image.asset(
+                          image,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => Container(
+                            color: const Color(0xFFF5F5F5),
+                            child: const Icon(
+                              Icons.fastfood,
+                              color: Colors.grey,
+                              size: 40,
+                            ),
+                          ),
                         ),
-                      );
-                    },
-                  ),
                 ),
               ),
             ),

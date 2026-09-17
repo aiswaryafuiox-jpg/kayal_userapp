@@ -40,18 +40,32 @@ class WishlistProductCard extends StatelessWidget {
                     topLeft: Radius.circular(12),
                     topRight: Radius.circular(12),
                   ),
-                  child: Image.asset(
-                    item.image,
-                    width: double.infinity,
-                    height: double.infinity,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: Colors.grey.shade100,
-                        child: const Icon(Icons.image, color: Colors.grey),
-                      );
-                    },
-                  ),
+                  child: item.image.startsWith('http://') ||
+                          item.image.startsWith('https://')
+                      ? Image.network(
+                          item.image,
+                          width: double.infinity,
+                          height: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              color: Colors.grey.shade100,
+                              child: const Icon(Icons.image, color: Colors.grey),
+                            );
+                          },
+                        )
+                      : Image.asset(
+                          item.image.isNotEmpty ? item.image : 'assets/images/product1.png',
+                          width: double.infinity,
+                          height: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              color: Colors.grey.shade100,
+                              child: const Icon(Icons.image, color: Colors.grey),
+                            );
+                          },
+                        ),
                 ),
                 Positioned(
                   top: 10,

@@ -47,7 +47,24 @@ class CategoryList extends StatelessWidget {
                       margin: const EdgeInsets.only(left: 2),
                       decoration: const BoxDecoration(shape: BoxShape.circle),
                       child: ClipOval(
-                        child: Image.asset(item.image, fit: BoxFit.cover),
+                        child: item.image.startsWith('http://') ||
+                                item.image.startsWith('https://')
+                            ? Image.network(
+                                item.image,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, _, _) => Image.asset(
+                                  'assets/images/menu1.png',
+                                  fit: BoxFit.cover,
+                                ),
+                              )
+                            : Image.asset(
+                                item.image,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, _, _) => Image.asset(
+                                  'assets/images/menu1.png',
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                       ),
                     ),
 

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:kayal_userapp/core/const/app_color.dart';
+import 'package:kayal_userapp/presentation/controller/terms_condition_controller.dart';
 import 'package:kayal_userapp/presentation/widgets/app_bar.dart';
 
 class TermsConditionScreen extends StatelessWidget {
@@ -7,44 +9,55 @@ class TermsConditionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.put(TermsConditionController());
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: const CustomAppBar(title: 'Terms & Condition'),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text(
-              'Privacy Policy', // As per the design screenshot
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
+      body: SafeArea(
+        child: Obx(() {
+          if (controller.isLoading.value && controller.termsContent.isEmpty) {
+            return const Center(
+              child: CircularProgressIndicator(
                 color: AppColors.primary,
               ),
-            ),
-            SizedBox(height: 16),
-            Text(
-              'Ut proverbia non nulla veriora sint quam vestra dogmata. Tamen aberramus a proposito, et, ne longius, prorsus, inquam, Piso, si ista mala sunt, placet. Omnes enim iucundum motum, quo sensus hilaretur. Cum id fugiunt, re eadem defendunt, quae Peripatetici, verba. Quibusnam praeteritis? Portenta haec esse dicit, quidem hactenus; Si id dicis, vicimus. Qui ita affectus, beatum esse numquam probabis; Igitur neque stultorum quisquam beatus neque sapientium non beatus.',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-                color: AppColors.textprimary,
-                height: 1.6,
+            );
+          }
+
+          return RefreshIndicator(
+            color: AppColors.primary,
+            onRefresh: controller.fetchTerms,
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    controller.termsTitle.value,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    controller.termsContent.value,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.textprimary,
+                      height: 1.6,
+                    ),
+                  ),
+                ],
               ),
             ),
-            SizedBox(height: 20),
-            Text(
-              'Dicam, inquam, et quidem discendi causa magis, quam quo te aut Epicurum reprehensum velim. Dolor ergo, id est summum malum, metuetur semper, etiamsi non ader.',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-                color: AppColors.textprimary,
-                height: 1.6,
-              ),
-            ),
-          ],
-        ),
+          );
+        }),
       ),
     );
   }

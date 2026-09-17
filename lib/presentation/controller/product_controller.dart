@@ -1,15 +1,31 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kayal_userapp/core/const/app_images.dart';
+import 'package:kayal_userapp/core/di/service_locator.dart';
+import 'package:kayal_userapp/core/service/api_service.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
+import 'package:kayal_userapp/data/repository/category_products_repository_impl.dart';
+import 'package:kayal_userapp/domain/usecase/get_category_products_usecase.dart';
 import 'package:kayal_userapp/presentation/controller/home_controller.dart';
 import 'package:kayal_userapp/presentation/controller/wishlist_controller.dart';
 import 'package:kayal_userapp/presentation/controller/cart_controller.dart';
 
 class ProductController extends GetxController {
+  final GetCategoryProductsUseCase _getCategoryProductsUseCase;
+
+  ProductController({GetCategoryProductsUseCase? getCategoryProductsUseCase})
+      : _getCategoryProductsUseCase = getCategoryProductsUseCase ??
+            (sl.isRegistered<GetCategoryProductsUseCase>()
+                ? sl<GetCategoryProductsUseCase>()
+                : GetCategoryProductsUseCase(
+                    CategoryProductsRepositoryImpl(ApiService())));
+
   final products = <ProductModel>[].obs;
+  final RxBool isLoading = false.obs;
   final isRestaurantClosed = false.obs;
   final closedNotes =
       'This restaurant is currently unavailable.\nOpens today at 10:00 AM'.obs;
+  dynamic categoryId;
 
   @override
   void onInit() {
@@ -28,6 +44,9 @@ class ProductController extends GetxController {
               'This restaurant is currently unavailable.\n${currentArgs.openingTime}';
         }
       } else if (currentArgs is Map) {
+        if (currentArgs['categoryId'] != null) {
+          categoryId = currentArgs['categoryId'];
+        }
         if (currentArgs['isClosed'] != null) {
           isRestaurantClosed.value = currentArgs['isClosed'] == true;
         }
@@ -47,7 +66,42 @@ class ProductController extends GetxController {
     }
   }
 
+  Future<void> fetchCategoryProducts(dynamic catId) async {
+    final wishlistController = Get.find<WishlistController>();
+    try {
+      isLoading.value = true;
+      final response = await _getCategoryProductsUseCase(categoryId: catId);
+      if (response.success && response.data.isNotEmpty) {
+        final loaded = response.data.map((item) {
+          final model = ProductModel(
+            id: item.id.toString(),
+            name: item.name,
+            type: item.type,
+            isVeg: item.isVeg,
+            oldPrice: item.oldPrice > 0 ? item.oldPrice : item.price,
+            newPrice: item.price,
+            image: (item.image != null && item.image!.isNotEmpty)
+                ? item.image!
+                : productImg1,
+          );
+          model.isFavorite.value = wishlistController.isFavorite(model.name);
+          return model;
+        }).toList();
+        products.assignAll(loaded);
+      }
+    } catch (e) {
+      debugPrint('fetchCategoryProducts error: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   void _loadProducts() {
+    if (categoryId != null) {
+      fetchCategoryProducts(categoryId);
+      return;
+    }
+
     final wishlistController = Get.find<WishlistController>();
 
     final initialProducts = [

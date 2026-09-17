@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 class VerificationSuccessController extends GetxController
     with GetSingleTickerProviderStateMixin {
   late final AnimationController animationController;
