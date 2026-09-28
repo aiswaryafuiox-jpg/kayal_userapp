@@ -59,33 +59,17 @@ class SignupScreen extends StatelessWidget {
                     const SizedBox(height: 12),
 
                     // ==========================================
-                    // FIRST NAME
+                    // FULL NAME
                     // ==========================================
                     const _FieldLabel(
-                      text: 'First Name',
+                      text: 'Full Name',
                     ),
 
                     const SizedBox(height: 6),
 
                     _SignupTextField(
-                      controller: controller.firstNameController,
-                      hintText: 'Enter',
-                    ),
-
-                    const SizedBox(height: 11),
-
-                    // ==========================================
-                    // LAST NAME
-                    // ==========================================
-                    const _FieldLabel(
-                      text: 'Last Name',
-                    ),
-
-                    const SizedBox(height: 6),
-
-                    _SignupTextField(
-                      controller: controller.lastNameController,
-                      hintText: 'Enter',
+                      controller: controller.fullNameController,
+                      hintText: 'Enter your full name',
                     ),
 
                     const SizedBox(height: 11),

@@ -35,20 +35,44 @@ class VerificationSuccessController extends GetxController
 
     animationController.forward();
     _saveLoginStatus();
-    _homeTimer = Timer(const Duration(seconds: 5), () async {
+    _homeTimer = Timer(const Duration(milliseconds: 1800), () async {
       final arguments = Get.arguments;
-      if (arguments is Map && arguments['redirect'] != null) {
-        final String redirectRoute = arguments['redirect'];
-        if (redirectRoute == AppRoutes.home && arguments['tab'] != null) {
-          Get.offAllNamed<void>(
-            redirectRoute,
-            arguments: {'tab': arguments['tab']},
-          );
+      final bool isRegistered =
+          (arguments is Map && arguments['isRegistered'] == true);
+
+      if (isRegistered) {
+        // Old / existing user -> Go to Checkout screen (or specified redirect)
+        if (arguments['redirect'] != null) {
+          final String redirectRoute = arguments['redirect'].toString();
+          if (redirectRoute == AppRoutes.home && arguments['tab'] != null) {
+            Get.offAllNamed<void>(
+              redirectRoute,
+              arguments: {'tab': arguments['tab']},
+            );
+          } else {
+            Get.offAllNamed<void>(redirectRoute);
+          }
         } else {
-          Get.offAllNamed<void>(redirectRoute);
+          Get.offAllNamed<void>(AppRoutes.checkout);
         }
       } else {
-        Get.offAllNamed<void>(AppRoutes.location);
+        // New user -> Go to Signin / Signup screen to enter details
+        Get.offNamed<void>(
+          AppRoutes.signin,
+          arguments: {
+            'phoneNumber':
+                arguments is Map ? arguments['phoneNumber'] : null,
+            if (arguments is Map && arguments['fullName'] != null)
+              'fullName': arguments['fullName'],
+            if (arguments is Map && arguments['email'] != null)
+              'email': arguments['email'],
+            'isNewUser': true,
+            if (arguments is Map && arguments['redirect'] != null)
+              'redirect': arguments['redirect'],
+            if (arguments is Map && arguments['tab'] != null)
+              'tab': arguments['tab'],
+          },
+        );
       }
     });
   }

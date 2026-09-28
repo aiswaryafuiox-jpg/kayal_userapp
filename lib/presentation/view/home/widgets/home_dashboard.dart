@@ -47,7 +47,7 @@ class HomeDashboardWidget extends StatelessWidget {
           SliverToBoxAdapter(
             child: SectionTitle(
               title: 'Food Menu',
-              onTap: controller.viewCategories,
+              // onTap: controller.viewCategories,
             ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 9)),
@@ -61,32 +61,65 @@ class HomeDashboardWidget extends StatelessWidget {
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 10)),
           Obx(
-            () => SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final restaurant = controller.restaurants[index];
-                    return Padding(
-                      padding: EdgeInsets.only(
-                        bottom: index == controller.restaurants.length - 1
-                            ? 0
-                            : 14,
+            () {
+              if (controller.isRestaurantsLoading.value && controller.restaurants.isEmpty) {
+                return const SliverToBoxAdapter(
+                  child: Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 24),
+                      child: CircularProgressIndicator(
+                        color: Color(0xFFFF823E),
                       ),
-                      child: RepaintBoundary(
-                        child: GestureDetector(
-                          onTap: () => controller.onRestaurantTap(restaurant),
-                          child: RestaurantCard(
-                            restaurant: restaurant,
-                          ),
+                    ),
+                  ),
+                );
+              }
+
+              if (controller.restaurants.isEmpty) {
+                return const SliverToBoxAdapter(
+                  child: Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 24),
+                      child: Text(
+                        'No Data',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF6B7280),
                         ),
                       ),
-                    );
-                  },
-                  childCount: controller.restaurants.length,
+                    ),
+                  ),
+                );
+              }
+
+              return SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final restaurant = controller.restaurants[index];
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          bottom: index == controller.restaurants.length - 1
+                              ? 0
+                              : 14,
+                        ),
+                        child: RepaintBoundary(
+                          child: GestureDetector(
+                            onTap: () => controller.onRestaurantTap(restaurant),
+                            child: RestaurantCard(
+                              restaurant: restaurant,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                    childCount: controller.restaurants.length,
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 20)),
           const SliverToBoxAdapter(
@@ -97,8 +130,35 @@ class HomeDashboardWidget extends StatelessWidget {
           const SliverToBoxAdapter(child: SizedBox(height: 7)),
           Obx(
             () {
+              if (controller.isRestaurantsLoading.value && controller.restaurants.isEmpty) {
+                return const SliverToBoxAdapter(
+                  child: Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      child: CircularProgressIndicator(
+                        color: Color(0xFFFF823E),
+                      ),
+                    ),
+                  ),
+                );
+              }
+
               if (controller.restaurants.isEmpty) {
-                return const SliverToBoxAdapter(child: SizedBox.shrink());
+                return const SliverToBoxAdapter(
+                  child: Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      child: Text(
+                        'No Data',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF6B7280),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
               }
               final firstRestaurant = controller.restaurants.first;
               return SliverToBoxAdapter(

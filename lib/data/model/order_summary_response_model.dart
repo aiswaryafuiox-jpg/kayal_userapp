@@ -213,6 +213,7 @@ class OrderSummaryDataModel {
 
 class OrderSummaryItemModel {
   final dynamic id;
+  final dynamic rawId;
   final dynamic productId;
   final String name;
   final String? image;
@@ -222,9 +223,11 @@ class OrderSummaryItemModel {
   final String type;
   final bool isVeg;
   final double totalPrice;
+  final int foodType;
 
   OrderSummaryItemModel({
     this.id,
+    this.rawId,
     this.productId,
     required this.name,
     this.image,
@@ -234,11 +237,19 @@ class OrderSummaryItemModel {
     this.type = 'Non-Veg',
     this.isVeg = false,
     this.totalPrice = 0.0,
+    this.foodType = 0,
   });
 
   factory OrderSummaryItemModel.fromJson(Map<String, dynamic> json) {
-    final rawPrice = json['price'] ?? json['unit_price'] ?? json['new_price'] ?? json['offer_price'];
-    final rawOldPrice = json['old_price'] ?? json['original_price'] ?? json['mrp'] ?? rawPrice;
+    final rawPrice = json['sell_price'] ??
+        json['price'] ??
+        json['unit_price'] ??
+        json['new_price'] ??
+        json['offer_price'];
+    final rawOldPrice = json['mrp'] ??
+        json['old_price'] ??
+        json['original_price'] ??
+        rawPrice;
     final rawQuantity = json['quantity'] ?? json['qty'] ?? json['count'] ?? 1;
 
     final parsedPrice = rawPrice is num
@@ -253,16 +264,23 @@ class OrderSummaryItemModel {
         ? rawQuantity.toInt()
         : int.tryParse(rawQuantity?.toString() ?? '1') ?? 1;
 
-    final rawType = json['type']?.toString() ??
-        json['food_type']?.toString() ??
-        (json['is_veg'] == true ||
-                json['is_veg']?.toString() == '1' ||
-                json['veg_status']?.toString() == '1'
-            ? 'Veg'
-            : 'Non-Veg');
+    final rawFoodType = json['food_type'];
+    final parsedFoodType = rawFoodType is int
+        ? rawFoodType
+        : int.tryParse(rawFoodType?.toString() ?? '0') ?? 0;
 
-    final bool isVegProduct = rawType.toLowerCase().contains('veg') &&
-            !rawType.toLowerCase().contains('non') ||
+    final rawType = json['type']?.toString() ??
+        (rawFoodType != null
+            ? (parsedFoodType == 1 ? 'Veg' : 'Non-Veg')
+            : (json['is_veg'] == true ||
+                    json['is_veg']?.toString() == '1' ||
+                    json['veg_status']?.toString() == '1'
+                ? 'Veg'
+                : 'Non-Veg'));
+
+    final bool isVegProduct = (rawType.toLowerCase().contains('veg') &&
+            !rawType.toLowerCase().contains('non')) ||
+        parsedFoodType == 1 ||
         json['is_veg'] == true ||
         json['is_veg']?.toString() == '1' ||
         json['veg_status']?.toString() == '1';
@@ -273,17 +291,19 @@ class OrderSummaryItemModel {
         (parsedPrice * parsedQty);
     final parsedTotalPrice = rawTotalPrice is num
         ? rawTotalPrice.toDouble()
-        : double.tryParse(rawTotalPrice?.toString() ?? '0') ?? (parsedPrice * parsedQty);
+        : double.tryParse(rawTotalPrice?.toString() ?? '0') ??
+            (parsedPrice * parsedQty);
 
     return OrderSummaryItemModel(
       id: json['id'] ?? json['item_id'] ?? json['cart_id'],
+      rawId: json['raw_id'],
       productId: json['product_id'] ?? json['dish_id'] ?? json['id'],
       name: json['name']?.toString() ??
           json['product_name']?.toString() ??
           json['dish_name']?.toString() ??
           '',
-      image: json['image']?.toString() ??
-          json['image_url']?.toString() ??
+      image: json['image_url']?.toString() ??
+          json['image']?.toString() ??
           json['photo']?.toString(),
       price: parsedPrice,
       oldPrice: parsedOldPrice,
@@ -291,18 +311,24 @@ class OrderSummaryItemModel {
       type: isVegProduct ? 'Veg' : 'Non-Veg',
       isVeg: isVegProduct,
       totalPrice: parsedTotalPrice,
+      foodType: parsedFoodType,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'raw_id': rawId,
       'product_id': productId,
       'name': name,
+      'image_url': image,
       'image': image,
+      'sell_price': price,
       'price': price,
+      'mrp': oldPrice,
       'old_price': oldPrice,
       'quantity': quantity,
+      'food_type': foodType,
       'type': type,
       'is_veg': isVeg,
       'total_price': totalPrice,

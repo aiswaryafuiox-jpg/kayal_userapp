@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "197521893777",
+    "project_id": "kayal-user-app",
+    "storage_bucket": "kayal-user-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:197521893777:android:1a004296ed4d03a71d9230",
+        "android_client_info": {
+          "package_name": "com.example.kayal_userapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD7YdCgM2lMhEWr1Q9uXNVFMS_7UTLjK6M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -10,9 +10,16 @@ class OrderSummaryRepositoryImpl implements OrderSummaryRepository {
   OrderSummaryRepositoryImpl(this._apiService);
 
   @override
-  Future<OrderSummaryResponseModel> getOrderSummary() async {
+  Future<OrderSummaryResponseModel> getOrderSummary({dynamic sessionId}) async {
     try {
-      final response = await _apiService.get(ApiRoutes.getOrderSummary);
+      final Map<String, dynamic>? params =
+          (sessionId != null && sessionId.toString().isNotEmpty)
+              ? {'session_id': sessionId.toString()}
+              : null;
+      final response = await _apiService.get(
+        ApiRoutes.getOrderSummary,
+        params: params,
+      );
       return OrderSummaryResponseModel.fromJson(response);
     } on DioException catch (e) {
       if (e.response?.data != null && e.response!.data is Map<String, dynamic>) {

@@ -48,7 +48,34 @@ class _PromotionCarouselState extends State<PromotionCarousel> {
 
     return Obx(() {
       final banners = homeController?.apiBanners ?? [];
-      final bannerCount = banners.isNotEmpty ? banners.length : 3;
+      final isLoading = homeController?.isBannersLoading.value ?? false;
+
+      if (isLoading && banners.isEmpty) {
+        return Container(
+          height: 150,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(7),
+          ),
+          child: const Center(
+            child: SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+        );
+      }
+
+      if (banners.isEmpty) {
+        return const SizedBox.shrink();
+      }
+
+      final bannerCount = banners.length;
 
       return DecoratedBox(
         decoration: BoxDecoration(
@@ -78,23 +105,21 @@ class _PromotionCarouselState extends State<PromotionCarousel> {
                     },
                     itemBuilder: (context, page) {
                       final itemIndex = page % bannerCount;
-                      if (banners.isNotEmpty && itemIndex < banners.length) {
-                        final banner = banners[itemIndex];
-                        final imageUrl = banner.image;
-                        if (imageUrl != null && imageUrl.isNotEmpty) {
-                          if (imageUrl.startsWith('http://') ||
-                              imageUrl.startsWith('https://')) {
-                            return Image.network(
-                              imageUrl,
+                      final banner = banners[itemIndex];
+                      final imageUrl = banner.image;
+                      if (imageUrl != null && imageUrl.isNotEmpty) {
+                        if (imageUrl.startsWith('http://') ||
+                            imageUrl.startsWith('https://')) {
+                          return Image.network(
+                            imageUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, _, _) => const AppEmbeddedImage(
+                              asset: bannerImg,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, _, _) => const AppEmbeddedImage(
-                                asset: bannerImg,
-                                fit: BoxFit.cover,
-                                fallback:
-                                    ColoredBox(color: Color(0xFFFFC400)),
-                              ),
-                            );
-                          }
+                              fallback:
+                                  ColoredBox(color: Color(0xFFFFC400)),
+                            ),
+                          );
                         }
                       }
                       return const AppEmbeddedImage(

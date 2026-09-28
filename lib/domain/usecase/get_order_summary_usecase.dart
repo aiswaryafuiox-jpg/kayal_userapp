@@ -6,7 +6,7 @@ class GetOrderSummaryUseCase {
 
   GetOrderSummaryUseCase(this._repository);
 
-  Future<OrderSummaryResponseModel> call() async {
-    return await _repository.getOrderSummary();
+  Future<OrderSummaryResponseModel> call({dynamic sessionId}) async {
+    return await _repository.getOrderSummary(sessionId: sessionId);
   }
 }

@@ -46,27 +46,39 @@ class LoginOtpResponseModel {
 }
 
 class LoginOtpData {
+  final String? userId;
   final int expiresIn;
   final String otp;
+  final bool? isVerified;
 
   LoginOtpData({
+    this.userId,
     required this.expiresIn,
     required this.otp,
+    this.isVerified,
   });
 
   factory LoginOtpData.fromJson(Map<String, dynamic> json) {
     return LoginOtpData(
+      userId: json['user_id']?.toString(),
       expiresIn: json['expires_in'] is int
           ? json['expires_in']
           : int.tryParse(json['expires_in']?.toString() ?? '0') ?? 0,
       otp: json['otp']?.toString() ?? '',
+      isVerified: json['is_verified'] is bool
+          ? json['is_verified']
+          : (json['is_verified'] != null
+              ? json['is_verified'].toString().toLowerCase() == 'true'
+              : null),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
+      if (userId != null) 'user_id': userId,
       'expires_in': expiresIn,
       'otp': otp,
+      if (isVerified != null) 'is_verified': isVerified,
     };
   }
 }

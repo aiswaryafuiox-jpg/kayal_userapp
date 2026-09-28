@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:kayal_userapp/core/const/app_images.dart';
-
-
+import 'package:kayal_userapp/presentation/controller/cart_controller.dart';
 import 'package:kayal_userapp/presentation/controller/home_controller.dart';
 import 'package:kayal_userapp/presentation/widgets/app_embedded_image.dart';
 
@@ -100,10 +99,22 @@ class HomeHeader extends StatelessWidget {
                       ],
                     ),
                   ),
-                  _headerButton(
-                    asset: 'assets/images/heart.svg',
-                    onTap: controller.openFavorites,
-                  ),
+                  Obx(() {
+                    int count = 0;
+                    if (Get.isRegistered<CartController>()) {
+                      final cartController = Get.find<CartController>();
+                      count = cartController.cartItems.fold<int>(
+                        0,
+                        (sum, item) => sum + item.quantity.value,
+                      );
+                    }
+                    return _headerButton(
+                      asset: carticon,
+                      onTap: controller.openCart,
+                      count: count,
+                      iconColor: const Color(0xFF1F2937),
+                    );
+                  }),
                   const SizedBox(width: 8),
                   _headerButton(
                     asset: 'assets/images/notificationicon.svg',
@@ -118,7 +129,12 @@ class HomeHeader extends StatelessWidget {
     );
   }
 
-  Widget _headerButton({required String asset, required VoidCallback onTap}) {
+  Widget _headerButton({
+    required String asset,
+    required VoidCallback onTap,
+    int count = 0,
+    Color? iconColor,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -136,7 +152,42 @@ class HomeHeader extends StatelessWidget {
             ),
           ],
         ),
-        child: Center(child: SvgPicture.asset(asset, width: 22, height: 22)),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Center(
+              child: SvgPicture.asset(
+                asset,
+                width: 22,
+                height: 22,
+                colorFilter: iconColor != null
+                    ? ColorFilter.mode(iconColor, BlendMode.srcIn)
+                    : null,
+              ),
+            ),
+            if (count > 0)
+              Positioned(
+                top: 4,
+                right: 4,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFFF823E),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    '$count',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 9,
+                      fontWeight: FontWeight.w700,
+                      height: 1.0,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

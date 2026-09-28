@@ -13,7 +13,18 @@ class LocationConfirmController extends GetxController {
   final state = ''.obs;
   final pincode = ''.obs;
 
-  late Position position;
+  Position position = Position(
+    latitude: 13.0827,
+    longitude: 80.2707,
+    timestamp: DateTime.now(),
+    accuracy: 0.0,
+    altitude: 0.0,
+    altitudeAccuracy: 0.0,
+    heading: 0.0,
+    headingAccuracy: 0.0,
+    speed: 0.0,
+    speedAccuracy: 0.0,
+  );
 
   @override
   void onInit() {
@@ -23,8 +34,8 @@ class LocationConfirmController extends GetxController {
 
     if (arguments != null && arguments is Position) {
       position = arguments;
-      getAddress();
     }
+    getAddress();
   }
 
   Future<void> getAddress() async {

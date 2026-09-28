@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:kayal_userapp/core/service/local_storage_service.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class OnboardingController extends GetxController {
   final PageController pageController = PageController();
   final RxInt currentPage = 0.obs;
+  final LocalStorageService _storage = LocalStorageService();
 
   static const int pageCount = 3;
 
@@ -13,11 +14,16 @@ class OnboardingController extends GetxController {
     currentPage.value = page;
   }
 
+  Future<void> _proceedToLocation() async {
+    await _storage.init();
+    await _storage.setSeenOnboarding(true);
+    _storage.getOrCreateSessionId();
+    Get.offAllNamed<void>(AppRoutes.location);
+  }
+
   Future<void> nextPage() async {
     if (currentPage.value >= pageCount - 1) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('hasSeenOnboarding', true);
-      Get.offAllNamed<void>(AppRoutes.location);
+      await _proceedToLocation();
       return;
     }
 
@@ -39,9 +45,7 @@ class OnboardingController extends GetxController {
   }
 
   Future<void> skipToLastPage() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('hasSeenOnboarding', true);
-    Get.offAllNamed<void>(AppRoutes.location);
+    await _proceedToLocation();
   }
 
   @override

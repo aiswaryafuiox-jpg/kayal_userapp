@@ -85,6 +85,12 @@ class ProfileController extends GetxController {
         if (data.profileImage != null && data.profileImage!.isNotEmpty) {
           profileImageUrl.value = data.profileImage!;
         }
+
+        await LocalStorageService().saveUserData(
+          fullName: data.fullName,
+          phoneNumber: data.phone,
+          email: data.email,
+        );
       } else {
         errorMessage.value = response.formattedErrorMessage.isNotEmpty
             ? response.formattedErrorMessage

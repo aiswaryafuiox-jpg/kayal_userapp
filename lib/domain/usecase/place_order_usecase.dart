@@ -11,12 +11,14 @@ class PlaceOrderUseCase {
     required String paymentMethod,
     String? specialInstructions,
     String? tipAmount,
+    dynamic sessionId,
   }) async {
     return await _repository.placeOrder(
       addressId: addressId,
       paymentMethod: paymentMethod,
       specialInstructions: specialInstructions,
       tipAmount: tipAmount,
+      sessionId: sessionId,
     );
   }
 }

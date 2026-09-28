@@ -14,6 +14,8 @@ import '../../domain/repository/resend_login_otp_repository.dart';
 import '../../data/repository/resend_login_otp_repository_impl.dart';
 import '../../domain/repository/signup_repository.dart';
 import '../../data/repository/signup_repository_impl.dart';
+import '../../domain/repository/signup_profile_repository.dart';
+import '../../data/repository/signup_profile_repository_impl.dart';
 import '../../domain/repository/verify_signup_otp_repository.dart';
 import '../../data/repository/verify_signup_otp_repository_impl.dart';
 import '../../domain/repository/resend_signup_otp_repository.dart';
@@ -98,6 +100,7 @@ import '../../domain/usecase/login_otp_usecase.dart';
 import '../../domain/usecase/verify_login_otp_usecase.dart';
 import '../../domain/usecase/resend_login_otp_usecase.dart';
 import '../../domain/usecase/signup_usecase.dart';
+import '../../domain/usecase/signup_profile_usecase.dart';
 import '../../domain/usecase/verify_signup_otp_usecase.dart';
 import '../../domain/usecase/resend_signup_otp_usecase.dart';
 import '../../domain/usecase/search_usecase.dart';
@@ -179,6 +182,12 @@ Future<void> initDependencies() async {
   if (!sl.isRegistered<SignupRepository>()) {
     sl.registerLazySingleton<SignupRepository>(
       () => SignupRepositoryImpl(sl<ApiService>()),
+    );
+  }
+
+  if (!sl.isRegistered<SignupProfileRepository>()) {
+    sl.registerLazySingleton<SignupProfileRepository>(
+      () => SignupProfileRepositoryImpl(sl<ApiService>()),
     );
   }
 
@@ -438,6 +447,12 @@ Future<void> initDependencies() async {
   if (!sl.isRegistered<SignupUseCase>()) {
     sl.registerLazySingleton<SignupUseCase>(
       () => SignupUseCase(sl<SignupRepository>()),
+    );
+  }
+
+  if (!sl.isRegistered<SignupProfileUseCase>()) {
+    sl.registerLazySingleton<SignupProfileUseCase>(
+      () => SignupProfileUseCase(sl<SignupProfileRepository>()),
     );
   }
 

@@ -6,5 +6,6 @@ abstract class PlaceOrderRepository {
     required String paymentMethod,
     String? specialInstructions,
     String? tipAmount,
+    dynamic sessionId,
   });
 }

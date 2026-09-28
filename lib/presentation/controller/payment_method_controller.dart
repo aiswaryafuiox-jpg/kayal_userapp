@@ -17,33 +17,28 @@ class PaymentMethodController extends GetxController {
   PaymentMethodController({
     PlaceOrderUseCase? placeOrderUseCase,
     InitiatePaymentUseCase? initiatePaymentUseCase,
-  })  : _placeOrderUseCase = placeOrderUseCase ??
-            (sl.isRegistered<PlaceOrderUseCase>()
-                ? sl<PlaceOrderUseCase>()
-                : PlaceOrderUseCase(
-                    PlaceOrderRepositoryImpl(ApiService()))),
-        _initiatePaymentUseCase = initiatePaymentUseCase ??
-            (sl.isRegistered<InitiatePaymentUseCase>()
-                ? sl<InitiatePaymentUseCase>()
-                : InitiatePaymentUseCase(
-                    InitiatePaymentRepositoryImpl(ApiService())));
+  }) : _placeOrderUseCase =
+           placeOrderUseCase ??
+           (sl.isRegistered<PlaceOrderUseCase>()
+               ? sl<PlaceOrderUseCase>()
+               : PlaceOrderUseCase(PlaceOrderRepositoryImpl(ApiService()))),
+       _initiatePaymentUseCase =
+           initiatePaymentUseCase ??
+           (sl.isRegistered<InitiatePaymentUseCase>()
+               ? sl<InitiatePaymentUseCase>()
+               : InitiatePaymentUseCase(
+                   InitiatePaymentRepositoryImpl(ApiService()),
+                 ));
 
-  final selectedMethodIndex = 1.obs; // Default to Cash on delivery based on mockup
+  final selectedMethodIndex =
+      1.obs; // Default to Cash on delivery based on mockup
   final isLoading = false.obs;
   dynamic addressId;
   dynamic orderAmount;
 
   final paymentMethods = [
-    {
-      'title': 'Online Transaction',
-      'icon': 'online',
-      'key': 'online',
-    },
-    {
-      'title': 'Cash on delivery',
-      'icon': 'cod',
-      'key': 'cash_on_delivery',
-    },
+    {'title': 'Online Transaction', 'icon': 'online', 'key': 'online'},
+    {'title': 'Cash on delivery', 'icon': 'cod', 'key': 'cash_on_delivery'},
   ].obs;
 
   @override
@@ -79,7 +74,8 @@ class PaymentMethodController extends GetxController {
   String get currentPaymentMethodKey {
     if (selectedMethodIndex.value >= 0 &&
         selectedMethodIndex.value < paymentMethods.length) {
-      return paymentMethods[selectedMethodIndex.value]['key'] ?? 'cash_on_delivery';
+      return paymentMethods[selectedMethodIndex.value]['key'] ??
+          'cash_on_delivery';
     }
     return 'cash_on_delivery';
   }
@@ -120,7 +116,9 @@ class PaymentMethodController extends GetxController {
           );
 
           if (paymentResponse != null && !paymentResponse.success) {
-            debugPrint('Payment gateway note: ${paymentResponse.formattedErrorMessage}');
+            debugPrint(
+              'Payment gateway note: ${paymentResponse.formattedErrorMessage}',
+            );
           }
         }
 

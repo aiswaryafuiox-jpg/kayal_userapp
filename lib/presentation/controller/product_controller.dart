@@ -25,6 +25,7 @@ class ProductController extends GetxController {
   final isRestaurantClosed = false.obs;
   final closedNotes =
       'This restaurant is currently unavailable.\nOpens today at 10:00 AM'.obs;
+  final title = 'Product List'.obs;
   dynamic categoryId;
 
   @override
@@ -37,13 +38,24 @@ class ProductController extends GetxController {
   void updateArguments([dynamic args]) {
     final currentArgs = args ?? Get.arguments;
     if (currentArgs != null) {
+      final oldCatId = categoryId;
       if (currentArgs is RestaurantItem) {
+        title.value = currentArgs.name;
         isRestaurantClosed.value = !currentArgs.isOpen;
         if (!currentArgs.isOpen) {
           closedNotes.value =
               'This restaurant is currently unavailable.\n${currentArgs.openingTime}';
         }
+        if (currentArgs.id != null) {
+          categoryId = currentArgs.id;
+        }
       } else if (currentArgs is Map) {
+        if (currentArgs['category'] != null) {
+          title.value = '${currentArgs['category']} List';
+        } else if (currentArgs['restaurant'] != null &&
+            currentArgs['restaurant'] is RestaurantItem) {
+          title.value = (currentArgs['restaurant'] as RestaurantItem).name;
+        }
         if (currentArgs['categoryId'] != null) {
           categoryId = currentArgs['categoryId'];
         }
@@ -57,17 +69,28 @@ class ProductController extends GetxController {
             currentArgs['restaurant'] is RestaurantItem) {
           final RestaurantItem r = currentArgs['restaurant'];
           isRestaurantClosed.value = !r.isOpen;
+          if (categoryId == null && r.id != null) {
+            categoryId = r.id;
+          }
           if (!r.isOpen) {
             closedNotes.value =
                 'This restaurant is currently unavailable.\n${r.openingTime}';
           }
         }
       }
+
+      if (categoryId != null &&
+          (categoryId != oldCatId || products.isEmpty) &&
+          !isLoading.value) {
+        fetchCategoryProducts(categoryId);
+      }
     }
   }
 
   Future<void> fetchCategoryProducts(dynamic catId) async {
-    final wishlistController = Get.find<WishlistController>();
+    final wishlistController = Get.isRegistered<WishlistController>()
+        ? Get.find<WishlistController>()
+        : null;
     try {
       isLoading.value = true;
       final response = await _getCategoryProductsUseCase(categoryId: catId);
@@ -84,13 +107,18 @@ class ProductController extends GetxController {
                 ? item.image!
                 : productImg1,
           );
-          model.isFavorite.value = wishlistController.isFavorite(model.name);
+          if (wishlistController != null) {
+            model.isFavorite.value = wishlistController.isFavorite(model.name);
+          }
           return model;
         }).toList();
         products.assignAll(loaded);
+      } else {
+        products.clear();
       }
     } catch (e) {
       debugPrint('fetchCategoryProducts error: $e');
+      products.clear();
     } finally {
       isLoading.value = false;
     }
@@ -99,73 +127,9 @@ class ProductController extends GetxController {
   void _loadProducts() {
     if (categoryId != null) {
       fetchCategoryProducts(categoryId);
-      return;
+    } else {
+      products.clear();
     }
-
-    final wishlistController = Get.find<WishlistController>();
-
-    final initialProducts = [
-      ProductModel(
-        id: '1',
-        name: 'Veg Chilly Pizza',
-        type: 'Veg',
-        isVeg: true,
-        oldPrice: 200,
-        newPrice: 150,
-        image: productImg1,
-      ),
-      ProductModel(
-        id: '2',
-        name: 'Chicken Pizza',
-        type: 'Non-Veg',
-        isVeg: false,
-        oldPrice: 200,
-        newPrice: 150,
-        image: productImg2,
-      ),
-      ProductModel(
-        id: '3',
-        name: 'The Spice Pizza',
-        type: 'Veg',
-        isVeg: true,
-        oldPrice: 200,
-        newPrice: 150,
-        image: productImg3,
-      ),
-      ProductModel(
-        id: '4',
-        name: 'The Spice Pizza',
-        type: 'Veg',
-        isVeg: true,
-        oldPrice: 200,
-        newPrice: 150,
-        image: productImg4,
-      ),
-      ProductModel(
-        id: '5',
-        name: 'Mushroom Pizza',
-        type: 'Veg',
-        isVeg: true,
-        oldPrice: 200,
-        newPrice: 150,
-        image: productImg5,
-      ),
-      ProductModel(
-        id: '6',
-        name: 'Corn pizza',
-        type: 'Veg',
-        isVeg: true,
-        oldPrice: 200,
-        newPrice: 150,
-        image: productImg6,
-      ),
-    ];
-
-    for (var product in initialProducts) {
-      product.isFavorite.value = wishlistController.isFavorite(product.name);
-    }
-
-    products.assignAll(initialProducts);
   }
 
   void toggleFavorite(String id) {

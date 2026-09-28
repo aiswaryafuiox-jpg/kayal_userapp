@@ -1,7 +1,7 @@
 class ApiRoutes {
   static const String baseURL =
       'http://64.227.170.206/kayal.com/public/api/user';
-  // static const String imageBaseURL = 'https://pickmysnacks.com/storage/';
+  static const String imageBaseURL = 'http://64.227.170.206/kayal.com/public/storage/';
   static const String apiKey = 'sdfghjkcvbnfghjkcvbnmdfghjdfvgbncvbn';
 
   // Endpoints
@@ -26,10 +26,12 @@ class ApiRoutes {
   static const String popularRestaurants = '/popular_restaurants';
   static const String banner = '/banner';
   static const String search = '/search';
-  static const String loginOtp = '/login_otp';
+  static const String registerLogin = '/register_login';
+  static const String loginOtp = '/register_login';
   static const String verifyLoginOtp = '/verify_login_otp';
   static const String resendLoginOtp = '/resend_login_otp';
   static const String signup = '/signup';
+  static const String signupProfile = '/signup_profile';
   static const String verifySignupOtp = '/verify_signup_otp';
   static const String resendSignupOtp = '/resend_signup_otp';
   static const String savedAddress = '/saved_address';

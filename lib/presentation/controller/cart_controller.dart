@@ -20,7 +20,6 @@ import 'package:kayal_userapp/domain/usecase/clear_cart_usecase.dart';
 import 'package:kayal_userapp/domain/usecase/get_cart_usecase.dart';
 import 'package:kayal_userapp/domain/usecase/remove_cart_item_usecase.dart';
 import 'package:kayal_userapp/domain/usecase/update_quantity_usecase.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class CartItemModel {
   final String id;
@@ -59,26 +58,35 @@ class CartController extends GetxController {
     UpdateQuantityUseCase? updateQuantityUseCase,
     RemoveCartItemUseCase? removeCartItemUseCase,
     ClearCartUseCase? clearCartUseCase,
-  })  : _addToCartUseCase = addToCartUseCase ??
-            (sl.isRegistered<AddToCartUseCase>()
-                ? sl<AddToCartUseCase>()
-                : AddToCartUseCase(AddToCartRepositoryImpl(ApiService()))),
-        _getCartUseCase = getCartUseCase ??
-            (sl.isRegistered<GetCartUseCase>()
-                ? sl<GetCartUseCase>()
-                : GetCartUseCase(GetCartRepositoryImpl(ApiService()))),
-        _updateQuantityUseCase = updateQuantityUseCase ??
-            (sl.isRegistered<UpdateQuantityUseCase>()
-                ? sl<UpdateQuantityUseCase>()
-                : UpdateQuantityUseCase(UpdateQuantityRepositoryImpl(ApiService()))),
-        _removeCartItemUseCase = removeCartItemUseCase ??
-            (sl.isRegistered<RemoveCartItemUseCase>()
-                ? sl<RemoveCartItemUseCase>()
-                : RemoveCartItemUseCase(RemoveCartItemRepositoryImpl(ApiService()))),
-        _clearCartUseCase = clearCartUseCase ??
-            (sl.isRegistered<ClearCartUseCase>()
-                ? sl<ClearCartUseCase>()
-                : ClearCartUseCase(ClearCartRepositoryImpl(ApiService())));
+  }) : _addToCartUseCase =
+           addToCartUseCase ??
+           (sl.isRegistered<AddToCartUseCase>()
+               ? sl<AddToCartUseCase>()
+               : AddToCartUseCase(AddToCartRepositoryImpl(ApiService()))),
+       _getCartUseCase =
+           getCartUseCase ??
+           (sl.isRegistered<GetCartUseCase>()
+               ? sl<GetCartUseCase>()
+               : GetCartUseCase(GetCartRepositoryImpl(ApiService()))),
+       _updateQuantityUseCase =
+           updateQuantityUseCase ??
+           (sl.isRegistered<UpdateQuantityUseCase>()
+               ? sl<UpdateQuantityUseCase>()
+               : UpdateQuantityUseCase(
+                   UpdateQuantityRepositoryImpl(ApiService()),
+                 )),
+       _removeCartItemUseCase =
+           removeCartItemUseCase ??
+           (sl.isRegistered<RemoveCartItemUseCase>()
+               ? sl<RemoveCartItemUseCase>()
+               : RemoveCartItemUseCase(
+                   RemoveCartItemRepositoryImpl(ApiService()),
+                 )),
+       _clearCartUseCase =
+           clearCartUseCase ??
+           (sl.isRegistered<ClearCartUseCase>()
+               ? sl<ClearCartUseCase>()
+               : ClearCartUseCase(ClearCartRepositoryImpl(ApiService())));
 
   final cartItems = <CartItemModel>[].obs;
   final Rxn<GetCartDataModel> cartData = Rxn<GetCartDataModel>();
@@ -94,7 +102,9 @@ class CartController extends GetxController {
 
   Future<void> fetchCart({bool showLoading = true}) async {
     final token = LocalStorageService().getString("auth_token");
-    if (token == null || token.trim().isEmpty || token.startsWith("pms_token_")) {
+    if (token == null ||
+        token.trim().isEmpty ||
+        token.startsWith("pms_token_")) {
       cartItems.clear();
       cartData.value = null;
       isLoadingCart.value = false;
@@ -149,7 +159,9 @@ class CartController extends GetxController {
     required String image,
     int quantity = 1,
   }) async {
-    final index = cartItems.indexWhere((item) => item.name == name || item.id == id);
+    final index = cartItems.indexWhere(
+      (item) => item.name == name || item.id == id,
+    );
     if (index != -1) {
       cartItems[index].quantity.value += quantity;
     } else {
@@ -258,9 +270,7 @@ class CartController extends GetxController {
   }) async {
     try {
       isApiLoading.value = true;
-      final response = await _removeCartItemUseCase(
-        cartId: cartId,
-      );
+      final response = await _removeCartItemUseCase(cartId: cartId);
       if (response.success) {
         fetchCart(showLoading: false);
       }
@@ -319,8 +329,7 @@ class CartController extends GetxController {
       return;
     }
 
-    final prefs = await SharedPreferences.getInstance();
-    final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+    final isLoggedIn = LocalStorageService().isLoggedIn();
 
     if (isLoggedIn) {
       Get.toNamed(AppRoutes.orderSummary);

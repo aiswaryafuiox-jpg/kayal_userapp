@@ -1,11 +1,13 @@
 import 'package:dio/dio.dart';
 import 'package:kayal_userapp/core/const/api_routes.dart';
 import 'package:kayal_userapp/core/service/api_service.dart';
+import 'package:kayal_userapp/core/service/local_storage_service.dart';
 import 'package:kayal_userapp/data/model/add_to_cart_response_model.dart';
 import 'package:kayal_userapp/domain/repository/add_to_cart_repository.dart';
 
 class AddToCartRepositoryImpl implements AddToCartRepository {
   final ApiService _apiService;
+  final LocalStorageService _storage = LocalStorageService();
 
   AddToCartRepositoryImpl(this._apiService);
 
@@ -13,13 +15,19 @@ class AddToCartRepositoryImpl implements AddToCartRepository {
   Future<AddToCartResponseModel> addToCart({
     required dynamic productId,
     dynamic quantity,
+    dynamic sessionId,
   }) async {
     try {
       final int? parsedId = int.tryParse(productId.toString());
       final dynamic validProductId = (parsedId != null && parsedId > 0) ? parsedId : productId;
 
+      final session = (sessionId != null && sessionId.toString().trim().isNotEmpty)
+          ? sessionId.toString().trim()
+          : _storage.getOrCreateSessionId();
+
       final Map<String, dynamic> data = {
         'product_id': validProductId.toString(),
+        'session_id': session,
       };
       if (quantity != null) {
         final int? parsedQty = int.tryParse(quantity.toString());

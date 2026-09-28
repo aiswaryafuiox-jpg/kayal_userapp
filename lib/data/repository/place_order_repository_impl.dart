@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:kayal_userapp/core/const/api_routes.dart';
 import 'package:kayal_userapp/core/service/api_service.dart';
+import 'package:kayal_userapp/core/service/local_storage_service.dart';
 import 'package:kayal_userapp/data/model/place_order_response_model.dart';
 import 'package:kayal_userapp/domain/repository/place_order_repository.dart';
 
@@ -15,6 +16,7 @@ class PlaceOrderRepositoryImpl implements PlaceOrderRepository {
     required String paymentMethod,
     String? specialInstructions,
     String? tipAmount,
+    dynamic sessionId,
   }) async {
     try {
       dynamic cleanAddressId = addressId;
@@ -36,7 +38,7 @@ class PlaceOrderRepositoryImpl implements PlaceOrderRepository {
       }
 
       final dataMap = <String, dynamic>{
-        'address_id': cleanAddressId,
+        'address_id': cleanAddressId.toString(),
         'payment_method': paymentMethod,
       };
 
@@ -45,6 +47,14 @@ class PlaceOrderRepositoryImpl implements PlaceOrderRepository {
       }
       if (tipAmount != null && tipAmount.isNotEmpty) {
         dataMap['tip_amount'] = tipAmount;
+      }
+      
+      final effectiveSessionId = (sessionId != null && sessionId.toString().isNotEmpty)
+          ? sessionId.toString()
+          : (LocalStorageService().getSessionId() ?? LocalStorageService().getOrCreateSessionId());
+
+      if (effectiveSessionId.isNotEmpty) {
+        dataMap['session_id'] = effectiveSessionId;
       }
 
       final response = await _apiService.post(

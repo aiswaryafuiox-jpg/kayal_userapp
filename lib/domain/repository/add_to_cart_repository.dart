@@ -4,5 +4,6 @@ abstract class AddToCartRepository {
   Future<AddToCartResponseModel> addToCart({
     required dynamic productId,
     dynamic quantity,
+    dynamic sessionId,
   });
 }

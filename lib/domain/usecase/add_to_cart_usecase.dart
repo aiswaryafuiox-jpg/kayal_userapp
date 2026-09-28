@@ -9,10 +9,12 @@ class AddToCartUseCase {
   Future<AddToCartResponseModel> call({
     required dynamic productId,
     dynamic quantity,
+    dynamic sessionId,
   }) async {
     return await _repository.addToCart(
       productId: productId,
       quantity: quantity,
+      sessionId: sessionId,
     );
   }
 }

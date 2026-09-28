@@ -14,6 +14,8 @@ import 'package:kayal_userapp/domain/usecase/resend_login_otp_usecase.dart';
 import 'package:kayal_userapp/domain/usecase/resend_signup_otp_usecase.dart';
 import 'package:kayal_userapp/domain/usecase/verify_login_otp_usecase.dart';
 import 'package:kayal_userapp/domain/usecase/verify_signup_otp_usecase.dart';
+import 'package:kayal_userapp/presentation/controller/auth/login_controller.dart';
+import 'package:kayal_userapp/presentation/controller/auth/signin_controller.dart';
 import 'package:kayal_userapp/presentation/widgets/app_notification.dart';
 
 class OtpController extends GetxController {
@@ -99,13 +101,17 @@ class OtpController extends GetxController {
     _startTimer();
     otpFocusNode.addListener(_handleFocusChange);
 
-    // If OTP was passed in arguments (for convenience/testing)
     final argument = Get.arguments;
     if (argument is Map && argument['otp'] != null) {
       final passedOtp = argument['otp'].toString();
       if (passedOtp.isNotEmpty) {
-        otpController.text = passedOtp;
-        onOtpChanged(passedOtp);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          AppNotification.showSuccess(
+            title: 'Your OTP',
+            message: 'Your verification OTP is: $passedOtp',
+          );
+          otpFocusNode.requestFocus();
+        });
       }
     }
   }
@@ -134,7 +140,43 @@ class OtpController extends GetxController {
   }
 
   void editPhoneNumber() {
-    Get.offAllNamed<void>(AppRoutes.login);
+    if (isSignUp) {
+      if (Get.isRegistered<SignupController>()) {
+        final signupCtrl = Get.find<SignupController>();
+        if (phoneNumber.isNotEmpty) {
+          signupCtrl.phoneController.text = phoneNumber;
+          signupCtrl.phoneController.selection = TextSelection.fromPosition(
+            TextPosition(offset: phoneNumber.length),
+          );
+        }
+      }
+      if (Get.previousRoute == AppRoutes.signin) {
+        Get.back();
+      } else {
+        Get.offAllNamed<void>(
+          AppRoutes.signin,
+          arguments: {'phoneNumber': phoneNumber},
+        );
+      }
+    } else {
+      if (Get.isRegistered<LoginController>()) {
+        final loginCtrl = Get.find<LoginController>();
+        if (phoneNumber.isNotEmpty) {
+          loginCtrl.phoneController.text = phoneNumber;
+          loginCtrl.phoneController.selection = TextSelection.fromPosition(
+            TextPosition(offset: phoneNumber.length),
+          );
+        }
+      }
+      if (Get.previousRoute == AppRoutes.login) {
+        Get.back();
+      } else {
+        Get.offAllNamed<void>(
+          AppRoutes.login,
+          arguments: {'phoneNumber': phoneNumber},
+        );
+      }
+    }
   }
 
   Future<void> verifyOtp() async {
@@ -149,10 +191,6 @@ class OtpController extends GetxController {
     }
 
     final argument = Get.arguments;
-    dynamic nextArgs;
-    if (argument is Map) {
-      nextArgs = argument;
-    }
 
     try {
       isLoading.value = true;
@@ -164,11 +202,25 @@ class OtpController extends GetxController {
         );
 
         if (response.success) {
+          final storage = LocalStorageService();
           if (response.data != null && response.data!.token.isNotEmpty) {
-            final storage = LocalStorageService();
             await storage.saveString('auth_token', response.data!.token);
             await storage.saveString('user_id', response.data!.userId);
             await storage.saveBool('is_logged_in', true);
+          }
+          if (phoneNumber.isNotEmpty) {
+            await storage.saveString('phone_number', phoneNumber);
+          }
+          if (argument is Map) {
+            final argName = argument['fullName']?.toString() ?? argument['name']?.toString();
+            final argEmail = argument['email']?.toString();
+            if (argName != null && argName.isNotEmpty) {
+              await storage.saveString('full_name', argName);
+              await storage.saveString('user_name', argName);
+            }
+            if (argEmail != null && argEmail.isNotEmpty) {
+              await storage.saveString('email', argEmail);
+            }
           }
 
           AppNotification.showSuccess(
@@ -180,7 +232,18 @@ class OtpController extends GetxController {
 
           Get.offNamed<void>(
             AppRoutes.verificationSuccess,
-            arguments: nextArgs,
+            arguments: {
+              'phoneNumber': phoneNumber,
+              'isRegistered': false,
+              if (argument is Map && argument['fullName'] != null)
+                'fullName': argument['fullName'],
+              if (argument is Map && argument['email'] != null)
+                'email': argument['email'],
+              if (argument is Map && argument['redirect'] != null)
+                'redirect': argument['redirect'],
+              if (argument is Map && argument['tab'] != null)
+                'tab': argument['tab'],
+            },
           );
         } else {
           final errorMsg = response.formattedErrorMessage.isNotEmpty
@@ -198,11 +261,14 @@ class OtpController extends GetxController {
         );
 
         if (response.success) {
+          final storage = LocalStorageService();
           if (response.data != null && response.data!.token.isNotEmpty) {
-            final storage = LocalStorageService();
             await storage.saveString('auth_token', response.data!.token);
             await storage.saveString('user_id', response.data!.userId);
             await storage.saveBool('is_logged_in', true);
+          }
+          if (phoneNumber.isNotEmpty) {
+            await storage.saveString('phone_number', phoneNumber);
           }
 
           AppNotification.showSuccess(
@@ -212,9 +278,18 @@ class OtpController extends GetxController {
                 : 'Login successful',
           );
 
+          final bool isRegistered = response.data?.isRegistered ?? false;
+
           Get.offNamed<void>(
             AppRoutes.verificationSuccess,
-            arguments: nextArgs,
+            arguments: {
+              'phoneNumber': phoneNumber,
+              'isRegistered': isRegistered,
+              if (argument is Map && argument['redirect'] != null)
+                'redirect': argument['redirect'],
+              if (argument is Map && argument['tab'] != null)
+                'tab': argument['tab'],
+            },
           );
         } else {
           final errorMsg = response.formattedErrorMessage.isNotEmpty
@@ -252,11 +327,15 @@ class OtpController extends GetxController {
 
         if (response.success) {
           _resetOtpState();
+          final otp = response.data?.otp;
+          final otpMsg = (otp != null && otp.isNotEmpty)
+              ? 'Signup OTP resent successfully. Your OTP is: $otp'
+              : (response.message.isNotEmpty
+                  ? response.message
+                  : 'Signup OTP resent successfully.');
           AppNotification.showSuccess(
             title: 'OTP Sent',
-            message: response.message.isNotEmpty
-                ? response.message
-                : 'Signup OTP resent successfully.',
+            message: otpMsg,
           );
         } else {
           final errorMsg = response.formattedErrorMessage.isNotEmpty
@@ -272,11 +351,15 @@ class OtpController extends GetxController {
 
         if (response.success) {
           _resetOtpState();
+          final otp = response.data?.otp;
+          final otpMsg = (otp != null && otp.isNotEmpty)
+              ? 'Login OTP resent successfully. Your OTP is: $otp'
+              : (response.message.isNotEmpty
+                  ? response.message
+                  : 'Login OTP resent successfully.');
           AppNotification.showSuccess(
             title: 'OTP Sent',
-            message: response.message.isNotEmpty
-                ? response.message
-                : 'Login OTP resent successfully.',
+            message: otpMsg,
           );
         } else {
           final errorMsg = response.formattedErrorMessage.isNotEmpty

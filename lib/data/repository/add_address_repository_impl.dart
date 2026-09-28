@@ -41,10 +41,10 @@ class AddAddressRepositoryImpl implements AddAddressRepository {
         dataMap['state'] = state.trim();
       }
       if (latitude != null) {
-        dataMap['latitude'] = latitude;
+        dataMap['latitude'] = latitude.toString();
       }
       if (longitude != null) {
-        dataMap['longitude'] = longitude;
+        dataMap['longitude'] = longitude.toString();
       }
 
       final response = await _apiService.post(

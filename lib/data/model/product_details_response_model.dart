@@ -34,6 +34,13 @@ class ProductDetailsResponseModel {
         detail = ProductDetailDataModel.fromJson(
           Map<String, dynamic>.from(json['data'] as Map),
         );
+      } else if (json['data'] is List && (json['data'] as List).isNotEmpty) {
+        final first = (json['data'] as List).first;
+        if (first is Map) {
+          detail = ProductDetailDataModel.fromJson(
+            Map<String, dynamic>.from(first),
+          );
+        }
       }
     } else if (json['product'] != null &&
         json['product'] is Map<String, dynamic>) {
@@ -88,6 +95,7 @@ class ProductDetailsResponseModel {
 
 class ProductDetailDataModel {
   final dynamic id;
+  final dynamic rawId;
   final String name;
   final String? description;
   final String? image;
@@ -100,9 +108,12 @@ class ProductDetailDataModel {
   final dynamic restaurantId;
   final dynamic rating;
   final dynamic status;
+  final int foodType;
+  final int cartQuantity;
 
   ProductDetailDataModel({
     this.id,
+    this.rawId,
     required this.name,
     this.description,
     this.image,
@@ -115,14 +126,22 @@ class ProductDetailDataModel {
     this.restaurantId,
     this.rating,
     this.status,
+    this.foodType = 0,
+    this.cartQuantity = 0,
   });
 
   factory ProductDetailDataModel.fromJson(Map<String, dynamic> json) {
-    final rawPrice = json['price'] ?? json['new_price'] ?? json['offer_price'];
+    final rawPrice =
+        json['sell_price'] ??
+        json['price'] ??
+        json['new_price'] ??
+        json['offer_price'] ??
+        json['dish_price'] ??
+        json['product_price'];
     final rawOldPrice =
+        json['mrp'] ??
         json['old_price'] ??
         json['original_price'] ??
-        json['mrp'] ??
         json['regular_price'] ??
         rawPrice;
 
@@ -134,27 +153,40 @@ class ProductDetailDataModel {
         ? rawOldPrice.toDouble()
         : double.tryParse(rawOldPrice?.toString() ?? '0') ?? parsedPrice;
 
+    final double finalPrice = parsedPrice > 0 ? parsedPrice : parsedOldPrice;
+    final double finalOldPrice =
+        parsedOldPrice > 0 ? parsedOldPrice : finalPrice;
+
+    final rawFoodType = json['food_type'];
+    final parsedFoodType = rawFoodType is int
+        ? rawFoodType
+        : int.tryParse(rawFoodType?.toString() ?? '0') ?? 0;
+
     final rawType =
         json['type']?.toString() ??
-        json['food_type']?.toString() ??
-        (json['is_veg'] == true ||
-                json['is_veg']?.toString() == '1' ||
-                json['veg_status']?.toString() == '1'
-            ? 'Veg'
-            : 'Non-Veg');
+        (rawFoodType != null
+            ? (parsedFoodType == 1 ? 'Veg' : 'Non-Veg')
+            : (json['is_veg'] == true ||
+                    json['is_veg']?.toString() == '1' ||
+                    json['veg_status']?.toString() == '1'
+                ? 'Veg'
+                : 'Non-Veg'));
 
     final bool isVegProduct =
-        rawType.toLowerCase().contains('veg') &&
-            !rawType.toLowerCase().contains('non') ||
+        (rawType.toLowerCase().contains('veg') &&
+            !rawType.toLowerCase().contains('non')) ||
+        parsedFoodType == 1 ||
         json['is_veg'] == true ||
         json['is_veg']?.toString() == '1' ||
         json['veg_status']?.toString() == '1';
 
     String? offerText;
     if (json['offer_percentage'] != null) {
-      offerText = '${json['offer_percentage']} %';
+      final raw = json['offer_percentage'].toString().trim();
+      offerText = raw.contains('%') ? raw : '$raw %';
     } else if (json['discount'] != null) {
-      offerText = '${json['discount']} %';
+      final raw = json['discount'].toString().trim();
+      offerText = raw.contains('%') ? raw : '$raw %';
     } else if (json['offer'] != null) {
       offerText = json['offer'].toString();
     } else if (parsedOldPrice > parsedPrice && parsedOldPrice > 0) {
@@ -165,8 +197,14 @@ class ProductDetailDataModel {
       }
     }
 
+    final rawCartQty = json['cart_quantity'];
+    final parsedCartQty = rawCartQty is int
+        ? rawCartQty
+        : int.tryParse(rawCartQty?.toString() ?? '0') ?? 0;
+
     return ProductDetailDataModel(
-      id: json['id'] ?? json['product_id'] ?? json['dish_id'],
+      id: json['product_id'] ?? json['id'] ?? json['dish_id'],
+      rawId: json['raw_id'],
       name:
           json['name']?.toString() ??
           json['product_name']?.toString() ??
@@ -174,12 +212,12 @@ class ProductDetailDataModel {
           '',
       description: json['description']?.toString(),
       image:
-          json['image']?.toString() ??
           json['image_url']?.toString() ??
+          json['image']?.toString() ??
           json['photo']?.toString() ??
           json['banner']?.toString(),
-      price: parsedPrice,
-      oldPrice: parsedOldPrice,
+      price: finalPrice,
+      oldPrice: finalOldPrice,
       offerPercentage: offerText,
       type: isVegProduct ? 'Veg' : 'Non-Veg',
       isVeg: isVegProduct,
@@ -187,24 +225,29 @@ class ProductDetailDataModel {
       restaurantId: json['restaurant_id'],
       rating: json['rating'] ?? json['avg_rating'],
       status: json['status'] ?? json['is_available'],
+      foodType: parsedFoodType,
+      cartQuantity: parsedCartQty,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      'product_id': id,
+      'raw_id': rawId,
       'name': name,
       'description': description,
-      'image': image,
-      'price': price,
-      'old_price': oldPrice,
+      'image_url': image,
+      'sell_price': price,
+      'mrp': oldPrice,
       'offer_percentage': offerPercentage,
+      'food_type': foodType,
       'type': type,
       'is_veg': isVeg,
       'category_id': categoryId,
       'restaurant_id': restaurantId,
       'rating': rating,
       'status': status,
+      'cart_quantity': cartQuantity,
     };
   }
 }

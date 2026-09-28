@@ -6,7 +6,7 @@ class GetCartUseCase {
 
   GetCartUseCase(this._repository);
 
-  Future<GetCartResponseModel> call() async {
-    return await _repository.getCart();
+  Future<GetCartResponseModel> call({dynamic sessionId}) async {
+    return await _repository.getCart(sessionId: sessionId);
   }
 }

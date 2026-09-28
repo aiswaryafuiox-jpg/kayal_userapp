@@ -54,13 +54,20 @@ class CategoryScreen extends StatelessWidget {
             // CATEGORY GRID
             // ================================
             Expanded(
-              child: Obx(
-                () => CategoryGrid(
+              child: Obx(() {
+                if (controller.isLoading.value && controller.categories.isEmpty) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: Color(0xFFFF823E),
+                    ),
+                  );
+                }
+                return CategoryGrid(
                   categories: controller.filteredCategories,
                   isClosed: controller.isRestaurantClosed.value,
                   onCategoryTap: controller.selectCategory,
-                ),
-              ),
+                );
+              }),
             ),
           ],
         ),

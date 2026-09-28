@@ -14,8 +14,32 @@ class CategoryList extends StatelessWidget {
     return SizedBox(
       height: 40,
       child: Obx(() {
-        // Read the Rx value while Obx is building. List item builders run
-        // lazily, outside GetX's dependency-tracking scope.
+        if (controller.isCategoriesLoading.value && controller.categories.isEmpty) {
+          return const Center(
+            child: SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: AppColors.primary,
+              ),
+            ),
+          );
+        }
+
+        if (controller.categories.isEmpty) {
+          return const Center(
+            child: Text(
+              'No Data',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF6B7280),
+              ),
+            ),
+          );
+        }
+
         final selectedIndex = controller.selectedCategory.value;
 
         return ListView.separated(

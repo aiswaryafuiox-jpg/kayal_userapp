@@ -10,17 +10,18 @@ import 'package:kayal_userapp/presentation/controller/cart_controller.dart';
 import 'package:kayal_userapp/presentation/controller/home_controller.dart';
 import 'package:kayal_userapp/presentation/controller/product_controller.dart';
 import 'package:kayal_userapp/presentation/controller/wishlist_controller.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class ProductDetailController extends GetxController {
   final GetProductDetailsUseCase _getProductDetailsUseCase;
 
   ProductDetailController({GetProductDetailsUseCase? getProductDetailsUseCase})
-      : _getProductDetailsUseCase = getProductDetailsUseCase ??
-            (sl.isRegistered<GetProductDetailsUseCase>()
-                ? sl<GetProductDetailsUseCase>()
-                : GetProductDetailsUseCase(
-                    ProductDetailsRepositoryImpl(ApiService())));
+    : _getProductDetailsUseCase =
+          getProductDetailsUseCase ??
+          (sl.isRegistered<GetProductDetailsUseCase>()
+              ? sl<GetProductDetailsUseCase>()
+              : GetProductDetailsUseCase(
+                  ProductDetailsRepositoryImpl(ApiService()),
+                ));
 
   final quantity = 1.obs;
   final isFavorite = false.obs;
@@ -28,7 +29,8 @@ class ProductDetailController extends GetxController {
   final closedNotes =
       'This restaurant is currently unavailable.\nOpens today at 10:00 AM'.obs;
   final Rxn<ProductModel> product = Rxn<ProductModel>();
-  final Rxn<ProductDetailDataModel> productDetail = Rxn<ProductDetailDataModel>();
+  final Rxn<ProductDetailDataModel> productDetail =
+      Rxn<ProductDetailDataModel>();
   final RxBool isLoading = false.obs;
   final RxString description = ''.obs;
   final RxString offerPercentage = ''.obs;
@@ -55,8 +57,9 @@ class ProductDetailController extends GetxController {
 
           if (Get.isRegistered<WishlistController>()) {
             final wishlistController = Get.find<WishlistController>();
-            isFavorite.value =
-                wishlistController.isFavorite(product.value!.name);
+            isFavorite.value = wishlistController.isFavorite(
+              product.value!.name,
+            );
           }
 
           if (product.value!.id.isNotEmpty) {
@@ -87,8 +90,7 @@ class ProductDetailController extends GetxController {
   Future<void> fetchProductDetails(dynamic productId) async {
     try {
       isLoading.value = true;
-      final response =
-          await _getProductDetailsUseCase(productId: productId);
+      final response = await _getProductDetailsUseCase(productId: productId);
       if (response.success && response.data != null) {
         final data = response.data!;
         productDetail.value = data;
@@ -109,6 +111,17 @@ class ProductDetailController extends GetxController {
             ? wishlistController.isFavorite(data.name)
             : (product.value?.isFavorite.value ?? false);
 
+        final double effPrice = data.price > 0
+            ? data.price
+            : ((product.value != null && product.value!.newPrice > 0)
+                ? product.value!.newPrice
+                : data.oldPrice);
+        final double effOldPrice = data.oldPrice > 0
+            ? data.oldPrice
+            : ((product.value != null && product.value!.oldPrice > 0)
+                ? product.value!.oldPrice
+                : effPrice);
+
         final updatedProduct = ProductModel(
           id: data.id?.toString() ?? productId.toString(),
           name: data.name.isNotEmpty
@@ -116,12 +129,8 @@ class ProductDetailController extends GetxController {
               : (product.value?.name ?? 'Product Details'),
           type: data.type,
           isVeg: data.isVeg,
-          oldPrice: data.oldPrice > 0
-              ? data.oldPrice
-              : (product.value?.oldPrice ?? data.price),
-          newPrice: data.price > 0
-              ? data.price
-              : (product.value?.newPrice ?? 0.0),
+          oldPrice: effOldPrice,
+          newPrice: effPrice,
           image: (data.image != null && data.image!.isNotEmpty)
               ? data.image!
               : (product.value?.image ?? 'assets/images/product1.png'),
@@ -210,27 +219,11 @@ class ProductDetailController extends GetxController {
       );
     }
 
-    final prefs = await SharedPreferences.getInstance();
-    final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-
     final args = product.value != null
-        ? {
-            'product': product.value,
-            'quantity': quantity.value,
-          }
+        ? {'product': product.value, 'quantity': quantity.value}
         : null;
 
-    if (isLoggedIn) {
-      Get.toNamed(AppRoutes.orderSummary, arguments: args);
-    } else {
-      Get.toNamed(
-        AppRoutes.login,
-        arguments: {
-          'redirect': AppRoutes.orderSummary,
-          'orderArgs': args,
-        },
-      );
-    }
+    Get.toNamed(AppRoutes.orderSummary, arguments: args);
   }
 
   void goBack() {

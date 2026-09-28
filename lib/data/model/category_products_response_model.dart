@@ -114,12 +114,29 @@ class CategoryProductItemModel {
   });
 
   factory CategoryProductItemModel.fromJson(Map<String, dynamic> json) {
-    final rawPrice = json['price'] ?? json['new_price'] ?? json['offer_price'];
+    final itemMap = (json['product'] != null && json['product'] is Map)
+        ? Map<String, dynamic>.from(json['product'])
+        : ((json['dish'] != null && json['dish'] is Map)
+            ? Map<String, dynamic>.from(json['dish'])
+            : json);
+
+    final rawPrice =
+        itemMap['sell_price'] ??
+        itemMap['price'] ??
+        itemMap['new_price'] ??
+        itemMap['offer_price'] ??
+        itemMap['dish_price'] ??
+        itemMap['product_price'] ??
+        json['sell_price'] ??
+        json['price'];
+
     final rawOldPrice =
-        json['old_price'] ??
-        json['original_price'] ??
+        itemMap['mrp'] ??
+        itemMap['old_price'] ??
+        itemMap['original_price'] ??
+        itemMap['regular_price'] ??
         json['mrp'] ??
-        json['regular_price'] ??
+        json['old_price'] ??
         rawPrice;
 
     final parsedPrice = rawPrice is num
@@ -130,43 +147,60 @@ class CategoryProductItemModel {
         ? rawOldPrice.toDouble()
         : double.tryParse(rawOldPrice?.toString() ?? '0') ?? parsedPrice;
 
+    final double finalPrice = parsedPrice > 0 ? parsedPrice : parsedOldPrice;
+    final double finalOldPrice =
+        parsedOldPrice > 0 ? parsedOldPrice : finalPrice;
+
+    final rawFoodType = itemMap['food_type'] ?? json['food_type'];
+    final parsedFoodType = rawFoodType is int
+        ? rawFoodType
+        : int.tryParse(rawFoodType?.toString() ?? '0') ?? 0;
+
     final rawType =
+        itemMap['type']?.toString() ??
         json['type']?.toString() ??
-        json['food_type']?.toString() ??
-        (json['is_veg'] == true ||
-                json['is_veg']?.toString() == '1' ||
-                json['veg_status']?.toString() == '1'
-            ? 'Veg'
-            : 'Non-Veg');
+        (rawFoodType != null
+            ? (parsedFoodType == 1 ? 'Veg' : 'Non-Veg')
+            : (itemMap['is_veg'] == true ||
+                    itemMap['is_veg']?.toString() == '1' ||
+                    itemMap['veg_status']?.toString() == '1' ||
+                    json['is_veg'] == true ||
+                    json['is_veg']?.toString() == '1'
+                ? 'Veg'
+                : 'Non-Veg'));
 
     final bool isVegProduct =
-        rawType.toLowerCase().contains('veg') &&
-            !rawType.toLowerCase().contains('non') ||
+        (rawType.toLowerCase().contains('veg') &&
+            !rawType.toLowerCase().contains('non')) ||
+        parsedFoodType == 1 ||
+        itemMap['is_veg'] == true ||
+        itemMap['is_veg']?.toString() == '1' ||
         json['is_veg'] == true ||
-        json['is_veg']?.toString() == '1' ||
-        json['veg_status']?.toString() == '1';
+        json['is_veg']?.toString() == '1';
 
     return CategoryProductItemModel(
-      id: json['id'] ?? json['product_id'] ?? json['dish_id'],
+      id: itemMap['id'] ?? itemMap['product_id'] ?? itemMap['dish_id'] ?? json['id'],
       name:
+          itemMap['name']?.toString() ??
+          itemMap['product_name']?.toString() ??
+          itemMap['dish_name']?.toString() ??
           json['name']?.toString() ??
-          json['product_name']?.toString() ??
-          json['dish_name']?.toString() ??
           '',
-      description: json['description']?.toString(),
+      description: itemMap['description']?.toString() ?? json['description']?.toString(),
       image:
-          json['image']?.toString() ??
-          json['image_url']?.toString() ??
-          json['photo']?.toString() ??
-          json['banner']?.toString(),
-      price: parsedPrice,
-      oldPrice: parsedOldPrice,
+          itemMap['image']?.toString() ??
+          itemMap['image_url']?.toString() ??
+          itemMap['photo']?.toString() ??
+          itemMap['banner']?.toString() ??
+          json['image']?.toString(),
+      price: finalPrice,
+      oldPrice: finalOldPrice,
       type: isVegProduct ? 'Veg' : 'Non-Veg',
       isVeg: isVegProduct,
-      categoryId: json['category_id'],
-      restaurantId: json['restaurant_id'],
-      rating: json['rating'] ?? json['avg_rating'],
-      status: json['status'] ?? json['is_available'],
+      categoryId: itemMap['category_id'] ?? json['category_id'],
+      restaurantId: itemMap['restaurant_id'] ?? json['restaurant_id'],
+      rating: itemMap['rating'] ?? itemMap['avg_rating'] ?? json['rating'],
+      status: itemMap['status'] ?? itemMap['is_available'] ?? json['status'],
     );
   }
 

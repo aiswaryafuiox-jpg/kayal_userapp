@@ -19,6 +19,26 @@ class LoginController extends GetxController {
   final TextEditingController phoneController = TextEditingController();
   final RxBool isLoading = false.obs;
 
+  @override
+  void onInit() {
+    super.onInit();
+    final args = Get.arguments;
+    if (args is Map && args['phoneNumber'] != null) {
+      final phone = args['phoneNumber'].toString();
+      if (phone.isNotEmpty) {
+        phoneController.text = phone;
+        phoneController.selection = TextSelection.fromPosition(
+          TextPosition(offset: phone.length),
+        );
+      }
+    } else if (args is String && args.isNotEmpty) {
+      phoneController.text = args;
+      phoneController.selection = TextSelection.fromPosition(
+        TextPosition(offset: args.length),
+      );
+    }
+  }
+
   Future<void> login() async {
     FocusManager.instance.primaryFocus?.unfocus();
 
@@ -48,11 +68,16 @@ class LoginController extends GetxController {
       );
 
       if (response.success) {
+        final otp = response.data?.otp;
+        final otpMessage = (otp != null && otp.isNotEmpty)
+            ? 'OTP sent successfully. Your OTP is: $otp'
+            : (response.message.isNotEmpty
+                ? response.message
+                : 'OTP sent successfully');
+
         AppNotification.showSuccess(
           title: 'OTP Sent',
-          message: response.message.isNotEmpty
-              ? response.message
-              : 'OTP sent successfully',
+          message: otpMessage,
         );
 
         final arguments = Get.arguments;
@@ -60,6 +85,8 @@ class LoginController extends GetxController {
           'phoneNumber': phoneNumber,
           'otp': response.data?.otp,
           'expiresIn': response.data?.expiresIn,
+          'userId': response.data?.userId,
+          'isVerified': response.data?.isVerified,
           'isSignUp': false,
           if (arguments is Map && arguments['redirect'] != null)
             'redirect': arguments['redirect'],

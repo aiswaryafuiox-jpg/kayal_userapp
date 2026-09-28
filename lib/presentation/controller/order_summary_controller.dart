@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kayal_userapp/core/di/service_locator.dart';
 import 'package:kayal_userapp/core/service/api_service.dart';
+import 'package:kayal_userapp/core/service/local_storage_service.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
 import 'package:kayal_userapp/data/model/order_summary_response_model.dart';
 import 'package:kayal_userapp/data/repository/order_summary_repository_impl.dart';
@@ -13,11 +14,13 @@ class OrderSummaryController extends GetxController {
   final GetOrderSummaryUseCase _getOrderSummaryUseCase;
 
   OrderSummaryController({GetOrderSummaryUseCase? getOrderSummaryUseCase})
-      : _getOrderSummaryUseCase = getOrderSummaryUseCase ??
-            (sl.isRegistered<GetOrderSummaryUseCase>()
-                ? sl<GetOrderSummaryUseCase>()
-                : GetOrderSummaryUseCase(
-                    OrderSummaryRepositoryImpl(ApiService())));
+    : _getOrderSummaryUseCase =
+          getOrderSummaryUseCase ??
+          (sl.isRegistered<GetOrderSummaryUseCase>()
+              ? sl<GetOrderSummaryUseCase>()
+              : GetOrderSummaryUseCase(
+                  OrderSummaryRepositoryImpl(ApiService()),
+                ));
 
   final Rxn<OrderSummaryDataModel> orderSummary = Rxn<OrderSummaryDataModel>();
   final items = <OrderSummaryItemModel>[].obs;
@@ -130,7 +133,11 @@ class OrderSummaryController extends GetxController {
     }
     double totalOld = items.fold(
       0.0,
-      (sum, item) => sum + (item.oldPrice > item.price ? item.oldPrice * item.quantity : item.price * item.quantity),
+      (sum, item) =>
+          sum +
+          (item.oldPrice > item.price
+              ? item.oldPrice * item.quantity
+              : item.price * item.quantity),
     );
     double totalNew = items.fold(0.0, (sum, item) => sum + item.totalPrice);
     final diff = totalOld - totalNew;
@@ -164,12 +171,23 @@ class OrderSummaryController extends GetxController {
       );
       return;
     }
+
+    final storage = LocalStorageService();
+    if (!storage.isLoggedIn()) {
+      Get.toNamed(
+        AppRoutes.login,
+        arguments: {'redirect': AppRoutes.checkout},
+      );
+      return;
+    }
+
     Get.toNamed(AppRoutes.checkout);
   }
 
   void addSpecialInstructions() {
-    final textController =
-        TextEditingController(text: specialInstructions.value);
+    final textController = TextEditingController(
+      text: specialInstructions.value,
+    );
 
     Get.defaultDialog(
       title: 'Special Instructions',

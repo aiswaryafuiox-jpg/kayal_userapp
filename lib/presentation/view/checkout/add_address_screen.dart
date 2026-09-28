@@ -44,7 +44,7 @@ class AddAddressScreen extends StatelessWidget {
                       const SizedBox(height: 16),
                       _buildInputField('State', controller.stateController),
                       const SizedBox(height: 16),
-                      _buildInputField('Location Type', controller.locationTypeController),
+                      _buildLocationTypeDropdown(),
                       
                       // Space for bottom button
                       const SizedBox(height: 100),
@@ -71,6 +71,106 @@ class AddAddressScreen extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildLocationTypeDropdown() {
+    final types = ['Home', 'Work', 'Other'];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Location Type',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: AppColors.grey,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Obx(
+          () => InputDecorator(
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: Colors.white,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(
+                  color: Color(0xFFFCE1D4),
+                  width: 1,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(
+                  color: AppColors.primary,
+                  width: 1,
+                ),
+              ),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: types.contains(controller.selectedLocationType.value)
+                    ? controller.selectedLocationType.value
+                    : 'Home',
+                isExpanded: true,
+                items: types.map((type) {
+                  IconData iconData;
+                  switch (type) {
+                    case 'Home':
+                      iconData = Icons.home_rounded;
+                      break;
+                    case 'Work':
+                      iconData = Icons.work_rounded;
+                      break;
+                    case 'Other':
+                    default:
+                      iconData = Icons.location_on_rounded;
+                      break;
+                  }
+
+                  return DropdownMenuItem<String>(
+                    value: type,
+                    child: Row(
+                      children: [
+                        Icon(
+                          iconData,
+                          size: 18,
+                          color: AppColors.primary,
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          type,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    controller.setLocationType(value);
+                  }
+                },
+                icon: const Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: AppColors.primary,
+                ),
+                dropdownColor: Colors.white,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: AppColors.grey,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 

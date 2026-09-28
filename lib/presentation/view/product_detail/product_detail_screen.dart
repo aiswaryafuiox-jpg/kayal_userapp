@@ -16,8 +16,76 @@ class ProductDetailScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Stack(
-        children: [
+      body: Obx(() {
+        if (controller.isLoading.value &&
+            controller.product.value == null &&
+            controller.productDetail.value == null) {
+          return const Center(
+            child: CircularProgressIndicator(
+              color: Color(0xFFFF823E),
+            ),
+          );
+        }
+
+        if (controller.product.value == null &&
+            controller.productDetail.value == null) {
+          return SafeArea(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFFFECE0),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.fastfood_outlined,
+                      size: 36,
+                      color: Color(0xFFFF823E),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'No Data',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF252B35),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  const Text(
+                    'Product details not found',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF6B7280),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: controller.goBack,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFF823E),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text(
+                      'Go Back',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return Stack(
+          children: [
           // Background Image
           Positioned(
             top: 0,
@@ -156,19 +224,32 @@ class ProductDetailScreen extends StatelessWidget {
                       ),
                       Obx(
                         () {
-                          final oldPrice = controller.product.value?.oldPrice ??
-                              controller.productDetail.value?.oldPrice ??
-                              0.0;
-                          final price = controller.product.value?.newPrice ??
-                              controller.productDetail.value?.price ??
-                              0.0;
+                          final detail = controller.productDetail.value;
+                          final prod = controller.product.value;
+
+                          final double price = (detail != null && detail.price > 0)
+                              ? detail.price
+                              : (prod != null && prod.newPrice > 0
+                                  ? prod.newPrice
+                                  : (detail?.oldPrice ?? prod?.oldPrice ?? 0.0));
+
+                          final double oldPrice = (detail != null && detail.oldPrice > 0)
+                              ? detail.oldPrice
+                              : (prod?.oldPrice ?? price);
+
+                          final String priceStr = price % 1 == 0
+                              ? price.toInt().toString()
+                              : price.toStringAsFixed(2);
+                          final String oldPriceStr = oldPrice % 1 == 0
+                              ? oldPrice.toInt().toString()
+                              : oldPrice.toStringAsFixed(2);
 
                           return Row(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               if (oldPrice > price && price > 0) ...[
                                 Text(
-                                  '₹${oldPrice.toInt()}',
+                                  '₹$oldPriceStr',
                                   style: const TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
@@ -179,7 +260,7 @@ class ProductDetailScreen extends StatelessWidget {
                                 const SizedBox(width: 8),
                               ],
                               Text(
-                                '₹${price.toInt()}',
+                                '₹$priceStr',
                                 style: const TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.w700,
@@ -436,7 +517,8 @@ class ProductDetailScreen extends StatelessWidget {
             ),
           ),
         ],
-      ),
+      );
+    }),
     );
   }
 }

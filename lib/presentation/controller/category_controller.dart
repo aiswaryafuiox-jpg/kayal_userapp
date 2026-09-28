@@ -56,9 +56,14 @@ class CategoryController extends GetxController {
             },
           ),
         );
+      } else {
+        apiCategories.clear();
+        categories.clear();
       }
     } catch (e) {
       debugPrint('fetchCategories error: $e');
+      apiCategories.clear();
+      categories.clear();
     } finally {
       isLoading.value = false;
     }
@@ -94,40 +99,7 @@ class CategoryController extends GetxController {
     }
   }
 
-  final categories = <Map<String, String>>[
-    {
-      'name': 'Pizza',
-      'image': categoryImg1,
-    },
-    {
-      'name': 'Burgers',
-      'image': categoryImg2,
-    },
-    {
-      'name': 'Desserts',
-      'image': categoryImg3,
-    },
-    {
-      'name': 'Chinese',
-      'image': categoryImg4,
-    },
-    {
-      'name': 'Biriyani',
-      'image': categoryImg5,
-    },
-    {
-      'name': 'Beverages',
-      'image': categoryImg6,
-    },
-    {
-      'name': 'Desserts',
-      'image': categoryImg3,
-    },
-    {
-      'name': 'Chinese',
-      'image': categoryImg4,
-    },
-  ].obs;
+  final categories = <Map<String, String>>[].obs;
 
   List<Map<String, String>> get filteredCategories {
     if (searchText.value.trim().isEmpty) {
@@ -358,17 +330,30 @@ class CategoryController extends GetxController {
       (c) => c.name.trim().toLowerCase() == category.trim().toLowerCase(),
     );
 
-    // Navigate to product listing
-    Get.toNamed(
-      AppRoutes.product,
-      arguments: {
-        'category': category,
-        'categoryId': matched?.id,
-        'isClosed': isRestaurantClosed.value,
-        'notes': closedNotes.value,
-        'restaurant': restaurantData,
-      },
-    );
+    if (restaurantData != null) {
+      // Navigated from a restaurant -> Go directly to Product List screen
+      Get.toNamed(
+        AppRoutes.product,
+        arguments: {
+          'category': category,
+          'categoryId': matched?.id,
+          'isClosed': isRestaurantClosed.value,
+          'notes': closedNotes.value,
+          'restaurant': restaurantData,
+        },
+      );
+    } else {
+      // Standalone Category selected -> Go to Category Restaurants screen
+      Get.toNamed(
+        AppRoutes.categoryRestaurants,
+        arguments: {
+          'category': category,
+          'categoryId': matched?.id,
+          'isClosed': isRestaurantClosed.value,
+          'notes': closedNotes.value,
+        },
+      );
+    }
   }
 
   void goBack() {

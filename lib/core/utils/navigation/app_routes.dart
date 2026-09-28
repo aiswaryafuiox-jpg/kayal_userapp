@@ -7,6 +7,7 @@ import 'package:kayal_userapp/presentation/controller/auth/signin_controller.dar
 import 'package:kayal_userapp/presentation/controller/auth/verification_success_controller.dart';
 import 'package:kayal_userapp/presentation/controller/auth/notification_update_controller.dart';
 import 'package:kayal_userapp/presentation/controller/category_controller.dart';
+import 'package:kayal_userapp/presentation/controller/category_restaurants_controller.dart';
 import 'package:kayal_userapp/presentation/controller/home_controller.dart';
 import 'package:kayal_userapp/presentation/controller/popular_near_you_controller.dart';
 import 'package:kayal_userapp/presentation/controller/onboarding_controller.dart';
@@ -24,6 +25,7 @@ import 'package:kayal_userapp/presentation/view/home/homescreen.dart';
 import 'package:kayal_userapp/presentation/view/home/popular_near_you_screen.dart';
 import 'package:kayal_userapp/presentation/view/onboarding/onboarding_screen.dart';
 import 'package:kayal_userapp/presentation/view/category/category_screen.dart';
+import 'package:kayal_userapp/presentation/view/category/category_restaurants_screen.dart';
 import 'package:kayal_userapp/presentation/view/product/product_screen.dart';
 import 'package:kayal_userapp/presentation/view/product_detail/product_detail_screen.dart';
 import 'package:kayal_userapp/presentation/view/order_summary/order_summary_screen.dart';
@@ -72,6 +74,7 @@ class AppRoutes {
   static const String home = '/home';
   static const String popularNearYou = '/popular-near-you';
   static const String category = '/category';
+  static const String categoryRestaurants = '/categoryRestaurants';
   static const String product = '/product';
   static const String productDetail = '/productDetail';
   static const String orderSummary = '/orderSummary';
@@ -151,6 +154,11 @@ class AppRoutes {
       name: category,
       page: () => CategoryScreen(),
       binding: BindingsBuilder.put(CategoryController.new),
+    ),
+    GetPage(
+      name: categoryRestaurants,
+      page: () => CategoryRestaurantsScreen(),
+      binding: BindingsBuilder.put(CategoryRestaurantsController.new),
     ),
     GetPage(
       name: product,

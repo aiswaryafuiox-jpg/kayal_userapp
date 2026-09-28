@@ -53,11 +53,7 @@ class HomeController extends GetxController {
   final RxList<BannerItemModel> apiBanners = <BannerItemModel>[].obs;
   final RxBool isBannersLoading = false.obs;
 
-  final List<String> banners = [
-    'assets/images/banner1.png',
-    'assets/images/banner1.png',
-    'assets/images/banner1.png',
-  ];
+  final List<String> banners = [];
 
   // ==============================
   // CATEGORIES
@@ -66,16 +62,32 @@ class HomeController extends GetxController {
   final selectedCategory = 0.obs;
   final RxBool isCategoriesLoading = false.obs;
 
-  final RxList<CategoryItem> categories = <CategoryItem>[
-    CategoryItem(name: 'All', image: 'assets/images/menu1.png'),
-    CategoryItem(name: 'Pizza', image: 'assets/images/menu2.png'),
-    CategoryItem(name: 'Biryani', image: 'assets/images/menu3.png'),
-    CategoryItem(name: 'Meals', image: 'assets/images/menu4.png'),
-    CategoryItem(name: 'Noodles', image: 'assets/images/menu5.png'),
-  ].obs;
+  final RxList<CategoryItem> categories = <CategoryItem>[].obs;
 
   void selectCategory(int index) {
     selectedCategory.value = index;
+    _filterRestaurantsByCategory();
+  }
+
+  void _filterRestaurantsByCategory() {
+    if (selectedCategory.value >= 0 && selectedCategory.value < categories.length) {
+      final categoryItem = categories[selectedCategory.value];
+      final catName = categoryItem.name.trim().toLowerCase();
+
+      if (catName == 'all') {
+        restaurants.assignAll(allRestaurants);
+      } else {
+        final filtered = allRestaurants.where((r) {
+          final cuisine = r.cuisine.toLowerCase();
+          final name = r.name.toLowerCase();
+          return cuisine.contains(catName) || name.contains(catName);
+        }).toList();
+
+        restaurants.assignAll(filtered);
+      }
+    } else {
+      restaurants.assignAll(allRestaurants);
+    }
   }
 
   // ==============================
@@ -96,26 +108,8 @@ class HomeController extends GetxController {
   // RESTAURANTS
   // ==============================
 
-  final RxList<RestaurantItem> restaurants = <RestaurantItem>[
-    RestaurantItem(
-      name: 'Pizza Hub',
-      image: 'assets/images/homeimg.png',
-      cuisine: 'Italian Pizza',
-      deliveryTime: '25-30 mins',
-      distance: '2.8 Km',
-      openingTime: '10:00 Am - 11:00 Pm',
-      isOpen: true,
-    ),
-    RestaurantItem(
-      name: 'Pizza Hub',
-      image: 'assets/images/homeimg.png',
-      cuisine: 'Italian Pizza',
-      deliveryTime: '25-30 mins',
-      distance: '2.8 Km',
-      openingTime: 'Opens at - 10:00 Am',
-      isOpen: false,
-    ),
-  ].obs;
+  final RxList<RestaurantItem> allRestaurants = <RestaurantItem>[].obs;
+  final RxList<RestaurantItem> restaurants = <RestaurantItem>[].obs;
   final RxBool isRestaurantsLoading = false.obs;
 
   // ==============================
@@ -160,9 +154,12 @@ class HomeController extends GetxController {
       final response = await _bannerUseCase();
       if (response.success && response.data.isNotEmpty) {
         apiBanners.assignAll(response.data);
+      } else {
+        apiBanners.clear();
       }
     } catch (e) {
       debugPrint('fetchBanners error: $e');
+      apiBanners.clear();
     } finally {
       isBannersLoading.value = false;
     }
@@ -173,24 +170,30 @@ class HomeController extends GetxController {
       isRestaurantsLoading.value = true;
       final response = await _popularRestaurantsUseCase();
       if (response.success && response.data.isNotEmpty) {
-        restaurants.assignAll(
-          response.data.map(
-            (item) => RestaurantItem(
-              name: item.name,
-              image: (item.image != null && item.image!.isNotEmpty)
-                  ? item.image!
-                  : 'assets/images/homeimg.png',
-              cuisine: item.cuisine ?? 'Italian Pizza',
-              deliveryTime: item.deliveryTime ?? '25-30 mins',
-              distance: item.distance ?? '2.8 Km',
-              openingTime: item.openingTime ?? '10:00 Am - 11:00 Pm',
-              isOpen: item.isOpen,
-            ),
+        final fetched = response.data.map(
+          (item) => RestaurantItem(
+            id: item.id,
+            name: item.name,
+            image: (item.image != null && item.image!.isNotEmpty)
+                ? item.image!
+                : 'assets/images/homeimg.png',
+            cuisine: item.cuisine ?? 'Italian Pizza',
+            deliveryTime: item.deliveryTime ?? '25-30 mins',
+            distance: item.distance ?? '2.8 Km',
+            openingTime: item.openingTime ?? '10:00 Am - 11:00 Pm',
+            isOpen: item.isOpen,
           ),
-        );
+        ).toList();
+        allRestaurants.assignAll(fetched);
+        _filterRestaurantsByCategory();
+      } else {
+        allRestaurants.clear();
+        restaurants.clear();
       }
     } catch (e) {
       debugPrint('fetchPopularRestaurants error: $e');
+      allRestaurants.clear();
+      restaurants.clear();
     } finally {
       isRestaurantsLoading.value = false;
     }
@@ -202,9 +205,12 @@ class HomeController extends GetxController {
       final response = await _offersUseCase();
       if (response.success && response.data.isNotEmpty) {
         apiOffers.assignAll(response.data);
+      } else {
+        apiOffers.clear();
       }
     } catch (e) {
       debugPrint('fetchOffers error: $e');
+      apiOffers.clear();
     } finally {
       isOffersLoading.value = false;
     }
@@ -219,6 +225,7 @@ class HomeController extends GetxController {
           CategoryItem(name: 'All', image: 'assets/images/menu1.png'),
           ...response.data.map(
             (c) => CategoryItem(
+              id: c.id,
               name: c.name,
               image: (c.image != null && c.image!.isNotEmpty)
                   ? c.image!
@@ -227,9 +234,13 @@ class HomeController extends GetxController {
           ),
         ];
         categories.assignAll(apiList);
+        _filterRestaurantsByCategory();
+      } else {
+        categories.clear();
       }
     } catch (e) {
       debugPrint('fetchCategories error: $e');
+      categories.clear();
     } finally {
       isCategoriesLoading.value = false;
     }
@@ -271,6 +282,10 @@ class HomeController extends GetxController {
     Get.toNamed(AppRoutes.notifications);
   }
 
+  void openCart() {
+    Get.toNamed(AppRoutes.cart);
+  }
+
   void openFavorites() {
     debugPrint('Favorite clicked');
   }
@@ -288,7 +303,29 @@ class HomeController extends GetxController {
   }
 
   void onRestaurantTap(RestaurantItem restaurant) {
-    Get.toNamed(AppRoutes.category, arguments: restaurant);
+    dynamic selectedCatId;
+    String? selectedCatName;
+
+    if (selectedCategory.value >= 0 && selectedCategory.value < categories.length) {
+      final item = categories[selectedCategory.value];
+      if (item.name.toLowerCase() != 'all') {
+        selectedCatId = item.id;
+        selectedCatName = item.name;
+      }
+    }
+
+    Get.toNamed(
+      AppRoutes.product,
+      arguments: {
+        'restaurant': restaurant,
+        'category': selectedCatName ?? restaurant.name,
+        'categoryId': selectedCatId ?? restaurant.id ?? 1,
+        'isClosed': !restaurant.isOpen,
+        'notes': !restaurant.isOpen
+            ? 'This restaurant is currently unavailable.\n${restaurant.openingTime}'
+            : null,
+      },
+    );
   }
 
   void viewOffers() {
@@ -301,10 +338,11 @@ class HomeController extends GetxController {
 // =======================================
 
 class CategoryItem {
+  final dynamic id;
   final String name;
   final String image;
 
-  CategoryItem({required this.name, required this.image});
+  CategoryItem({this.id, required this.name, required this.image});
 }
 
 // =======================================
@@ -312,6 +350,7 @@ class CategoryItem {
 // =======================================
 
 class RestaurantItem {
+  final dynamic id;
   final String name;
   final String image;
   final String cuisine;
@@ -321,6 +360,7 @@ class RestaurantItem {
   final bool isOpen;
 
   RestaurantItem({
+    this.id,
     required this.name,
     required this.image,
     required this.cuisine,

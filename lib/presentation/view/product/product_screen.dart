@@ -18,61 +18,66 @@ class ProductScreen extends StatelessWidget {
     controller.updateArguments(Get.arguments);
     return Scaffold(
       backgroundColor: const Color(0xFFFFFCFA),
-      appBar: CustomAppBar(
-        title: 'Product List',
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: Center(
-              child: GestureDetector(
-                onTap: controller.viewCart,
-                child: Container(
-                  width: 42,
-                  height: 42,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFFF823E),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Obx(() {
-                    final cartController = Get.find<CartController>();
-                    final count = cartController.cartItems.fold<int>(
-                      0,
-                      (sum, item) => sum + item.quantity.value,
-                    );
-                    return Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        SvgPicture.asset(
-                          carticon,
-                          width: 22,
-                          height: 22,
-                          colorFilter: const ColorFilter.mode(
-                            Colors.white,
-                            BlendMode.srcIn,
-                          ),
-                        ),
-                        if (count > 0)
-                          Positioned(
-                            right: 7,
-                            top: 5,
-                            child: Text(
-                              '$count',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w800,
-                                height: 1.0,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: Obx(
+          () => CustomAppBar(
+            title: controller.title.value,
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: Center(
+                  child: GestureDetector(
+                    onTap: controller.viewCart,
+                    child: Container(
+                      width: 42,
+                      height: 42,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFF823E),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Obx(() {
+                        final cartController = Get.find<CartController>();
+                        final count = cartController.cartItems.fold<int>(
+                          0,
+                          (sum, item) => sum + item.quantity.value,
+                        );
+                        return Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            SvgPicture.asset(
+                              carticon,
+                              width: 22,
+                              height: 22,
+                              colorFilter: const ColorFilter.mode(
+                                Colors.white,
+                                BlendMode.srcIn,
                               ),
                             ),
-                          ),
-                      ],
-                    );
-                  }),
+                            if (count > 0)
+                              Positioned(
+                                right: 7,
+                                top: 5,
+                                child: Text(
+                                  '$count',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w800,
+                                    height: 1.0,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        );
+                      }),
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
       body: SafeArea(
         child: Padding(
@@ -91,8 +96,56 @@ class ProductScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Expanded(
-                child: Obx(
-                  () => GridView.builder(
+                child: Obx(() {
+                  if (controller.isLoading.value && controller.products.isEmpty) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFFFF823E),
+                      ),
+                    );
+                  }
+
+                  if (controller.products.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 72,
+                            height: 72,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFFFECE0),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.fastfood_outlined,
+                              size: 36,
+                              color: Color(0xFFFF823E),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'No Data',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF252B35),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          const Text(
+                            'No products found',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFF6B7280),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  return GridView.builder(
                     physics: const BouncingScrollPhysics(),
                     itemCount: controller.products.length,
                     gridDelegate:
@@ -109,8 +162,8 @@ class ProductScreen extends StatelessWidget {
                         controller: controller,
                       );
                     },
-                  ),
-                ),
+                  );
+                }),
               ),
             ],
           ),

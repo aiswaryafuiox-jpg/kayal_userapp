@@ -168,18 +168,21 @@ class ProductCard extends StatelessWidget {
                   // PRICE AND ADD BUTTON
                   Row(
                     children: [
-                      Text(
-                        '₹${product.oldPrice.toInt()}',
-                        style: const TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFFB0B3BA),
-                          decoration: TextDecoration.lineThrough,
+                      if (product.oldPrice > product.newPrice &&
+                          product.newPrice > 0) ...[
+                        Text(
+                          '₹${product.oldPrice % 1 == 0 ? product.oldPrice.toInt() : product.oldPrice.toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFFB0B3BA),
+                            decoration: TextDecoration.lineThrough,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 4),
+                        const SizedBox(width: 4),
+                      ],
                       Text(
-                        '₹${product.newPrice.toInt()}',
+                        '₹${((product.newPrice > 0 ? product.newPrice : product.oldPrice) % 1 == 0) ? (product.newPrice > 0 ? product.newPrice : product.oldPrice).toInt() : (product.newPrice > 0 ? product.newPrice : product.oldPrice).toStringAsFixed(2)}',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w800,

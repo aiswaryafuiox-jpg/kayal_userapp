@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:kayal_userapp/core/service/local_storage_service.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashController extends GetxController
     with GetSingleTickerProviderStateMixin {
-  static const Duration splashDuration = Duration(seconds: 5);
+  static const Duration splashDuration = Duration(seconds: 4);
 
   late final AnimationController timeline;
+  final LocalStorageService _storage = LocalStorageService();
 
   @override
   void onInit() {
@@ -21,19 +22,21 @@ class SplashController extends GetxController
     timeline.forward();
     Future<void>.delayed(splashDuration, () async {
       if (isClosed) return;
-      bool isLoggedIn = false;
-      bool hasSeenOnboarding = false;
       try {
-        final prefs = await SharedPreferences.getInstance();
-        isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-        hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
-      } catch (e) {
-        debugPrint('SharedPreferences error in splash controller: $e');
-      }
+        await _storage.init();
+        // Initialize session ID for guest/user
+        _storage.getOrCreateSessionId();
 
-      if (isLoggedIn || hasSeenOnboarding) {
-        Get.offAllNamed(AppRoutes.home);
-      } else {
+        final bool hasSeenOnboarding = _storage.hasSeenOnboarding();
+        final bool isLoggedIn = _storage.isLoggedIn();
+
+        if (hasSeenOnboarding || isLoggedIn) {
+          Get.offAllNamed(AppRoutes.home);
+        } else {
+          Get.offAllNamed(AppRoutes.onboarding);
+        }
+      } catch (e) {
+        debugPrint('LocalStorage error in splash controller: $e');
         Get.offAllNamed(AppRoutes.onboarding);
       }
     });

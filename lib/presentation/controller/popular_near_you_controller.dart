@@ -20,35 +20,7 @@ class PopularNearYouController extends GetxController {
   final radiusText = 'Showing Restaurants within 700M'.obs;
   final RxBool isLoading = false.obs;
 
-  final restaurants = <RestaurantItem>[
-    RestaurantItem(
-      name: 'Pizza Hub',
-      image: 'assets/images/homeimg.png',
-      cuisine: 'Italian Pizza',
-      deliveryTime: '25-30 mins',
-      distance: '2.8 Km',
-      openingTime: '10:00 Am - 11:00 Pm',
-      isOpen: true,
-    ),
-    RestaurantItem(
-      name: 'Pizza Hub',
-      image: 'assets/images/homeimg.png',
-      cuisine: 'Italian Pizza',
-      deliveryTime: '25-30 mins',
-      distance: '2.8 Km',
-      openingTime: 'Opens at - 10:00 Am',
-      isOpen: false,
-    ),
-    RestaurantItem(
-      name: 'Pizza Hub',
-      image: 'assets/images/homeimg.png',
-      cuisine: 'Italian Pizza',
-      deliveryTime: '25-30 mins',
-      distance: '2.8 Km',
-      openingTime: '10:00 Am - 11:00 Pm',
-      isOpen: true,
-    ),
-  ].obs;
+  final restaurants = <RestaurantItem>[].obs;
 
   @override
   void onInit() {
@@ -64,6 +36,7 @@ class PopularNearYouController extends GetxController {
         restaurants.assignAll(
           response.data.map(
             (item) => RestaurantItem(
+              id: item.id,
               name: item.name,
               image: (item.image != null && item.image!.isNotEmpty)
                   ? item.image!
@@ -76,15 +49,29 @@ class PopularNearYouController extends GetxController {
             ),
           ),
         );
+      } else {
+        restaurants.clear();
       }
     } catch (e) {
       debugPrint('fetchPopularRestaurants error: $e');
+      restaurants.clear();
     } finally {
       isLoading.value = false;
     }
   }
 
   void onRestaurantTap(RestaurantItem restaurant) {
-    Get.toNamed(AppRoutes.category, arguments: restaurant);
+    Get.toNamed(
+      AppRoutes.product,
+      arguments: {
+        'restaurant': restaurant,
+        'category': restaurant.name,
+        'categoryId': restaurant.id ?? 1,
+        'isClosed': !restaurant.isOpen,
+        'notes': !restaurant.isOpen
+            ? 'This restaurant is currently unavailable.\n${restaurant.openingTime}'
+            : null,
+      },
+    );
   }
 }
