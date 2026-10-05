@@ -68,6 +68,14 @@ class ViewOrderController extends GetxController {
     'Other Reson',
   ];
 
+  dynamic currentOrderId;
+
+  Future<void> refreshOrderDetails() async {
+    if (currentOrderId != null) {
+      await fetchOrderDetails(currentOrderId);
+    }
+  }
+
   @override
   void onInit() {
     super.onInit();
@@ -76,6 +84,7 @@ class ViewOrderController extends GetxController {
 
     if (args is UserOrderItemModel) {
       targetOrderId = args.orderId;
+      currentOrderId = targetOrderId;
       orderId.value = args.orderId.startsWith('#') ? args.orderId : '#${args.orderId}';
       orderDate.value = args.date;
       orderTotal.value = args.totalAmount.toInt();

@@ -1,4 +1,7 @@
+import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
+
 class BannerResponseModel {
+
   final bool success;
   final String message;
   final List<BannerItemModel> data;
@@ -105,7 +108,8 @@ class BannerItemModel {
   factory BannerItemModel.fromJson(Map<String, dynamic> json) {
     return BannerItemModel(
       id: json['id'] ?? json['banner_id'],
-      title: json['title']?.toString() ?? json['name']?.toString(),
+      title: (json['title']?.toString() ?? json['name']?.toString())
+          ?.capitalizeWords(),
       image:
           json['image']?.toString() ??
           json['image_url']?.toString() ??

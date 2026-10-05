@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
 import 'package:kayal_userapp/presentation/controller/home_controller.dart';
 
 class RestaurantCard extends StatelessWidget {
@@ -100,7 +100,7 @@ class RestaurantCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 6),
             child: Text(
-              restaurant.name,
+              restaurant.name.capitalizeWords(),
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
@@ -120,7 +120,7 @@ class RestaurantCard extends StatelessWidget {
               children: [
                 _detailItem(
                   Icons.restaurant_menu,
-                  restaurant.cuisine,
+                  restaurant.cuisine.capitalizeWords(),
                   isOpen: isOpen,
                 ),
 
@@ -128,7 +128,7 @@ class RestaurantCard extends StatelessWidget {
 
                 _detailItem(
                   Icons.access_time,
-                  restaurant.deliveryTime,
+                  restaurant.deliveryTime.capitalizeFirstLetter(),
                   isOpen: isOpen,
                 ),
               ],

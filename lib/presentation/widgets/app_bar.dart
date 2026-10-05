@@ -53,7 +53,7 @@ class CustomAppBar extends StatelessWidget
                     boxShadow: [
                       BoxShadow(
                         color:
-                            Colors.black.withOpacity(.06),
+                            Colors.black.withValues(alpha: .06),
                         blurRadius: 10,
                         offset: const Offset(0, 2),
                       ),

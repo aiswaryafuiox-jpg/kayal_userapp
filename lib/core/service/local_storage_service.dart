@@ -16,6 +16,12 @@ class LocalStorageService {
   static const String keyUserName = 'user_name';
   static const String keyPhoneNumber = 'phone_number';
   static const String keyEmail = 'email';
+  static const String keyLatitude = 'latitude';
+  static const String keyLongitude = 'longitude';
+  static const String keyAddress = 'address';
+  static const String keyCity = 'city';
+  static const String keyState = 'state';
+  static const String keyPincode = 'pincode';
 
   Future<void> init() async {
     _prefs ??= await SharedPreferences.getInstance();
@@ -47,11 +53,41 @@ class LocalStorageService {
   }
 
   bool isLoggedIn() {
-    return getBool(keyIsLoggedIn) ?? false;
+    final token = getString(keyAuthToken) ?? getString('token');
+    final hasValidToken = token != null &&
+        token.trim().isNotEmpty &&
+        !token.startsWith('pms_token_');
+    final loggedInFlag = (getBool(keyIsLoggedIn) ?? false) ||
+        (getBool('is_logged_in') ?? false);
+    return loggedInFlag && hasValidToken;
   }
 
   Future<void> setLoggedIn(bool loggedIn) async {
     await saveBool(keyIsLoggedIn, loggedIn);
+    await saveBool('is_logged_in', loggedIn);
+  }
+
+  Future<void> clearUserData() async {
+    await _prefs?.setBool(keyIsLoggedIn, false);
+    await _prefs?.setBool('is_logged_in', false);
+    await _prefs?.remove(keyAuthToken);
+    await _prefs?.remove('token');
+    await _prefs?.remove(keyUserId);
+    await _prefs?.remove(keyFullName);
+    await _prefs?.remove(keyUserName);
+    await _prefs?.remove('name');
+    await _prefs?.remove(keyPhoneNumber);
+    await _prefs?.remove('phone');
+    await _prefs?.remove('user_phone');
+    await _prefs?.remove(keyEmail);
+    await _prefs?.remove(keyAddress);
+    await _prefs?.remove(keyCity);
+    await _prefs?.remove(keyState);
+    await _prefs?.remove(keyPincode);
+    await _prefs?.remove(keyLatitude);
+    await _prefs?.remove(keyLongitude);
+    await _prefs?.remove(keySessionId);
+    getOrCreateSessionId();
   }
 
   String? getFullName() {
@@ -80,6 +116,58 @@ class LocalStorageService {
     }
     if (email != null && email.trim().isNotEmpty) {
       await saveString(keyEmail, email.trim());
+    }
+  }
+
+  double getLatitude() {
+    final lat = _prefs?.getDouble(keyLatitude);
+    if (lat != null) return lat;
+    final latStr = getString(keyLatitude);
+    if (latStr != null) {
+      return double.tryParse(latStr) ?? 13.0827;
+    }
+    return 13.0827;
+  }
+
+  double getLongitude() {
+    final lng = _prefs?.getDouble(keyLongitude);
+    if (lng != null) return lng;
+    final lngStr = getString(keyLongitude);
+    if (lngStr != null) {
+      return double.tryParse(lngStr) ?? 80.2707;
+    }
+    return 80.2707;
+  }
+
+  String? getAddress() {
+    return getString(keyAddress);
+  }
+
+  String? getCity() {
+    return getString(keyCity);
+  }
+
+  Future<void> saveLocation({
+    required double latitude,
+    required double longitude,
+    String? address,
+    String? city,
+    String? state,
+    String? pincode,
+  }) async {
+    await _prefs?.setDouble(keyLatitude, latitude);
+    await _prefs?.setDouble(keyLongitude, longitude);
+    if (address != null && address.trim().isNotEmpty) {
+      await saveString(keyAddress, address.trim());
+    }
+    if (city != null && city.trim().isNotEmpty) {
+      await saveString(keyCity, city.trim());
+    }
+    if (state != null && state.trim().isNotEmpty) {
+      await saveString(keyState, state.trim());
+    }
+    if (pincode != null && pincode.trim().isNotEmpty) {
+      await saveString(keyPincode, pincode.trim());
     }
   }
 

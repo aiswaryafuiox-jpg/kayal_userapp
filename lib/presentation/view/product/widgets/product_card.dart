@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:kayal_userapp/core/const/api_routes.dart';
+import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
+import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
 import 'package:kayal_userapp/presentation/controller/product_controller.dart';
 
 class ProductCard extends StatelessWidget {
@@ -12,12 +16,20 @@ class ProductCard extends StatelessWidget {
     required this.controller,
   });
 
+  String _resolveImageUrl(String path) {
+    if (path.isEmpty || path == 'null') return '';
+    if (path.startsWith('http://') || path.startsWith('https://')) return path;
+    if (path.startsWith('assets/')) return path;
+    return '${ApiRoutes.imageBaseURL}$path';
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool isClosed = controller.isRestaurantClosed.value;
+    final resolvedImage = _resolveImageUrl(product.image);
 
     return GestureDetector(
-      onTap: () => Get.toNamed('/productDetail', arguments: {
+      onTap: () => Get.toNamed(AppRoutes.productDetail, arguments: {
         'product': product,
         'isClosed': isClosed,
       }),
@@ -47,10 +59,10 @@ class ProductCard extends StatelessWidget {
                     ),
                     child: Opacity(
                       opacity: isClosed ? 0.45 : 1.0,
-                      child: product.image.startsWith('http://') ||
-                              product.image.startsWith('https://')
+                      child: resolvedImage.startsWith('http://') ||
+                              resolvedImage.startsWith('https://')
                           ? Image.network(
-                              product.image,
+                              resolvedImage,
                               width: double.infinity,
                               height: double.infinity,
                               fit: BoxFit.cover,
@@ -62,7 +74,9 @@ class ProductCard extends StatelessWidget {
                               ),
                             )
                           : Image.asset(
-                              product.image,
+                              resolvedImage.isNotEmpty
+                                  ? resolvedImage
+                                  : 'assets/images/product1.png',
                               width: double.infinity,
                               height: double.infinity,
                               fit: BoxFit.cover,
@@ -115,8 +129,8 @@ class ProductCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          product.name,
-                          style: TextStyle(
+                          product.name.capitalizeWords(),
+                          style: GoogleFonts.inter(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                             color: isClosed
@@ -153,8 +167,8 @@ class ProductCard extends StatelessWidget {
                   const SizedBox(height: 2),
 
                   Text(
-                    product.type,
-                    style: TextStyle(
+                    product.type.capitalizeWords(),
+                    style: GoogleFonts.inter(
                       fontSize: 10,
                       fontWeight: FontWeight.w400,
                       color: isClosed
@@ -165,49 +179,91 @@ class ProductCard extends StatelessWidget {
 
                   const SizedBox(height: 8),
 
-                  // PRICE AND ADD BUTTON
+                  // PRICE AND QUANTITY SELECTOR
                   Row(
                     children: [
-                      if (product.oldPrice > product.newPrice &&
-                          product.newPrice > 0) ...[
-                        Text(
-                          '₹${product.oldPrice % 1 == 0 ? product.oldPrice.toInt() : product.oldPrice.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500,
-                            color: Color(0xFFB0B3BA),
-                            decoration: TextDecoration.lineThrough,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                      ],
-                      Text(
-                        '₹${((product.newPrice > 0 ? product.newPrice : product.oldPrice) % 1 == 0) ? (product.newPrice > 0 ? product.newPrice : product.oldPrice).toInt() : (product.newPrice > 0 ? product.newPrice : product.oldPrice).toStringAsFixed(2)}',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
-                          color: isClosed
-                              ? const Color(0xFF8C9199)
-                              : const Color(0xFF202733),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (product.oldPrice > product.newPrice &&
+                                product.newPrice > 0)
+                              Text(
+                                '₹${product.oldPrice % 1 == 0 ? product.oldPrice.toInt() : product.oldPrice.toStringAsFixed(2)}',
+                                style: GoogleFonts.inter(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w500,
+                                  color: const Color(0xFFB0B3BA),
+                                  decoration: TextDecoration.lineThrough,
+                                ),
+                              ),
+                            Text(
+                              '₹${((product.newPrice > 0 ? product.newPrice : product.oldPrice) % 1 == 0) ? (product.newPrice > 0 ? product.newPrice : product.oldPrice).toInt() : (product.newPrice > 0 ? product.newPrice : product.oldPrice).toStringAsFixed(2)}',
+                              style: GoogleFonts.inter(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                                color: isClosed
+                                    ? const Color(0xFF8C9199)
+                                    : const Color(0xFF202733),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      const Spacer(),
-                      GestureDetector(
-                        onTap: () => controller.addToCart(product.id),
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: isClosed
-                                ? const Color(0xFFFFB58F)
-                                : const Color(0xFFFF823E),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: const Icon(
-                            Icons.add,
-                            color: Colors.white,
-                            size: 16,
-                          ),
-                        ),
+                      const SizedBox(width: 4),
+                      Obx(
+                        () {
+                          final count = controller.getQuantity(product);
+                          return Container(
+                            height: 32,
+                            decoration: BoxDecoration(
+                              color: isClosed
+                                  ? const Color(0xFFFFB58F)
+                                  : const Color(0xFFFF823E),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () => controller.decrementQuantity(product),
+                                  child: const Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 8),
+                                    child: Icon(
+                                      Icons.remove,
+                                      color: Colors.white,
+                                      size: 16,
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  '$count',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () => controller.incrementQuantity(product),
+                                  child: const Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 8),
+                                    child: Icon(
+                                      Icons.add,
+                                      color: Colors.white,
+                                      size: 16,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),

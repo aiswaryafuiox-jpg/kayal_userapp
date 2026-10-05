@@ -3,6 +3,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 
+import 'package:kayal_userapp/core/service/local_storage_service.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
 
 class LocationConfirmController extends GetxController {
@@ -69,7 +70,18 @@ class LocationConfirmController extends GetxController {
     }
   }
 
-  void confirmLocation() {
+  void confirmLocation() async {
+    final storage = LocalStorageService();
+    await storage.init();
+    await storage.saveLocation(
+      latitude: position.latitude,
+      longitude: position.longitude,
+      address: address.value,
+      city: city.value,
+      state: state.value,
+      pincode: pincode.value,
+    );
+
     Get.offAllNamed(
       AppRoutes.notificationUpdate,
       arguments: {

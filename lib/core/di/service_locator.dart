@@ -32,6 +32,8 @@ import '../../domain/repository/categories_repository.dart';
 import '../../data/repository/categories_repository_impl.dart';
 import '../../domain/repository/category_products_repository.dart';
 import '../../data/repository/category_products_repository_impl.dart';
+import '../../domain/repository/restaurant_products_repository.dart';
+import '../../data/repository/restaurant_products_repository_impl.dart';
 import '../../domain/repository/product_details_repository.dart';
 import '../../data/repository/product_details_repository_impl.dart';
 import '../../domain/repository/add_to_cart_repository.dart';
@@ -109,6 +111,7 @@ import '../../domain/usecase/popular_restaurants_usecase.dart';
 import '../../domain/usecase/offers_usecase.dart';
 import '../../domain/usecase/get_categories_usecase.dart';
 import '../../domain/usecase/get_category_products_usecase.dart';
+import '../../domain/usecase/restaurant_products_usecase.dart';
 import '../../domain/usecase/get_product_details_usecase.dart';
 import '../../domain/usecase/add_to_cart_usecase.dart';
 import '../../domain/usecase/get_order_summary_usecase.dart';
@@ -236,6 +239,12 @@ Future<void> initDependencies() async {
   if (!sl.isRegistered<CategoryProductsRepository>()) {
     sl.registerLazySingleton<CategoryProductsRepository>(
       () => CategoryProductsRepositoryImpl(sl<ApiService>()),
+    );
+  }
+
+  if (!sl.isRegistered<RestaurantProductsRepository>()) {
+    sl.registerLazySingleton<RestaurantProductsRepository>(
+      () => RestaurantProductsRepositoryImpl(sl<ApiService>()),
     );
   }
 
@@ -501,6 +510,12 @@ Future<void> initDependencies() async {
   if (!sl.isRegistered<GetCategoryProductsUseCase>()) {
     sl.registerLazySingleton<GetCategoryProductsUseCase>(
       () => GetCategoryProductsUseCase(sl<CategoryProductsRepository>()),
+    );
+  }
+
+  if (!sl.isRegistered<RestaurantProductsUseCase>()) {
+    sl.registerLazySingleton<RestaurantProductsUseCase>(
+      () => RestaurantProductsUseCase(sl<RestaurantProductsRepository>()),
     );
   }
 

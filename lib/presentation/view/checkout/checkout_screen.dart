@@ -21,10 +21,15 @@ class CheckoutScreen extends StatelessWidget {
       body: SafeArea(
         child: Stack(
           children: [
-            SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              physics: const BouncingScrollPhysics(),
-              child: Column(
+            RefreshIndicator(
+              color: AppColors.primary,
+              onRefresh: () => controller.fetchSavedAddresses(),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics(),
+                ),
+                child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
@@ -218,6 +223,7 @@ class CheckoutScreen extends StatelessWidget {
                 ],
               ),
             ),
+          ),
          
             // Continue Button at bottom
             Positioned(

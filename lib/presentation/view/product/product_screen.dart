@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:kayal_userapp/core/const/app_images.dart';
 import 'package:kayal_userapp/presentation/controller/cart_controller.dart';
 import 'package:kayal_userapp/presentation/controller/product_controller.dart';
@@ -8,21 +9,40 @@ import 'package:kayal_userapp/presentation/view/product/widgets/product_card.dar
 import 'package:kayal_userapp/presentation/widgets/app_bar.dart';
 import 'package:kayal_userapp/presentation/widgets/restaurant_unavailable_banner.dart';
 
-class ProductScreen extends StatelessWidget {
-  ProductScreen({super.key});
+class ProductScreen extends StatefulWidget {
+  const ProductScreen({super.key});
 
-  final ProductController controller = Get.put(ProductController());
+  @override
+  State<ProductScreen> createState() => _ProductScreenState();
+}
+
+class _ProductScreenState extends State<ProductScreen> {
+  late final ProductController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = Get.isRegistered<ProductController>()
+        ? Get.find<ProductController>()
+        : Get.put(ProductController());
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        controller.updateArguments(Get.arguments);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    controller.updateArguments(Get.arguments);
     return Scaffold(
       backgroundColor: const Color(0xFFFFFCFA),
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
+        preferredSize: const Size.fromHeight(70),
         child: Obx(
           () => CustomAppBar(
             title: controller.title.value,
+            showBackButton: true,
             actions: [
               Padding(
                 padding: const EdgeInsets.only(right: 16),
@@ -37,11 +57,11 @@ class ProductScreen extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                       child: Obx(() {
-                        final cartController = Get.find<CartController>();
-                        final count = cartController.cartItems.fold<int>(
-                          0,
-                          (sum, item) => sum + item.quantity.value,
-                        );
+                        int count = 0;
+                        if (Get.isRegistered<CartController>()) {
+                          final cartController = Get.find<CartController>();
+                          count = cartController.cartItems.length;
+                        }
                         return Stack(
                           alignment: Alignment.center,
                           children: [
@@ -56,15 +76,28 @@ class ProductScreen extends StatelessWidget {
                             ),
                             if (count > 0)
                               Positioned(
-                                right: 7,
-                                top: 5,
-                                child: Text(
-                                  '$count',
-                                  style: const TextStyle(
+                                right: 6,
+                                top: 4,
+                                child: Container(
+                                  padding: const EdgeInsets.all(2),
+                                  constraints: const BoxConstraints(
+                                    minWidth: 16,
+                                    minHeight: 16,
+                                  ),
+                                  decoration: const BoxDecoration(
                                     color: Colors.white,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w800,
-                                    height: 1.0,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      '$count',
+                                      style: GoogleFonts.inter(
+                                        color: const Color(0xFFFF823E),
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w800,
+                                        height: 1.0,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -96,74 +129,90 @@ class ProductScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Expanded(
-                child: Obx(() {
-                  if (controller.isLoading.value && controller.products.isEmpty) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        color: Color(0xFFFF823E),
-                      ),
-                    );
-                  }
+                child: RefreshIndicator(
+                  color: const Color(0xFFFF823E),
+                  onRefresh: controller.refreshProducts,
+                  child: Obx(() {
+                    if (controller.isLoading.value &&
+                        controller.products.isEmpty) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: Color(0xFFFF823E),
+                        ),
+                      );
+                    }
 
-                  if (controller.products.isEmpty) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                    if (controller.products.isEmpty) {
+                      return ListView(
+                        physics: const AlwaysScrollableScrollPhysics(
+                          parent: BouncingScrollPhysics(),
+                        ),
                         children: [
-                          Container(
-                            width: 72,
-                            height: 72,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFFFECE0),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.fastfood_outlined,
-                              size: 36,
-                              color: Color(0xFFFF823E),
-                            ),
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.25,
                           ),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'No Data',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF252B35),
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          const Text(
-                            'No products found',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Color(0xFF6B7280),
+                          Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: 72,
+                                  height: 72,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFFFFECE0),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.fastfood_outlined,
+                                    size: 36,
+                                    color: Color(0xFFFF823E),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'No Data',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                    color: const Color(0xFF252B35),
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  'No products found',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 13,
+                                    color: const Color(0xFF6B7280),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
-                      ),
-                    );
-                  }
-
-                  return GridView.builder(
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: controller.products.length,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                      childAspectRatio:
-                          0.75, // Adjust based on your image and content
-                    ),
-                    itemBuilder: (context, index) {
-                      return ProductCard(
-                        product: controller.products[index],
-                        controller: controller,
                       );
-                    },
-                  );
-                }),
+                    }
+
+                    return GridView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(
+                        parent: BouncingScrollPhysics(),
+                      ),
+                      itemCount: controller.products.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                        childAspectRatio: 0.70,
+                      ),
+                      itemBuilder: (context, index) {
+                        return ProductCard(
+                          product: controller.products[index],
+                          controller: controller,
+                        );
+                      },
+                    );
+                  }),
+                ),
               ),
             ],
           ),

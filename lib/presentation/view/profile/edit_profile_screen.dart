@@ -142,13 +142,13 @@ class EditProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            _buildTextField(
-              label: 'Delivery Address',
-              controller: controller.addressController,
-              hintText: '23, barathi street, Chennai',
-              maxLines: 3,
-            ),
-            const SizedBox(height: 20),
+            // _buildTextField(
+            //   label: 'Delivery Address',
+            //   controller: controller.addressController,
+            //   hintText: '23, barathi street, Chennai',
+            //   maxLines: 3,
+            // ),
+            // const SizedBox(height: 20),
 
             _buildTextField(
               label: 'Location Type',

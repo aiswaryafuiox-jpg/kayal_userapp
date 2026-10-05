@@ -1,6 +1,9 @@
 import 'package:kayal_userapp/core/const/app_images.dart';
+import 'package:kayal_userapp/core/utils/helper/food_type_helper.dart';
+import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
 
 class GetWishlistResponseModel {
+
   final bool success;
   final String message;
   final List<WishlistItemModel> data;
@@ -160,20 +163,29 @@ class WishlistItemModel {
         ? rawOldPrice.toDouble()
         : double.tryParse(rawOldPrice?.toString() ?? '0') ?? parsedPrice;
 
-    final rawType =
-        productMap['type'] ??
-        productMap['category_name'] ??
-        productMap['food_type'] ??
-        json['type'] ??
-        'Veg';
-    final typeStr = rawType.toString();
-    final bool isVegBool =
-        productMap['is_veg'] == true ||
-        productMap['is_veg'] == 1 ||
-        productMap['is_veg'] == '1' ||
-        json['is_veg'] == true ||
-        (typeStr.toLowerCase().contains('veg') &&
-            !typeStr.toLowerCase().contains('non'));
+    final rawName =
+        (productMap['name'] ??
+                productMap['title'] ??
+                json['name'] ??
+                'Product')
+            .toString()
+            .capitalizeWords();
+
+    final bool isVegBool = FoodTypeHelper.determineIsVeg(
+      foodType: productMap['food_type'] ?? json['food_type'],
+      isVeg: productMap['is_veg'] ?? json['is_veg'],
+      vegStatus: productMap['veg_status'] ?? json['veg_status'],
+      type: (productMap['type'] ?? json['type'])?.toString(),
+      productName: rawName,
+    );
+
+    final String typeStr = FoodTypeHelper.determineType(
+      foodType: productMap['food_type'] ?? json['food_type'],
+      isVeg: productMap['is_veg'] ?? json['is_veg'],
+      vegStatus: productMap['veg_status'] ?? json['veg_status'],
+      type: (productMap['type'] ?? json['type'])?.toString(),
+      productName: rawName,
+    );
 
     final rawImage =
         productMap['image'] ??
@@ -191,13 +203,8 @@ class WishlistItemModel {
     return WishlistItemModel(
       id: json['id'] ?? productMap['id'],
       productId: productMap['id'] ?? json['product_id'] ?? json['id'],
-      name:
-          (productMap['name'] ??
-                  productMap['title'] ??
-                  json['name'] ??
-                  'Product')
-              .toString(),
-      type: typeStr,
+      name: rawName,
+      type: typeStr.capitalizeWords(),
       isVeg: isVegBool,
       oldPrice: parsedOldPrice > 0 ? parsedOldPrice : parsedPrice,
       price: parsedPrice,

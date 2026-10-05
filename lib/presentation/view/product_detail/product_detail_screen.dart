@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:kayal_userapp/core/const/app_images.dart';
+import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
 import 'package:kayal_userapp/presentation/controller/product_detail_controller.dart';
 import 'package:kayal_userapp/presentation/widgets/custom_buttom.dart';
 
@@ -211,9 +212,10 @@ class ProductDetailScreen extends StatelessWidget {
                       Expanded(
                         child: Obx(
                           () => Text(
-                            controller.product.value?.name ??
-                                controller.productDetail.value?.name ??
-                                'Product Details',
+                            (controller.product.value?.name ??
+                                    controller.productDetail.value?.name ??
+                                    'Product Details')
+                                .capitalizeWords(),
                             style: const TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.w700,
@@ -281,9 +283,10 @@ class ProductDetailScreen extends StatelessWidget {
                       final isVeg = controller.product.value?.isVeg ??
                           controller.productDetail.value?.isVeg ??
                           false;
-                      final type = controller.product.value?.type ??
-                          controller.productDetail.value?.type ??
-                          'Non-Veg';
+                      final type = (controller.product.value?.type ??
+                              controller.productDetail.value?.type ??
+                              'Non-Veg')
+                          .capitalizeWords();
 
                       return Row(
                         children: [
@@ -381,25 +384,31 @@ class ProductDetailScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Expanded(
-                    child: SingleChildScrollView(
-                      physics: const BouncingScrollPhysics(),
-                      child: Obx(
-                        () {
-                          final desc = controller.description.value.isNotEmpty
-                              ? controller.description.value
-                              : (controller.productDetail.value?.description ??
-                                  "Our Chicken Burger is made with a crispy, golden-fried chicken fillet served in a soft toasted bun. Layered with fresh lettuce, juicy tomatoes, creamy mayonnaise, and melted cheese, every bite is packed with rich flavor. It's the perfect choice for a delicious and satisfying meal.");
+                    child: RefreshIndicator(
+                      color: const Color(0xFFFF823E),
+                      onRefresh: controller.refreshDetails,
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(
+                          parent: BouncingScrollPhysics(),
+                        ),
+                        child: Obx(
+                          () {
+                            final desc = controller.description.value.isNotEmpty
+                                ? controller.description.value
+                                : (controller.productDetail.value?.description ??
+                                    "Our Chicken Burger is made with a crispy, golden-fried chicken fillet served in a soft toasted bun. Layered with fresh lettuce, juicy tomatoes, creamy mayonnaise, and melted cheese, every bite is packed with rich flavor. It's the perfect choice for a delicious and satisfying meal.");
 
-                          return Text(
-                            desc,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                              color: Color(0xFF6B7280),
-                              height: 1.5,
-                            ),
-                          );
-                        },
+                            return Text(
+                              desc,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                color: Color(0xFF6B7280),
+                                height: 1.5,
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ),
@@ -442,7 +451,7 @@ class ProductDetailScreen extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                '${controller.quantity.value}',
+                                '${controller.currentQuantity}',
                                 style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,

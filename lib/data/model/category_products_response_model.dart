@@ -1,14 +1,23 @@
+import 'package:kayal_userapp/core/utils/helper/food_type_helper.dart';
+import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
+
 class CategoryProductsResponseModel {
   final bool success;
   final String message;
+  final String? categoryName;
   final List<CategoryProductItemModel> data;
+  final dynamic meta;
   final dynamic errors;
+  final int? code;
 
   CategoryProductsResponseModel({
     this.success = true,
     this.message = '',
+    this.categoryName,
     this.data = const [],
+    this.meta,
     this.errors,
+    this.code,
   });
 
   factory CategoryProductsResponseModel.fromJson(Map<String, dynamic> json) {
@@ -32,15 +41,21 @@ class CategoryProductsResponseModel {
     }
 
     List<CategoryProductItemModel> productList = [];
+    String? catName;
+    dynamic metaData;
+
     if (json['data'] != null) {
       if (json['data'] is List) {
         productList = parseList(json['data']);
-      } else if (json['data'] is Map<String, dynamic> &&
-          json['data']['products'] != null) {
-        productList = parseList(json['data']['products']);
-      } else if (json['data'] is Map<String, dynamic> &&
-          json['data']['dishes'] != null) {
-        productList = parseList(json['data']['dishes']);
+      } else if (json['data'] is Map<String, dynamic> || json['data'] is Map) {
+        final dataMap = Map<String, dynamic>.from(json['data'] as Map);
+        catName = dataMap['category_name']?.toString() ?? dataMap['name']?.toString();
+        metaData = dataMap['meta'];
+        if (dataMap['products'] != null) {
+          productList = parseList(dataMap['products']);
+        } else if (dataMap['dishes'] != null) {
+          productList = parseList(dataMap['dishes']);
+        }
       }
     } else if (json['products'] != null) {
       productList = parseList(json['products']);
@@ -51,8 +66,11 @@ class CategoryProductsResponseModel {
     return CategoryProductsResponseModel(
       success: json['success'] ?? true,
       message: json['message']?.toString() ?? '',
+      categoryName: catName,
       data: productList,
+      meta: metaData ?? json['meta'],
       errors: json['errors'],
+      code: json['code'] is int ? json['code'] : int.tryParse(json['code']?.toString() ?? ''),
     );
   }
 
@@ -60,8 +78,11 @@ class CategoryProductsResponseModel {
     return {
       'success': success,
       'message': message,
+      'category_name': categoryName,
       'data': data.map((e) => e.toJson()).toList(),
+      'meta': meta,
       'errors': errors,
+      'code': code,
     };
   }
 
@@ -151,42 +172,34 @@ class CategoryProductItemModel {
     final double finalOldPrice =
         parsedOldPrice > 0 ? parsedOldPrice : finalPrice;
 
-    final rawFoodType = itemMap['food_type'] ?? json['food_type'];
-    final parsedFoodType = rawFoodType is int
-        ? rawFoodType
-        : int.tryParse(rawFoodType?.toString() ?? '0') ?? 0;
+    final rawName = (itemMap['name']?.toString() ??
+            itemMap['product_name']?.toString() ??
+            itemMap['dish_name']?.toString() ??
+            json['name']?.toString() ??
+            '')
+        .capitalizeWords();
 
-    final rawType =
-        itemMap['type']?.toString() ??
-        json['type']?.toString() ??
-        (rawFoodType != null
-            ? (parsedFoodType == 1 ? 'Veg' : 'Non-Veg')
-            : (itemMap['is_veg'] == true ||
-                    itemMap['is_veg']?.toString() == '1' ||
-                    itemMap['veg_status']?.toString() == '1' ||
-                    json['is_veg'] == true ||
-                    json['is_veg']?.toString() == '1'
-                ? 'Veg'
-                : 'Non-Veg'));
+    final bool isVegProduct = FoodTypeHelper.determineIsVeg(
+      foodType: itemMap['food_type'] ?? json['food_type'],
+      isVeg: itemMap['is_veg'] ?? json['is_veg'],
+      vegStatus: itemMap['veg_status'] ?? json['veg_status'],
+      type: itemMap['type']?.toString() ?? json['type']?.toString(),
+      productName: rawName,
+    );
 
-    final bool isVegProduct =
-        (rawType.toLowerCase().contains('veg') &&
-            !rawType.toLowerCase().contains('non')) ||
-        parsedFoodType == 1 ||
-        itemMap['is_veg'] == true ||
-        itemMap['is_veg']?.toString() == '1' ||
-        json['is_veg'] == true ||
-        json['is_veg']?.toString() == '1';
+    final String typeStr = FoodTypeHelper.determineType(
+      foodType: itemMap['food_type'] ?? json['food_type'],
+      isVeg: itemMap['is_veg'] ?? json['is_veg'],
+      vegStatus: itemMap['veg_status'] ?? json['veg_status'],
+      type: itemMap['type']?.toString() ?? json['type']?.toString(),
+      productName: rawName,
+    );
 
     return CategoryProductItemModel(
       id: itemMap['id'] ?? itemMap['product_id'] ?? itemMap['dish_id'] ?? json['id'],
-      name:
-          itemMap['name']?.toString() ??
-          itemMap['product_name']?.toString() ??
-          itemMap['dish_name']?.toString() ??
-          json['name']?.toString() ??
-          '',
-      description: itemMap['description']?.toString() ?? json['description']?.toString(),
+      name: rawName,
+      description: (itemMap['description']?.toString() ?? json['description']?.toString())
+          ?.capitalizeFirstLetter(),
       image:
           itemMap['image']?.toString() ??
           itemMap['image_url']?.toString() ??
@@ -195,7 +208,7 @@ class CategoryProductItemModel {
           json['image']?.toString(),
       price: finalPrice,
       oldPrice: finalOldPrice,
-      type: isVegProduct ? 'Veg' : 'Non-Veg',
+      type: typeStr.capitalizeWords(),
       isVeg: isVegProduct,
       categoryId: itemMap['category_id'] ?? json['category_id'],
       restaurantId: itemMap['restaurant_id'] ?? json['restaurant_id'],

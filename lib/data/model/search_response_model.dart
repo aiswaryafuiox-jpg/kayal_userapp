@@ -1,4 +1,7 @@
+import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
+
 class SearchResponseModel {
+
   final bool success;
   final String message;
   final List<SearchRestaurantModel> restaurants;
@@ -75,11 +78,13 @@ class SearchRestaurantModel {
   factory SearchRestaurantModel.fromJson(Map<String, dynamic> json) {
     return SearchRestaurantModel(
       id: json['id'] ?? json['restaurant_id'],
-      name: json['name']?.toString() ??
-          json['restaurant_name']?.toString() ??
-          '',
+      name: (json['name']?.toString() ??
+              json['restaurant_name']?.toString() ??
+              '')
+          .capitalizeWords(),
       image: json['image']?.toString() ?? json['banner']?.toString(),
-      cuisine: json['cuisine']?.toString() ?? json['description']?.toString(),
+      cuisine: (json['cuisine']?.toString() ?? json['description']?.toString())
+          ?.capitalizeWords(),
       deliveryTime: json['delivery_time']?.toString() ??
           json['estimated_time']?.toString(),
       distance: json['distance']?.toString(),
@@ -128,17 +133,18 @@ class SearchDishModel {
   factory SearchDishModel.fromJson(Map<String, dynamic> json) {
     return SearchDishModel(
       id: json['id'] ?? json['dish_id'] ?? json['product_id'],
-      name: json['name']?.toString() ??
-          json['dish_name']?.toString() ??
-          json['product_name']?.toString() ??
-          '',
-      description: json['description']?.toString(),
+      name: (json['name']?.toString() ??
+              json['dish_name']?.toString() ??
+              json['product_name']?.toString() ??
+              '')
+          .capitalizeWords(),
+      description: json['description']?.toString().capitalizeFirstLetterOrNull(),
       image: json['image']?.toString(),
       price: json['price'] is num
           ? (json['price'] as num).toDouble()
           : double.tryParse(json['price']?.toString() ?? '0') ?? 0.0,
       restaurantId: json['restaurant_id'],
-      restaurantName: json['restaurant_name']?.toString(),
+      restaurantName: json['restaurant_name']?.toString().capitalizeWordsOrNull(),
     );
   }
 
@@ -169,9 +175,10 @@ class SearchCategoryModel {
   factory SearchCategoryModel.fromJson(Map<String, dynamic> json) {
     return SearchCategoryModel(
       id: json['id'] ?? json['category_id'],
-      name: json['name']?.toString() ??
-          json['category_name']?.toString() ??
-          '',
+      name: (json['name']?.toString() ??
+              json['category_name']?.toString() ??
+              '')
+          .capitalizeWords(),
       image: json['image']?.toString() ?? json['icon']?.toString(),
     );
   }

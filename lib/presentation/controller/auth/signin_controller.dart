@@ -116,7 +116,7 @@ class SignupController extends GetxController {
     if (hasToken) {
       try {
         isLoading.value = true;
-        final response = await _signupProfileUseCase(fullName: fullName);
+        final response = await _signupProfileUseCase(fullName: fullName,email:email);
         if (response.success) {
           final storage = LocalStorageService();
           await storage.saveUserData(

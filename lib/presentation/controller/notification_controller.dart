@@ -10,7 +10,6 @@ import 'package:kayal_userapp/data/repository/mark_as_read_repository_impl.dart'
 import 'package:kayal_userapp/domain/usecase/delete_notification_usecase.dart';
 import 'package:kayal_userapp/domain/usecase/get_notifications_usecase.dart';
 import 'package:kayal_userapp/domain/usecase/mark_as_read_usecase.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class NotificationController extends GetxController {
   final GetNotificationsUseCase _getNotificationsUseCase;
@@ -53,16 +52,12 @@ class NotificationController extends GetxController {
   }
 
   Future<void> checkLoginAndFetch() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('auth_token') ??
-        prefs.getString('token') ??
-        LocalStorageService().getString('auth_token');
-
-    isLoggedIn.value = (token != null && token.isNotEmpty) ||
-        (prefs.getBool('isLoggedIn') ?? false);
+    isLoggedIn.value = LocalStorageService().isLoggedIn();
 
     if (isLoggedIn.value) {
       await fetchNotifications();
+    } else {
+      notifications.clear();
     }
   }
 

@@ -8,9 +8,11 @@ class SignupProfileUseCase {
 
   Future<SignupProfileResponseModel> call({
     required String fullName,
+    required String email,
   }) async {
     return await _repository.signupProfile(
       fullName: fullName,
+      email: email,
     );
   }
 }

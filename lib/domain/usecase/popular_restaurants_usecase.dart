@@ -6,7 +6,16 @@ class PopularRestaurantsUseCase {
 
   PopularRestaurantsUseCase(this._repository);
 
-  Future<PopularRestaurantsResponseModel> call() async {
-    return await _repository.getPopularRestaurants();
+  Future<PopularRestaurantsResponseModel> call({
+    dynamic categoryId,
+    double? lat,
+    double? lng,
+  }) async {
+    return await _repository.getPopularRestaurants(
+      categoryId: categoryId,
+      lat: lat,
+      lng: lng,
+    );
   }
 }
+

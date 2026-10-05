@@ -21,6 +21,7 @@ class ApiRoutes {
   static const String addToCart = '/add_product_to_cart';
   static const String getProductDetails = '/get_product_details';
   static const String getCategoryProducts = '/get_category_products';
+  static const String restaurantProducts = '/restaurant_products';
   static const String getCategories = '/get_categories';
   static const String offers = '/offers';
   static const String popularRestaurants = '/popular_restaurants';

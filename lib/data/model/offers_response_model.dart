@@ -1,4 +1,7 @@
+import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
+
 class OffersResponseModel {
+
   final bool success;
   final String message;
   final List<OfferItemModel> data;
@@ -117,14 +120,15 @@ class OfferItemModel {
     return OfferItemModel(
       id: json['id'] ?? json['offer_id'] ?? json['coupon_id'],
       title:
-          json['title']?.toString() ??
-          json['name']?.toString() ??
-          json['offer_title']?.toString(),
+          (json['title']?.toString() ??
+                  json['name']?.toString() ??
+                  json['offer_title']?.toString())
+              .capitalizeWordsOrNull(),
       code:
           json['code']?.toString() ??
           json['coupon_code']?.toString() ??
           json['promo_code']?.toString(),
-      description: json['description']?.toString(),
+      description: json['description']?.toString().capitalizeFirstLetterOrNull(),
       discount:
           json['discount'] ??
           json['discount_percentage'] ??

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:kayal_userapp/core/const/app_color.dart';
 import 'package:kayal_userapp/core/di/service_locator.dart';
 import 'package:kayal_userapp/core/service/api_service.dart';
+import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
 import 'package:kayal_userapp/data/repository/popular_restaurants_repository_impl.dart';
 import 'package:kayal_userapp/domain/usecase/popular_restaurants_usecase.dart';
@@ -41,9 +42,10 @@ class CategoryRestaurantsController extends GetxController {
   void updateArguments([dynamic args]) {
     final currentArgs = args ?? Get.arguments;
     if (currentArgs != null) {
+      final oldId = categoryId;
       if (currentArgs is Map) {
         if (currentArgs['category'] != null) {
-          categoryName.value = currentArgs['category'].toString();
+          categoryName.value = currentArgs['category'].toString().capitalizeWords();
         }
         if (currentArgs['categoryId'] != null) {
           categoryId = currentArgs['categoryId'];
@@ -55,25 +57,39 @@ class CategoryRestaurantsController extends GetxController {
           parentClosedNotes.value = currentArgs['notes'].toString();
         }
       } else if (currentArgs is String) {
-        categoryName.value = currentArgs;
+        categoryName.value = currentArgs.capitalizeWords();
+      }
+
+      if (categoryId != null && categoryId != oldId && !isLoading.value) {
+        fetchRestaurants(catId: categoryId);
       }
     }
   }
 
-  Future<void> fetchRestaurants() async {
+  Future<void> fetchRestaurants({
+    dynamic catId,
+    double? lat,
+    double? lng,
+  }) async {
     try {
       isLoading.value = true;
-      final response = await _popularRestaurantsUseCase();
+      final effectiveCategoryId = catId ?? categoryId;
+      final response = await _popularRestaurantsUseCase(
+        categoryId: effectiveCategoryId,
+        lat: lat,
+        lng: lng,
+      );
       if (response.success && response.data.isNotEmpty) {
         final fetched = response.data.map(
           (item) => RestaurantItem(
-            name: item.name,
+            id: item.id,
+            name: item.name.capitalizeWords(),
             image: (item.image != null && item.image!.isNotEmpty)
                 ? item.image!
                 : 'assets/images/homeimg.png',
             cuisine: (item.cuisine != null && item.cuisine!.isNotEmpty)
-                ? item.cuisine!
-                : '${categoryName.value} Special',
+                ? item.cuisine!.capitalizeWords()
+                : '${categoryName.value} Special'.capitalizeWords(),
             deliveryTime: item.deliveryTime ?? '25-30 mins',
             distance: item.distance ?? '2.8 Km',
             openingTime: item.openingTime ?? '10:00 Am - 11:00 Pm',
@@ -113,6 +129,7 @@ class CategoryRestaurantsController extends GetxController {
         'category': categoryName.value,
         'categoryId': categoryId,
         'restaurant': restaurant,
+        'restaurantId': restaurant.id,
         'isClosed': !restaurant.isOpen,
         'notes': !restaurant.isOpen
             ? 'This restaurant is currently unavailable.\n${restaurant.openingTime}'

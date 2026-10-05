@@ -60,7 +60,7 @@ void main() {
 
       final item = data.items.first;
       expect(item.productId, 1);
-      expect(item.name, 'pine apple juice');
+      expect(item.name, 'Pine Apple Juice');
       expect(item.foodType, 'Non-Veg');
       expect(item.isVeg, isFalse);
       expect(item.qty, 2);

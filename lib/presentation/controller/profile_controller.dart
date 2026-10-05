@@ -4,16 +4,21 @@ import 'package:kayal_userapp/core/const/app_images.dart';
 import 'package:kayal_userapp/core/di/service_locator.dart';
 import 'package:kayal_userapp/core/service/api_service.dart';
 import 'package:kayal_userapp/core/service/local_storage_service.dart';
+import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
 import 'package:kayal_userapp/data/model/get_profile_response_model.dart';
 import 'package:kayal_userapp/data/repository/get_profile_repository_impl.dart';
 import 'package:kayal_userapp/data/repository/logout_repository_impl.dart';
 import 'package:kayal_userapp/domain/usecase/get_profile_usecase.dart';
 import 'package:kayal_userapp/domain/usecase/logout_usecase.dart';
+import 'package:kayal_userapp/presentation/controller/cart_controller.dart';
+import 'package:kayal_userapp/presentation/controller/home_controller.dart';
+import 'package:kayal_userapp/presentation/controller/notification_controller.dart';
+import 'package:kayal_userapp/presentation/controller/orders_controller.dart';
+import 'package:kayal_userapp/presentation/controller/wishlist_controller.dart';
 import 'package:kayal_userapp/presentation/view/profile/edit_profile_screen.dart';
 import 'package:kayal_userapp/presentation/view/profile/privacy_policy_screen.dart';
 import 'package:kayal_userapp/presentation/view/profile/terms_condition_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileController extends GetxController {
   final GetProfileUseCase _getProfileUseCase;
@@ -49,17 +54,17 @@ class ProfileController extends GetxController {
   }
 
   Future<void> checkLoginStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('auth_token') ??
-        prefs.getString('token') ??
-        LocalStorageService().getString('auth_token');
-
-    final loggedIn = (token != null && token.isNotEmpty) ||
-        (prefs.getBool('isLoggedIn') ?? false);
+    final loggedIn = LocalStorageService().isLoggedIn();
     isLoggedIn.value = loggedIn;
 
     if (loggedIn) {
       await fetchProfile();
+    } else {
+      userName.value = 'User';
+      phoneNumber.value = '';
+      email.value = '';
+      profileImageUrl.value = '';
+      profileData.value = null;
     }
   }
 
@@ -74,7 +79,7 @@ class ProfileController extends GetxController {
         profileData.value = data;
 
         if (data.fullName.isNotEmpty) {
-          userName.value = data.fullName;
+          userName.value = data.fullName.capitalizeWords();
         }
         if (data.phone.isNotEmpty) {
           phoneNumber.value = data.phone;
@@ -116,7 +121,7 @@ class ProfileController extends GetxController {
   }
 
   void openSavedAddress() {
-    Get.toNamed(AppRoutes.addAddress);
+    Get.toNamed(AppRoutes.savedAddress);
   }
 
   void openWishlist() {
@@ -218,13 +223,7 @@ class ProfileController extends GetxController {
                                 } catch (_) {
                                   // Continue clearing local session even if API call fails
                                 } finally {
-                                  final prefs = await SharedPreferences.getInstance();
-                                  await prefs.setBool('isLoggedIn', false);
-                                  await prefs.remove('auth_token');
-                                  await prefs.remove('token');
-                                  await LocalStorageService().remove('auth_token');
-                                  await LocalStorageService().remove('user_id');
-                                  await LocalStorageService().saveBool('is_logged_in', false);
+                                  await LocalStorageService().clearUserData();
 
                                   isLoggedIn.value = false;
                                   profileData.value = null;
@@ -233,6 +232,26 @@ class ProfileController extends GetxController {
                                   email.value = '';
                                   profileImageUrl.value = '';
                                   isLoggingOut.value = false;
+
+                                  // Reset other controllers if active in memory
+                                  if (Get.isRegistered<HomeController>()) {
+                                    Get.find<HomeController>().loadUserInfo();
+                                  }
+                                  if (Get.isRegistered<CartController>()) {
+                                    Get.find<CartController>().cartItems.clear();
+                                    Get.find<CartController>().cartData.value = null;
+                                  }
+                                  if (Get.isRegistered<WishlistController>()) {
+                                    Get.find<WishlistController>().wishlistItems.clear();
+                                  }
+                                  if (Get.isRegistered<OrdersController>()) {
+                                    Get.find<OrdersController>().ordersList.clear();
+                                    Get.find<OrdersController>().isLoggedIn.value = false;
+                                  }
+                                  if (Get.isRegistered<NotificationController>()) {
+                                    Get.find<NotificationController>().notifications.clear();
+                                    Get.find<NotificationController>().isLoggedIn.value = false;
+                                  }
 
                                   if (Get.isDialogOpen ?? false) {
                                     Get.back();

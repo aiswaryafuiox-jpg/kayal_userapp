@@ -1,4 +1,8 @@
+import 'package:kayal_userapp/core/utils/helper/food_type_helper.dart';
+import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
+
 class OrderSummaryResponseModel {
+
   final bool success;
   final String message;
   final OrderSummaryDataModel? data;
@@ -166,10 +170,11 @@ class OrderSummaryDataModel {
           json['delivery_time']?.toString() ??
           json['estimate_time']?.toString() ??
           '20-25 mins',
-      restaurantName: json['restaurant_name']?.toString(),
+      restaurantName: json['restaurant_name']?.toString().capitalizeWordsOrNull(),
       restaurantId: json['restaurant_id'],
-      specialInstructions: json['special_instructions']?.toString() ??
-          json['instructions']?.toString(),
+      specialInstructions: (json['special_instructions']?.toString() ??
+              json['instructions']?.toString())
+          .capitalizeFirstLetterOrNull(),
     );
   }
 
@@ -264,26 +269,27 @@ class OrderSummaryItemModel {
         ? rawQuantity.toInt()
         : int.tryParse(rawQuantity?.toString() ?? '1') ?? 1;
 
-    final rawFoodType = json['food_type'];
-    final parsedFoodType = rawFoodType is int
-        ? rawFoodType
-        : int.tryParse(rawFoodType?.toString() ?? '0') ?? 0;
+    final rawName = (json['name']?.toString() ??
+            json['product_name']?.toString() ??
+            json['dish_name']?.toString() ??
+            '')
+        .capitalizeWords();
 
-    final rawType = json['type']?.toString() ??
-        (rawFoodType != null
-            ? (parsedFoodType == 1 ? 'Veg' : 'Non-Veg')
-            : (json['is_veg'] == true ||
-                    json['is_veg']?.toString() == '1' ||
-                    json['veg_status']?.toString() == '1'
-                ? 'Veg'
-                : 'Non-Veg'));
+    final bool isVegProduct = FoodTypeHelper.determineIsVeg(
+      foodType: json['food_type'],
+      isVeg: json['is_veg'],
+      vegStatus: json['veg_status'],
+      type: json['type']?.toString(),
+      productName: rawName,
+    );
 
-    final bool isVegProduct = (rawType.toLowerCase().contains('veg') &&
-            !rawType.toLowerCase().contains('non')) ||
-        parsedFoodType == 1 ||
-        json['is_veg'] == true ||
-        json['is_veg']?.toString() == '1' ||
-        json['veg_status']?.toString() == '1';
+    final String typeStr = FoodTypeHelper.determineType(
+      foodType: json['food_type'],
+      isVeg: json['is_veg'],
+      vegStatus: json['veg_status'],
+      type: json['type']?.toString(),
+      productName: rawName,
+    );
 
     final rawTotalPrice = json['total'] ??
         json['total_price'] ??
@@ -294,21 +300,23 @@ class OrderSummaryItemModel {
         : double.tryParse(rawTotalPrice?.toString() ?? '0') ??
             (parsedPrice * parsedQty);
 
+    final rawFoodType = json['food_type'];
+    final parsedFoodType = rawFoodType is int
+        ? rawFoodType
+        : int.tryParse(rawFoodType?.toString() ?? '0') ?? 0;
+
     return OrderSummaryItemModel(
       id: json['id'] ?? json['item_id'] ?? json['cart_id'],
       rawId: json['raw_id'],
       productId: json['product_id'] ?? json['dish_id'] ?? json['id'],
-      name: json['name']?.toString() ??
-          json['product_name']?.toString() ??
-          json['dish_name']?.toString() ??
-          '',
+      name: rawName,
       image: json['image_url']?.toString() ??
           json['image']?.toString() ??
           json['photo']?.toString(),
       price: parsedPrice,
       oldPrice: parsedOldPrice,
       quantity: parsedQty,
-      type: isVegProduct ? 'Veg' : 'Non-Veg',
+      type: typeStr.capitalizeWords(),
       isVeg: isVegProduct,
       totalPrice: parsedTotalPrice,
       foodType: parsedFoodType,

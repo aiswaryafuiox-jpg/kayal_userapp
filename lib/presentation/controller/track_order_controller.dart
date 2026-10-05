@@ -41,6 +41,10 @@ class TrackOrderController extends GetxController {
     }
   }
 
+  Future<void> refreshTracking() async {
+    await Future.delayed(const Duration(milliseconds: 500));
+  }
+
   void trackLive() {
     Get.toNamed('/liveTracking');
   }

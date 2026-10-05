@@ -32,6 +32,8 @@ import 'package:kayal_userapp/presentation/view/order_summary/order_summary_scre
 import 'package:kayal_userapp/presentation/controller/order_summary_controller.dart';
 import 'package:kayal_userapp/presentation/view/checkout/checkout_screen.dart';
 import 'package:kayal_userapp/presentation/controller/checkout_controller.dart';
+import 'package:kayal_userapp/presentation/view/profile/saved_address_screen.dart';
+import 'package:kayal_userapp/presentation/controller/saved_address_controller.dart';
 import 'package:kayal_userapp/presentation/view/checkout/add_address_screen.dart';
 import 'package:kayal_userapp/presentation/controller/add_address_controller.dart';
 import 'package:kayal_userapp/presentation/view/checkout/payment_method_screen.dart';
@@ -79,6 +81,7 @@ class AppRoutes {
   static const String productDetail = '/productDetail';
   static const String orderSummary = '/orderSummary';
   static const String checkout = '/checkout';
+  static const String savedAddress = '/savedAddress';
   static const String addAddress = '/addAddress';
   static const String paymentMethod = '/paymentMethod';
   static const String success = '/success';
@@ -179,6 +182,11 @@ class AppRoutes {
       name: checkout,
       page: () => CheckoutScreen(),
       binding: BindingsBuilder.put(CheckoutController.new),
+    ),
+    GetPage(
+      name: savedAddress,
+      page: () => SavedAddressScreen(),
+      binding: BindingsBuilder.put(SavedAddressController.new),
     ),
     GetPage(
       name: addAddress,

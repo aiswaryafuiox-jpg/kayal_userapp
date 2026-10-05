@@ -1,4 +1,7 @@
+import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
+
 class CategoriesResponseModel {
+
   final bool success;
   final String message;
   final List<CategoryModel> data;
@@ -99,13 +102,15 @@ class CategoryModel {
   factory CategoryModel.fromJson(Map<String, dynamic> json) {
     return CategoryModel(
       id: json['id'] ?? json['category_id'],
-      name: json['name']?.toString() ?? json['category_name']?.toString() ?? '',
+      name:
+          (json['name']?.toString() ?? json['category_name']?.toString() ?? '')
+              .capitalizeWords(),
       image:
           json['image']?.toString() ??
           json['image_url']?.toString() ??
           json['icon']?.toString() ??
           json['banner']?.toString(),
-      description: json['description']?.toString(),
+      description: json['description']?.toString().capitalizeFirstLetterOrNull(),
       status: json['status'] ?? json['is_active'],
       createdAt: json['created_at']?.toString(),
       updatedAt: json['updated_at']?.toString(),

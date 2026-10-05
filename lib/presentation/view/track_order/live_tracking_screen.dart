@@ -24,7 +24,7 @@ class LiveTrackingScreen extends StatelessWidget {
             children: [
               TileLayer(
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'com.example.kayal_userapp',
+                userAgentPackageName: 'com.kayal.user',
               ),
               PolylineLayer(
                 polylines: [

@@ -9,77 +9,108 @@ import 'package:kayal_userapp/presentation/view/home/widgets/restaurant_card.dar
 import 'package:kayal_userapp/presentation/widgets/app_bar.dart';
 import 'package:kayal_userapp/presentation/widgets/restaurant_unavailable_banner.dart';
 
-class CategoryRestaurantsScreen extends StatelessWidget {
-  CategoryRestaurantsScreen({super.key});
+class CategoryRestaurantsScreen extends StatefulWidget {
+  const CategoryRestaurantsScreen({super.key});
 
-  final CategoryRestaurantsController controller =
-      Get.put(CategoryRestaurantsController());
+  @override
+  State<CategoryRestaurantsScreen> createState() =>
+      _CategoryRestaurantsScreenState();
+}
+
+class _CategoryRestaurantsScreenState
+    extends State<CategoryRestaurantsScreen> {
+  late final CategoryRestaurantsController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = Get.isRegistered<CategoryRestaurantsController>()
+        ? Get.find<CategoryRestaurantsController>()
+        : Get.put(CategoryRestaurantsController());
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        controller.updateArguments(Get.arguments);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    controller.updateArguments(Get.arguments);
-
     return Scaffold(
       backgroundColor: const Color(0xFFFFFCFA),
-      appBar: CustomAppBar(
-        title: '${controller.categoryName.value} Restaurants',
-        showBackButton: true,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: Center(
-              child: GestureDetector(
-                onTap: controller.viewCart,
-                child: Container(
-                  width: 42,
-                  height: 42,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFFF823E),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Obx(() {
-                    int count = 0;
-                    if (Get.isRegistered<CartController>()) {
-                      final cartController = Get.find<CartController>();
-                      count = cartController.cartItems.fold<int>(
-                        0,
-                        (sum, item) => sum + item.quantity.value,
-                      );
-                    }
-                    return Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        SvgPicture.asset(
-                          carticon,
-                          width: 22,
-                          height: 22,
-                          colorFilter: const ColorFilter.mode(
-                            Colors.white,
-                            BlendMode.srcIn,
-                          ),
-                        ),
-                        if (count > 0)
-                          Positioned(
-                            right: 7,
-                            top: 5,
-                            child: Text(
-                              '$count',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w800,
-                                height: 1.0,
-                              ),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(70),
+        child: CustomAppBar(
+          title: 'Restaurants',
+          showBackButton: true,
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: Center(
+                child: GestureDetector(
+                  onTap: controller.viewCart,
+                  child: Container(
+                    width: 42,
+                    height: 42,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFFF823E),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Obx(() {
+                      int count = 0;
+                      if (Get.isRegistered<CartController>()) {
+                        final cartController = Get.find<CartController>();
+                        count = cartController.cartItems.length;
+                      }
+                      return Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          SvgPicture.asset(
+                            carticon,
+                            width: 22,
+                            height: 22,
+                            colorFilter: const ColorFilter.mode(
+                              Colors.white,
+                              BlendMode.srcIn,
                             ),
                           ),
-                      ],
-                    );
-                  }),
+                          if (count > 0)
+                            Positioned(
+                              right: 6,
+                              top: 4,
+                              child: Container(
+                                padding: const EdgeInsets.all(2),
+                                constraints: const BoxConstraints(
+                                  minWidth: 16,
+                                  minHeight: 16,
+                                ),
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    '$count',
+                                    style: GoogleFonts.inter(
+                                      color: const Color(0xFFFF823E),
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w800,
+                                      height: 1.0,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      );
+                    }),
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       body: SafeArea(
         child: Column(
@@ -213,74 +244,91 @@ class CategoryRestaurantsScreen extends StatelessWidget {
 
             // List of Restaurants
             Expanded(
-              child: Obx(() {
-                if (controller.isLoading.value) {
-                  return const Center(
-                    child: CircularProgressIndicator(
-                      color: Color(0xFFFF823E),
-                    ),
-                  );
-                }
-
-                if (controller.filteredRestaurants.isEmpty) {
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 32),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: 80,
-                            height: 80,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFFFEDE3),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.storefront_outlined,
-                              size: 40,
-                              color: Color(0xFFFF823E),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'No Data',
-                            style: GoogleFonts.inter(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: const Color(0xFF252B35),
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            'No restaurants currently offering ${controller.categoryName.value} were found.',
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.inter(
-                              fontSize: 13,
-                              color: const Color(0xFF6B7280),
-                            ),
-                          ),
-                        ],
+              child: RefreshIndicator(
+                color: const Color(0xFFFF823E),
+                onRefresh: () => controller.fetchRestaurants(),
+                child: Obx(() {
+                  if (controller.isLoading.value) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFFFF823E),
                       ),
-                    ),
-                  );
-                }
-
-                return ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: controller.filteredRestaurants.length,
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(height: 14),
-                  itemBuilder: (context, index) {
-                    final restaurant = controller.filteredRestaurants[index];
-                    return GestureDetector(
-                      onTap: () => controller.onRestaurantTap(restaurant),
-                      child: RestaurantCard(restaurant: restaurant),
                     );
-                  },
-                );
-              }),
+                  }
+
+                  if (controller.filteredRestaurants.isEmpty) {
+                    return ListView(
+                      physics: const AlwaysScrollableScrollPhysics(
+                        parent: BouncingScrollPhysics(),
+                      ),
+                      children: [
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.2,
+                        ),
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 32),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: 80,
+                                  height: 80,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFFFFEDE3),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.storefront_outlined,
+                                    size: 40,
+                                    color: Color(0xFFFF823E),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'No Data',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                    color: const Color(0xFF252B35),
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  'No restaurants currently offering ${controller.categoryName.value} were found.',
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 13,
+                                    color: const Color(0xFF6B7280),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+
+                  return ListView.separated(
+                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics(),
+                    ),
+                    itemCount: controller.filteredRestaurants.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 14),
+                    itemBuilder: (context, index) {
+                      final restaurant =
+                          controller.filteredRestaurants[index];
+                      return GestureDetector(
+                        onTap: () => controller.onRestaurantTap(restaurant),
+                        child: RestaurantCard(restaurant: restaurant),
+                      );
+                    },
+                  );
+                }),
+              ),
             ),
           ],
         ),

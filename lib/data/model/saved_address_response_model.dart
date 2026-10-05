@@ -1,4 +1,7 @@
+import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
+
 class SavedAddressResponseModel {
+
   final bool success;
   final String message;
   final List<SavedAddressModel> data;
@@ -203,33 +206,38 @@ class SavedAddressModel {
     return SavedAddressModel(
       id: parsedId,
       userId: json['user_id'] ?? json['customer_id'],
-      name: json['name']?.toString() ??
-          json['full_name']?.toString() ??
-          json['recipient_name']?.toString() ??
-          '',
+      name: (json['name']?.toString() ??
+              json['full_name']?.toString() ??
+              json['recipient_name']?.toString() ??
+              '')
+          .capitalizeWords(),
       phone: json['phone']?.toString() ??
           json['phone_number']?.toString() ??
           json['mobile']?.toString() ??
           '',
-      address: json['address']?.toString() ??
-          json['street_address']?.toString() ??
-          json['address_line_1']?.toString() ??
-          json['address1']?.toString() ??
-          '',
-      addressLine2: json['address_line_2']?.toString() ??
-          json['address2']?.toString(),
-      landmark: json['landmark']?.toString() ?? json['near_by']?.toString(),
-      city: json['city']?.toString() ?? '',
-      state: json['state']?.toString() ?? '',
+      address: (json['address']?.toString() ??
+              json['street_address']?.toString() ??
+              json['address_line_1']?.toString() ??
+              json['address1']?.toString() ??
+              '')
+          .capitalizeFirstLetter(),
+      addressLine2: (json['address_line_2']?.toString() ??
+              json['address2']?.toString())
+          ?.capitalizeFirstLetter(),
+      landmark: (json['landmark']?.toString() ?? json['near_by']?.toString())
+          ?.capitalizeWords(),
+      city: (json['city']?.toString() ?? '').capitalizeWords(),
+      state: (json['state']?.toString() ?? '').capitalizeWords(),
       pincode: json['pincode']?.toString() ??
           json['pin_code']?.toString() ??
           json['postal_code']?.toString() ??
           json['zip']?.toString() ??
           '',
-      type: json['type']?.toString() ??
-          json['address_type']?.toString() ??
-          json['location_type']?.toString() ??
-          'Home',
+      type: (json['type']?.toString() ??
+              json['address_type']?.toString() ??
+              json['location_type']?.toString() ??
+              'Home')
+          .capitalizeWords(),
       isDefault: isDefaultBool,
       latitude: parsedLat,
       longitude: parsedLng,

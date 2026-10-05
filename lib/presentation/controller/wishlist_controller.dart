@@ -4,6 +4,7 @@ import 'package:kayal_userapp/core/const/app_images.dart';
 import 'package:kayal_userapp/core/di/service_locator.dart';
 import 'package:kayal_userapp/core/service/api_service.dart';
 import 'package:kayal_userapp/core/service/local_storage_service.dart';
+import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
 import 'package:kayal_userapp/data/model/add_to_cart_from_wishlist_response_model.dart';
 import 'package:kayal_userapp/data/model/toggle_wishlist_response_model.dart';
 import 'package:kayal_userapp/data/repository/add_to_cart_from_wishlist_repository_impl.dart';
@@ -90,8 +91,8 @@ class WishlistController extends GetxController {
         final items = response.data.map((item) {
           return WishlistItem(
             id: (item.productId ?? item.id ?? '1').toString(),
-            title: item.name,
-            type: item.type,
+            title: item.name.capitalizeWords(),
+            type: item.type.capitalizeWords(),
             isVeg: item.isVeg,
             originalPrice: item.oldPrice,
             price: item.price,

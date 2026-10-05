@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kayal_userapp/core/const/app_color.dart';
 import 'package:kayal_userapp/core/const/app_images.dart';
+import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
 import 'package:kayal_userapp/data/model/get_orders_response_model.dart';
 
 class OrderCard extends StatelessWidget {
@@ -108,7 +109,7 @@ class OrderCard extends StatelessWidget {
                         children: [
                           Flexible(
                             child: Text(
-                              order.productName,
+                              order.productName.capitalizeWords(),
                               style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
@@ -168,7 +169,7 @@ class OrderCard extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      order.type,
+                      order.type.capitalizeWords(),
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,

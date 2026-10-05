@@ -1,4 +1,7 @@
+import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
+
 class NotificationItemModel {
+
   final String id;
   final String title;
   final String description;
@@ -46,10 +49,10 @@ class NotificationItemModel {
 
     return NotificationItemModel(
       id: json['id']?.toString() ?? '',
-      title: json['title']?.toString() ?? '',
-      description: rawDescription,
+      title: (json['title']?.toString() ?? '').capitalizeWords(),
+      description: rawDescription.capitalizeFirstLetter(),
       time: rawTime,
-      type: rawType,
+      type: rawType.capitalizeWords(),
       imageUrl: json['image_url']?.toString() ?? json['image']?.toString(),
       isRead: json['is_read'] == true ||
           json['is_read'] == 1 ||

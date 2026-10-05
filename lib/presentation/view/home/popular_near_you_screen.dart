@@ -37,69 +37,86 @@ class PopularNearYouScreen extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: Obx(() {
-                if (controller.isLoading.value && controller.restaurants.isEmpty) {
-                  return const Center(
-                    child: CircularProgressIndicator(
-                      color: Color(0xFFFF823E),
-                    ),
-                  );
-                }
+              child: RefreshIndicator(
+                color: const Color(0xFFFF823E),
+                onRefresh: () => controller.fetchPopularRestaurants(),
+                child: Obx(() {
+                  if (controller.isLoading.value && controller.restaurants.isEmpty) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFFFF823E),
+                      ),
+                    );
+                  }
 
-                if (controller.restaurants.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                  if (controller.restaurants.isEmpty) {
+                    return ListView(
+                      physics: const AlwaysScrollableScrollPhysics(
+                        parent: BouncingScrollPhysics(),
+                      ),
                       children: [
-                        Container(
-                          width: 72,
-                          height: 72,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFFFECE0),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.storefront_outlined,
-                            size: 36,
-                            color: Color(0xFFFF823E),
-                          ),
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.25,
                         ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'No Data',
-                          style: GoogleFonts.inter(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                            color: const Color(0xFF252B35),
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          'No popular restaurants found near you.',
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
-                            color: const Color(0xFF6B7280),
+                        Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                width: 72,
+                                height: 72,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFFFECE0),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.storefront_outlined,
+                                  size: 36,
+                                  color: Color(0xFFFF823E),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'No Data',
+                                style: GoogleFonts.inter(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color(0xFF252B35),
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'No popular restaurants found near you.',
+                                style: GoogleFonts.inter(
+                                  fontSize: 13,
+                                  color: const Color(0xFF6B7280),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
-                    ),
-                  );
-                }
-
-                return ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-                  itemCount: controller.restaurants.length,
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(height: 14),
-                  itemBuilder: (context, index) {
-                    final restaurant = controller.restaurants[index];
-                    return GestureDetector(
-                      onTap: () => controller.onRestaurantTap(restaurant),
-                      child: RestaurantCard(restaurant: restaurant),
                     );
-                  },
-                );
-              }),
+                  }
+
+                  return ListView.separated(
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics(),
+                    ),
+                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                    itemCount: controller.restaurants.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 14),
+                    itemBuilder: (context, index) {
+                      final restaurant = controller.restaurants[index];
+                      return GestureDetector(
+                        onTap: () => controller.onRestaurantTap(restaurant),
+                        child: RestaurantCard(restaurant: restaurant),
+                      );
+                    },
+                  );
+                }),
+              ),
             ),
           ],
         ),

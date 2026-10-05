@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:197521893777:android:1a004296ed4d03a71d9230",
+        "mobilesdk_app_id": "1:197521893777:android:2053e43279937a0f1d9230",
         "android_client_info": {
-          "package_name": "com.example.kayal_userapp"
+          "package_name": "com.kayal.user"
         }
       },
       "oauth_client": [],

@@ -122,10 +122,15 @@ class ViewOrderScreen extends StatelessWidget {
           }),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        physics: const BouncingScrollPhysics(),
-        child: Column(
+      body: RefreshIndicator(
+        color: const Color(0xFFFF823E),
+        onRefresh: controller.refreshOrderDetails,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics(),
+          ),
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Order ID Card
@@ -748,7 +753,8 @@ class ViewOrderScreen extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ),
+  );
   }
 }
 

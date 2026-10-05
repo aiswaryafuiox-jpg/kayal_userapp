@@ -1,4 +1,8 @@
+import 'package:kayal_userapp/core/utils/helper/food_type_helper.dart';
+import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
+
 class UserOrderItemModel {
+
   final String orderId;
   final String productName;
   final int foodType;
@@ -7,6 +11,8 @@ class UserOrderItemModel {
   final String date;
   final double totalAmount;
   final String rawStatus;
+  final String? paymentStatus;
+  final bool? isCompleted;
   final String? imageUrl;
 
   UserOrderItemModel({
@@ -18,6 +24,8 @@ class UserOrderItemModel {
     required this.date,
     this.totalAmount = 0.0,
     required this.rawStatus,
+    this.paymentStatus,
+    this.isCompleted,
     this.imageUrl,
   });
 
@@ -32,15 +40,44 @@ class UserOrderItemModel {
         ? rawFoodType
         : int.tryParse(rawFoodType?.toString() ?? '0') ?? 0;
 
+    final rawName = (json['product_name']?.toString() ??
+            json['name']?.toString() ??
+            json['title']?.toString() ??
+            'Order')
+        .capitalizeWords();
+
     // Determine veg / non-veg
-    final rawType = json['type']?.toString();
-    final bool isVegProduct =
-        (rawType != null &&
-            rawType.toLowerCase().contains('veg') &&
-            !rawType.toLowerCase().contains('non')) ||
-        parsedFoodType == 1 ||
-        json['is_veg'] == true ||
-        json['is_veg']?.toString() == '1';
+    final bool isVegProduct = FoodTypeHelper.determineIsVeg(
+      foodType: json['food_type'],
+      isVeg: json['is_veg'],
+      vegStatus: json['veg_status'],
+      type: json['type']?.toString(),
+      productName: rawName,
+    );
+
+    final String typeStr = FoodTypeHelper.determineType(
+      foodType: json['food_type'],
+      isVeg: json['is_veg'],
+      vegStatus: json['veg_status'],
+      type: json['type']?.toString(),
+      productName: rawName,
+    );
+
+    final rawStatusVal = json['status']?.toString() ??
+        json['order_status']?.toString() ??
+        json['delivery_status']?.toString() ??
+        'PENDING';
+
+    final rawPaymentStatus = json['payment_status']?.toString() ??
+        json['paymentStatus']?.toString();
+
+    final dynamic rawIsCompleted = json['is_completed'] ?? json['completed'];
+    final bool? parsedIsCompleted = rawIsCompleted != null
+        ? (rawIsCompleted == true ||
+            rawIsCompleted == 1 ||
+            rawIsCompleted == '1' ||
+            rawIsCompleted == 'true')
+        : null;
 
     return UserOrderItemModel(
       orderId:
@@ -48,17 +85,15 @@ class UserOrderItemModel {
           json['id']?.toString() ??
           json['custom_order_id']?.toString() ??
           '',
-      productName:
-          json['product_name']?.toString() ??
-          json['name']?.toString() ??
-          json['title']?.toString() ??
-          'Order',
+      productName: rawName,
       foodType: parsedFoodType,
       isVeg: isVegProduct,
-      type: isVegProduct ? 'Veg' : 'Non-Veg',
+      type: typeStr.capitalizeWords(),
       date: json['date']?.toString() ?? json['created_at']?.toString() ?? '',
       totalAmount: parsedTotal,
-      rawStatus: json['status']?.toString() ?? 'PENDING',
+      rawStatus: rawStatusVal,
+      paymentStatus: rawPaymentStatus,
+      isCompleted: parsedIsCompleted,
       imageUrl: json['image_url']?.toString() ?? json['image']?.toString(),
     );
   }
@@ -72,8 +107,43 @@ class UserOrderItemModel {
       'date': date,
       'total_amount': totalAmount,
       'status': rawStatus,
+      'payment_status': paymentStatus,
+      'is_completed': isCompleted,
       'image_url': imageUrl,
     };
+  }
+
+  /// Check whether this order is incomplete, draft, initiated, or failed
+  bool get isIncomplete {
+    final s = rawStatus.toUpperCase().trim();
+    if (s == 'INCOMPLETE' ||
+        s == 'INITIATED' ||
+        s == 'DRAFT' ||
+        s == 'PAYMENT_PENDING' ||
+        s == 'PENDING_PAYMENT' ||
+        s == 'PAYMENT_FAILED' ||
+        s == 'FAILED' ||
+        s == 'ABANDONED' ||
+        s == 'UNPAID') {
+      return true;
+    }
+
+    if (isCompleted == false) {
+      return true;
+    }
+
+    if (paymentStatus != null) {
+      final p = paymentStatus!.toLowerCase().trim();
+      if (p == 'failed' || p == 'incomplete' || p == 'unpaid') {
+        return true;
+      }
+    }
+
+    if (orderId.trim().isEmpty || orderId.trim() == '0') {
+      return true;
+    }
+
+    return false;
   }
 
   /// Formatted title for display
@@ -103,12 +173,17 @@ class UserOrderItemModel {
     }
   }
 
-  bool get isDelivered => rawStatus.toUpperCase() == 'DELIVERED';
-  bool get isCancelled => rawStatus.toUpperCase() == 'CANCELLED';
+  bool get isDelivered =>
+      rawStatus.toUpperCase() == 'DELIVERED' ||
+      rawStatus.toUpperCase() == 'COMPLETED';
+  bool get isCancelled =>
+      rawStatus.toUpperCase() == 'CANCELLED' ||
+      rawStatus.toUpperCase() == 'REJECTED';
   bool get isOutForDelivery =>
       rawStatus.toUpperCase() == 'OUT_FOR_DELIVERY' ||
-      rawStatus.toUpperCase() == 'OUT OF DELIVERY';
-  bool get isTrackable => !isDelivered && !isCancelled;
+      rawStatus.toUpperCase() == 'OUT OF DELIVERY' ||
+      rawStatus.toUpperCase() == 'ON_THE_WAY';
+  bool get isTrackable => !isDelivered && !isCancelled && !isIncomplete;
 }
 
 class GetOrdersDataModel {
@@ -139,6 +214,7 @@ class GetOrdersDataModel {
             return null;
           })
           .whereType<UserOrderItemModel>()
+          .where((order) => !order.isIncomplete)
           .toList();
     }
 
@@ -205,6 +281,7 @@ class GetOrdersResponseModel {
       parsedData = GetOrdersDataModel(
         orders: (json['data'] as List)
             .map((e) => UserOrderItemModel.fromJson(e as Map<String, dynamic>))
+            .where((order) => !order.isIncomplete)
             .toList(),
       );
     }

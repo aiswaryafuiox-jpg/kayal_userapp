@@ -98,7 +98,9 @@ class OrderSummaryController extends GetxController {
   Future<void> fetchOrderSummary() async {
     try {
       isLoading.value = true;
-      final response = await _getOrderSummaryUseCase();
+      final storage = LocalStorageService();
+      final sessionId = storage.getOrCreateSessionId();
+      final response = await _getOrderSummaryUseCase(sessionId: sessionId);
       if (response.success && response.data != null) {
         orderSummary.value = response.data;
         if (response.data!.items.isNotEmpty) {

@@ -214,8 +214,7 @@ class ApiService {
         token.trim().isNotEmpty &&
         !token.startsWith("pms_token_");
 
-    _storage.remove("auth_token");
-    _storage.saveBool("is_logged_in", false);
+    _storage.clearUserData();
 
     // If user is a guest / unauthenticated, do not force redirect
     if (!hadToken) return;

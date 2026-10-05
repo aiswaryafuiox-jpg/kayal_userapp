@@ -1,4 +1,7 @@
+import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
+
 class ProfileDefaultAddressModel {
+
   final String text;
   final String locationType;
 
@@ -6,11 +9,12 @@ class ProfileDefaultAddressModel {
 
   factory ProfileDefaultAddressModel.fromJson(Map<String, dynamic> json) {
     return ProfileDefaultAddressModel(
-      text: json['text']?.toString() ?? '',
+      text: (json['text']?.toString() ?? '').capitalizeFirstLetter(),
       locationType:
-          json['location_type']?.toString() ??
-          json['type']?.toString() ??
-          'Home',
+          (json['location_type']?.toString() ??
+                  json['type']?.toString() ??
+                  'Home')
+              .capitalizeWords(),
     );
   }
 
@@ -60,10 +64,11 @@ class ProfileDataModel {
 
     return ProfileDataModel(
       fullName:
-          json['full_name']?.toString() ??
-          json['name']?.toString() ??
-          json['user_name']?.toString() ??
-          '',
+          (json['full_name']?.toString() ??
+                  json['name']?.toString() ??
+                  json['user_name']?.toString() ??
+                  '')
+              .capitalizeWords(),
       phone:
           json['phone']?.toString() ??
           json['mobile']?.toString() ??

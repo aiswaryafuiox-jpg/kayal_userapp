@@ -331,19 +331,22 @@ class CategoryController extends GetxController {
     );
 
     if (restaurantData != null) {
-      // Navigated from a restaurant -> Go directly to Product List screen
+      // If already within a restaurant context -> Go directly to Product List screen
       Get.toNamed(
         AppRoutes.product,
         arguments: {
           'category': category,
           'categoryId': matched?.id,
+          'restaurantId': restaurantData is RestaurantItem
+              ? restaurantData.id
+              : (restaurantData is Map ? restaurantData['id'] : null),
           'isClosed': isRestaurantClosed.value,
           'notes': closedNotes.value,
           'restaurant': restaurantData,
         },
       );
     } else {
-      // Standalone Category selected -> Go to Category Restaurants screen
+      // Standalone Category selected from Category Screen -> Go to Category Restaurants Screen
       Get.toNamed(
         AppRoutes.categoryRestaurants,
         arguments: {

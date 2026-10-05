@@ -57,56 +57,55 @@ class HomeHeader extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 7),
-                  const Expanded(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Hello, John !',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: Color(0xFF1F2937),
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
-                            height: 1.1,
-                          ),
-                        ),
-                        SizedBox(height: 5),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.location_on,
-                              size: 16,
+                  Expanded(
+                    child: Obx(
+                      () => Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Hello, ${controller.userName.value} !',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
                               color: Color(0xFF1F2937),
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              height: 1.1,
                             ),
-                            SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                'Chennai, Tamil Nadu',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: Color(0xFF1F2937),
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w500,
+                          ),
+                          const SizedBox(height: 5),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.location_on,
+                                size: 16,
+                                color: Color(0xFF1F2937),
+                              ),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  controller.userLocation.value,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: Color(0xFF1F2937),
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   Obx(() {
                     int count = 0;
                     if (Get.isRegistered<CartController>()) {
                       final cartController = Get.find<CartController>();
-                      count = cartController.cartItems.fold<int>(
-                        0,
-                        (sum, item) => sum + item.quantity.value,
-                      );
+                      count = cartController.cartItems.length;
                     }
                     return _headerButton(
                       asset: carticon,

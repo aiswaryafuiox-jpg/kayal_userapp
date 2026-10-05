@@ -1,6 +1,9 @@
 import 'package:kayal_userapp/core/const/app_images.dart';
+import 'package:kayal_userapp/core/utils/helper/food_type_helper.dart';
+import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
 
 class GetCartResponseModel {
+
   final bool success;
   final String message;
   final GetCartDataModel? data;
@@ -209,7 +212,7 @@ class GetCartDataModel {
       discount: parsedDiscount,
       deliveryCharge: parsedDelivery,
       tax: parsedTax,
-      restaurantName: json['restaurant_name']?.toString(),
+      restaurantName: json['restaurant_name']?.toString().capitalizeWordsOrNull(),
       restaurantId: json['restaurant_id'],
     );
   }
@@ -277,15 +280,26 @@ class GetCartItemModel {
         ? rawQty
         : int.tryParse(rawQty?.toString() ?? '1') ?? 1;
 
-    final rawType =
-        json['type'] ?? json['food_type'] ?? json['category_name'] ?? 'Veg';
-    final typeStr = rawType.toString();
-    final bool isVegBool =
-        json['is_veg'] == true ||
-        json['is_veg'] == 1 ||
-        json['is_veg'] == '1' ||
-        typeStr.toLowerCase().contains('veg') &&
-            !typeStr.toLowerCase().contains('non');
+    final rawName =
+        (json['name'] ?? json['product_name'] ?? json['title'] ?? 'Food Item')
+            .toString()
+            .capitalizeWords();
+
+    final bool isVegBool = FoodTypeHelper.determineIsVeg(
+      foodType: json['food_type'],
+      isVeg: json['is_veg'],
+      vegStatus: json['veg_status'],
+      type: json['type']?.toString(),
+      productName: rawName,
+    );
+
+    final String typeStr = FoodTypeHelper.determineType(
+      foodType: json['food_type'],
+      isVeg: json['is_veg'],
+      vegStatus: json['veg_status'],
+      type: json['type']?.toString(),
+      productName: rawName,
+    );
 
     final rawImage =
         json['image'] ??
@@ -301,9 +315,8 @@ class GetCartItemModel {
     return GetCartItemModel(
       id: json['id'] ?? json['cart_id'] ?? json['product_id'],
       productId: json['product_id'] ?? json['id'],
-      name:
-          json['name'] ?? json['product_name'] ?? json['title'] ?? 'Food Item',
-      type: typeStr,
+      name: rawName,
+      type: typeStr.capitalizeWords(),
       isVeg: isVegBool,
       oldPrice: parsedOldPrice > 0 ? parsedOldPrice : parsedPrice,
       newPrice: parsedPrice,

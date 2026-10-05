@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kayal_userapp/core/di/service_locator.dart';
 import 'package:kayal_userapp/core/service/api_service.dart';
+import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
 import 'package:kayal_userapp/data/model/product_details_response_model.dart';
 import 'package:kayal_userapp/data/repository/product_details_repository_impl.dart';
@@ -34,6 +35,13 @@ class ProductDetailController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxString description = ''.obs;
   final RxString offerPercentage = ''.obs;
+
+  Future<void> refreshDetails() async {
+    final dynamic id = product.value?.id ?? productDetail.value?.id;
+    if (id != null && id.toString().isNotEmpty) {
+      await fetchProductDetails(id);
+    }
+  }
 
   @override
   void onInit() {
@@ -96,7 +104,7 @@ class ProductDetailController extends GetxController {
         productDetail.value = data;
 
         if (data.description != null && data.description!.isNotEmpty) {
-          description.value = data.description!;
+          description.value = data.description!.capitalizeFirstLetter();
         }
 
         if (data.offerPercentage != null && data.offerPercentage!.isNotEmpty) {
@@ -124,10 +132,11 @@ class ProductDetailController extends GetxController {
 
         final updatedProduct = ProductModel(
           id: data.id?.toString() ?? productId.toString(),
-          name: data.name.isNotEmpty
-              ? data.name
-              : (product.value?.name ?? 'Product Details'),
-          type: data.type,
+          name: (data.name.isNotEmpty
+                  ? data.name
+                  : (product.value?.name ?? 'Product Details'))
+              .capitalizeWords(),
+          type: data.type.capitalizeWords(),
           isVeg: data.isVeg,
           oldPrice: effOldPrice,
           newPrice: effPrice,
@@ -147,13 +156,69 @@ class ProductDetailController extends GetxController {
     }
   }
 
+  int get currentQuantity {
+    if (Get.isRegistered<CartController>()) {
+      final cartController = Get.find<CartController>();
+      final prod = product.value;
+      if (prod != null) {
+        final cartItem = cartController.cartItems.firstWhereOrNull(
+          (item) => item.id == prod.id || item.name == prod.name,
+        );
+        if (cartItem != null) {
+          return cartItem.quantity.value;
+        }
+      }
+    }
+    return 0;
+  }
+
   void incrementQuantity() {
-    quantity.value++;
+    if (isRestaurantClosed.value) {
+      Get.snackbar(
+        'Restaurant Unavailable',
+        'Cannot add items to cart while restaurant is closed.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    if (product.value != null && Get.isRegistered<CartController>()) {
+      final cartController = Get.find<CartController>();
+      final prod = product.value!;
+      final cartIndex = cartController.cartItems.indexWhere(
+        (item) => item.name == prod.name || item.id == prod.id,
+      );
+      if (cartIndex != -1) {
+        cartController.incrementQuantity(cartIndex);
+      } else {
+        cartController.addItem(
+          id: prod.id,
+          name: prod.name,
+          type: prod.type,
+          isVeg: prod.isVeg,
+          oldPrice: prod.oldPrice,
+          newPrice: prod.newPrice,
+          image: prod.image,
+          quantity: 1,
+        );
+      }
+    }
   }
 
   void decrementQuantity() {
-    if (quantity.value > 1) {
-      quantity.value--;
+    if (isRestaurantClosed.value) {
+      return;
+    }
+
+    if (product.value != null && Get.isRegistered<CartController>()) {
+      final cartController = Get.find<CartController>();
+      final prod = product.value!;
+      final cartIndex = cartController.cartItems.indexWhere(
+        (item) => item.name == prod.name || item.id == prod.id,
+      );
+      if (cartIndex != -1) {
+        cartController.decrementQuantity(cartIndex);
+      }
     }
   }
 
@@ -171,28 +236,7 @@ class ProductDetailController extends GetxController {
   }
 
   void addToCart() {
-    if (isRestaurantClosed.value) {
-      Get.snackbar(
-        'Restaurant Unavailable',
-        'Cannot add items to cart while restaurant is closed.',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-      return;
-    }
-
-    if (product.value != null && Get.isRegistered<CartController>()) {
-      final cartController = Get.find<CartController>();
-      cartController.addItem(
-        id: product.value!.id,
-        name: product.value!.name,
-        type: product.value!.type,
-        isVeg: product.value!.isVeg,
-        oldPrice: product.value!.oldPrice,
-        newPrice: product.value!.newPrice,
-        image: product.value!.image,
-        quantity: quantity.value,
-      );
-    }
+    incrementQuantity();
   }
 
   Future<void> placeOrder() async {
@@ -207,20 +251,27 @@ class ProductDetailController extends GetxController {
 
     if (product.value != null && Get.isRegistered<CartController>()) {
       final cartController = Get.find<CartController>();
-      cartController.addItem(
-        id: product.value!.id,
-        name: product.value!.name,
-        type: product.value!.type,
-        isVeg: product.value!.isVeg,
-        oldPrice: product.value!.oldPrice,
-        newPrice: product.value!.newPrice,
-        image: product.value!.image,
-        quantity: quantity.value,
+      final prod = product.value!;
+      final cartIndex = cartController.cartItems.indexWhere(
+        (item) => item.name == prod.name || item.id == prod.id,
       );
+      if (cartIndex == -1) {
+        await cartController.addItem(
+          id: prod.id,
+          name: prod.name,
+          type: prod.type,
+          isVeg: prod.isVeg,
+          oldPrice: prod.oldPrice,
+          newPrice: prod.newPrice,
+          image: prod.image,
+          quantity: 1,
+        );
+      }
     }
 
+    final int qty = currentQuantity > 0 ? currentQuantity : 1;
     final args = product.value != null
-        ? {'product': product.value, 'quantity': quantity.value}
+        ? {'product': product.value, 'quantity': qty}
         : null;
 
     Get.toNamed(AppRoutes.orderSummary, arguments: args);

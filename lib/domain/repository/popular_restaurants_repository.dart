@@ -1,5 +1,10 @@
 import 'package:kayal_userapp/data/model/popular_restaurants_response_model.dart';
 
 abstract class PopularRestaurantsRepository {
-  Future<PopularRestaurantsResponseModel> getPopularRestaurants();
+  Future<PopularRestaurantsResponseModel> getPopularRestaurants({
+    dynamic categoryId,
+    double? lat,
+    double? lng,
+  });
 }
+

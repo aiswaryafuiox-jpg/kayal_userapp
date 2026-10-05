@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:kayal_userapp/core/const/app_images.dart';
 import 'package:kayal_userapp/core/di/service_locator.dart';
 import 'package:kayal_userapp/core/service/api_service.dart';
+import 'package:kayal_userapp/core/service/local_storage_service.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
 import 'package:kayal_userapp/data/model/get_orders_response_model.dart';
 import 'package:kayal_userapp/data/repository/get_orders_repository_impl.dart';
@@ -11,7 +12,6 @@ import 'package:kayal_userapp/domain/usecase/get_orders_usecase.dart';
 import 'package:kayal_userapp/domain/usecase/re_order_usecase.dart';
 import 'package:kayal_userapp/presentation/controller/cart_controller.dart';
 import 'package:kayal_userapp/presentation/view/track_order/view_order_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 // Backward compatibility class for other screens if needed
 class OrderItem {
@@ -85,13 +85,12 @@ class OrdersController extends GetxController {
   }
 
   Future<void> checkLoginStatusAndFetch() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('auth_token') ?? prefs.getString('token');
-    isLoggedIn.value = (token != null && token.isNotEmpty) ||
-        (prefs.getBool('isLoggedIn') ?? false);
+    isLoggedIn.value = LocalStorageService().isLoggedIn();
 
     if (isLoggedIn.value) {
       await fetchOrders();
+    } else {
+      ordersList.clear();
     }
   }
 
@@ -104,7 +103,9 @@ class OrdersController extends GetxController {
     try {
       final response = await _getOrdersUseCase(page: 1);
       if (response.success) {
-        ordersList.assignAll(response.orders);
+        final completeOrders =
+            response.orders.where((order) => !order.isIncomplete).toList();
+        ordersList.assignAll(completeOrders);
       } else {
         errorMessage.value = response.formattedErrorMessage.isNotEmpty
             ? response.formattedErrorMessage

@@ -1,4 +1,8 @@
+import 'package:kayal_userapp/core/utils/helper/food_type_helper.dart';
+import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
+
 class OrderDetailsItemModel {
+
   final dynamic productId;
   final String name;
   final String foodType;
@@ -20,17 +24,29 @@ class OrderDetailsItemModel {
   });
 
   factory OrderDetailsItemModel.fromJson(Map<String, dynamic> json) {
-    final rawType = json['food_type']?.toString() ?? 'Veg';
-    final bool isVegProduct = rawType.toLowerCase().contains('veg') &&
-            !rawType.toLowerCase().contains('non') ||
-        rawType == '1' ||
-        json['is_veg'] == true ||
-        json['is_veg']?.toString() == '1';
+    final rawName = (json['name']?.toString() ?? json['product_name']?.toString() ?? '')
+        .capitalizeWords();
+
+    final bool isVegProduct = FoodTypeHelper.determineIsVeg(
+      foodType: json['food_type'],
+      isVeg: json['is_veg'],
+      vegStatus: json['veg_status'],
+      type: json['type']?.toString(),
+      productName: rawName,
+    );
+
+    final String typeStr = FoodTypeHelper.determineType(
+      foodType: json['food_type'],
+      isVeg: json['is_veg'],
+      vegStatus: json['veg_status'],
+      type: json['type']?.toString(),
+      productName: rawName,
+    );
 
     return OrderDetailsItemModel(
       productId: json['product_id'] ?? json['id'],
-      name: json['name']?.toString() ?? json['product_name']?.toString() ?? '',
-      foodType: isVegProduct ? 'Veg' : 'Non-Veg',
+      name: rawName,
+      foodType: typeStr.capitalizeWords(),
       isVeg: isVegProduct,
       imageUrl: json['image_url']?.toString() ?? json['image']?.toString(),
       qty: json['qty'] is int
@@ -82,11 +98,13 @@ class OrderDetailsAddressModel {
   factory OrderDetailsAddressModel.fromJson(Map<String, dynamic> json) {
     return OrderDetailsAddressModel(
       id: json['id']?.toString() ?? '',
-      addressType: json['address_type']?.toString() ?? json['type']?.toString() ?? 'Home',
-      houseNo: json['house_no']?.toString() ?? '',
-      street: json['street']?.toString() ?? '',
-      landmark: json['landmark']?.toString() ?? '',
-      fullAddress: json['full_address']?.toString() ?? json['address']?.toString() ?? '',
+      addressType: (json['address_type']?.toString() ?? json['type']?.toString() ?? 'Home')
+          .capitalizeWords(),
+      houseNo: (json['house_no']?.toString() ?? '').capitalizeWords(),
+      street: (json['street']?.toString() ?? '').capitalizeWords(),
+      landmark: (json['landmark']?.toString() ?? '').capitalizeWords(),
+      fullAddress: (json['full_address']?.toString() ?? json['address']?.toString() ?? '')
+          .capitalizeFirstLetter(),
       phone: json['phone']?.toString() ?? json['phone_number']?.toString() ?? '',
     );
   }

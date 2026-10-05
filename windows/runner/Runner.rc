@@ -89,11 +89,11 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
+            VALUE "CompanyName", "com.kayal.user" "\0"
             VALUE "FileDescription", "kayal_userapp" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "kayal_userapp" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.example. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 com.kayal.user. All rights reserved." "\0"
             VALUE "OriginalFilename", "kayal_userapp.exe" "\0"
             VALUE "ProductName", "kayal_userapp" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"

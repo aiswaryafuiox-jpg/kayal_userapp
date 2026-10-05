@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:kayal_userapp/core/const/app_color.dart';
 import 'package:kayal_userapp/presentation/controller/home_controller.dart';
 import 'package:kayal_userapp/presentation/view/home/widgets/banner_slider.dart';
 import 'package:kayal_userapp/presentation/view/home/widgets/category_list.dart';
@@ -18,10 +19,15 @@ class HomeDashboardWidget extends StatelessWidget {
     return SafeArea(
       top: false,
       bottom: false,
-      child: CustomScrollView(
-        physics: const ClampingScrollPhysics(),
-        cacheExtent: 500,
-        slivers: [
+      child: RefreshIndicator(
+        color: AppColors.primary,
+        onRefresh: () => controller.refreshHome(),
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(
+            parent: ClampingScrollPhysics(),
+          ),
+          cacheExtent: 500,
+          slivers: [
           const SliverToBoxAdapter(
             child: Stack(
               clipBehavior: Clip.none,
@@ -50,16 +56,16 @@ class HomeDashboardWidget extends StatelessWidget {
               // onTap: controller.viewCategories,
             ),
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 9)),
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
           const SliverToBoxAdapter(child: CategoryList()),
-          const SliverToBoxAdapter(child: SizedBox(height: 20)),
+          const SliverToBoxAdapter(child: SizedBox(height: 24)),
           SliverToBoxAdapter(
             child: SectionTitle(
-              title: 'Popular Near you',
+              title: 'Popular Near You',
               onTap: controller.viewAllRestaurants,
             ),
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 10)),
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
           Obx(
             () {
               if (controller.isRestaurantsLoading.value && controller.restaurants.isEmpty) {
@@ -121,13 +127,13 @@ class HomeDashboardWidget extends StatelessWidget {
               );
             },
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 20)),
+          const SliverToBoxAdapter(child: SizedBox(height: 24)),
           const SliverToBoxAdapter(
             child: SectionTitle(
               title: 'Near Me',
             ),
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 7)),
+          const SliverToBoxAdapter(child: SizedBox(height: 14)),
           Obx(
             () {
               if (controller.isRestaurantsLoading.value && controller.restaurants.isEmpty) {
@@ -179,6 +185,7 @@ class HomeDashboardWidget extends StatelessWidget {
           const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }

@@ -12,6 +12,7 @@ class SignupProfileRepositoryImpl implements SignupProfileRepository {
   @override
   Future<SignupProfileResponseModel> signupProfile({
     required String fullName,
+    required String email,
   }) async {
     try {
       final response = await _apiService.post(
@@ -19,6 +20,7 @@ class SignupProfileRepositoryImpl implements SignupProfileRepository {
         useFormData: true,
         data: {
           'full_name': fullName,
+          'email': email,
         },
       );
 

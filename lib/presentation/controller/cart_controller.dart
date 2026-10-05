@@ -4,6 +4,7 @@ import 'package:kayal_userapp/core/const/app_images.dart';
 import 'package:kayal_userapp/core/di/service_locator.dart';
 import 'package:kayal_userapp/core/service/api_service.dart';
 import 'package:kayal_userapp/core/service/local_storage_service.dart';
+import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
 import 'package:kayal_userapp/data/model/add_to_cart_response_model.dart';
 import 'package:kayal_userapp/data/model/clear_cart_response_model.dart';
@@ -124,8 +125,8 @@ class CartController extends GetxController {
           response.items.map((item) {
             return CartItemModel(
               id: item.id.toString(),
-              name: item.name,
-              type: item.type,
+              name: item.name.capitalizeWords(),
+              type: item.type.capitalizeWords(),
               isVeg: item.isVeg,
               oldPrice: item.oldPrice,
               newPrice: item.newPrice,
@@ -168,8 +169,8 @@ class CartController extends GetxController {
       cartItems.add(
         CartItemModel(
           id: id,
-          name: name,
-          type: type,
+          name: name.capitalizeWords(),
+          type: type.capitalizeWords(),
           isVeg: isVeg,
           oldPrice: oldPrice,
           newPrice: newPrice,
@@ -308,6 +309,8 @@ class CartController extends GetxController {
       isApiLoading.value = false;
     }
   }
+
+  int get cartCount => cartItems.length;
 
   double get totalAmount {
     if (cartData.value != null && cartData.value!.totalAmount > 0) {
