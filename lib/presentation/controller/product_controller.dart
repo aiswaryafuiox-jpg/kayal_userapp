@@ -6,9 +6,12 @@ import 'package:kayal_userapp/core/service/api_service.dart';
 import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
 import 'package:kayal_userapp/data/model/category_products_response_model.dart';
+import 'package:kayal_userapp/data/model/restaurant_products_response_model.dart';
+import 'package:kayal_userapp/data/repository/categories_repository_impl.dart';
 import 'package:kayal_userapp/data/repository/category_products_repository_impl.dart';
 import 'package:kayal_userapp/data/repository/restaurant_products_repository_impl.dart';
 import 'package:kayal_userapp/domain/usecase/get_category_products_usecase.dart';
+import 'package:kayal_userapp/domain/usecase/get_categories_usecase.dart';
 import 'package:kayal_userapp/domain/usecase/restaurant_products_usecase.dart';
 import 'package:kayal_userapp/presentation/controller/home_controller.dart';
 import 'package:kayal_userapp/presentation/controller/wishlist_controller.dart';
@@ -16,21 +19,32 @@ import 'package:kayal_userapp/presentation/controller/cart_controller.dart';
 
 class ProductController extends GetxController {
   final GetCategoryProductsUseCase _getCategoryProductsUseCase;
+  final GetCategoriesUseCase _getCategoriesUseCase;
   final RestaurantProductsUseCase _restaurantProductsUseCase;
 
   ProductController({
     GetCategoryProductsUseCase? getCategoryProductsUseCase,
+    GetCategoriesUseCase? getCategoriesUseCase,
     RestaurantProductsUseCase? restaurantProductsUseCase,
-  })  : _getCategoryProductsUseCase = getCategoryProductsUseCase ??
-            (sl.isRegistered<GetCategoryProductsUseCase>()
-                ? sl<GetCategoryProductsUseCase>()
-                : GetCategoryProductsUseCase(
-                    CategoryProductsRepositoryImpl(ApiService()))),
-        _restaurantProductsUseCase = restaurantProductsUseCase ??
-            (sl.isRegistered<RestaurantProductsUseCase>()
-                ? sl<RestaurantProductsUseCase>()
-                : RestaurantProductsUseCase(
-                    RestaurantProductsRepositoryImpl(ApiService())));
+  }) : _getCategoryProductsUseCase =
+           getCategoryProductsUseCase ??
+           (sl.isRegistered<GetCategoryProductsUseCase>()
+               ? sl<GetCategoryProductsUseCase>()
+               : GetCategoryProductsUseCase(
+                   CategoryProductsRepositoryImpl(ApiService()),
+                 )),
+       _getCategoriesUseCase =
+           getCategoriesUseCase ??
+           (sl.isRegistered<GetCategoriesUseCase>()
+               ? sl<GetCategoriesUseCase>()
+               : GetCategoriesUseCase(CategoriesRepositoryImpl(ApiService()))),
+       _restaurantProductsUseCase =
+           restaurantProductsUseCase ??
+           (sl.isRegistered<RestaurantProductsUseCase>()
+               ? sl<RestaurantProductsUseCase>()
+               : RestaurantProductsUseCase(
+                   RestaurantProductsRepositoryImpl(ApiService()),
+                 ));
 
   final products = <ProductModel>[].obs;
   final RxBool isLoading = false.obs;
@@ -45,7 +59,6 @@ class ProductController extends GetxController {
   void onInit() {
     super.onInit();
     updateArguments(Get.arguments);
-    _loadProducts();
   }
 
   void updateArguments([dynamic args]) {
@@ -63,7 +76,7 @@ class ProductController extends GetxController {
         }
         if (currentArgs.id != null) {
           restaurantId = currentArgs.id;
-          categoryId ??= 1;
+          categoryId = null;
         }
       } else if (currentArgs is Map) {
         if (currentArgs['restaurant'] != null &&
@@ -79,10 +92,13 @@ class ProductController extends GetxController {
         } else if (currentArgs['restaurant'] != null &&
             currentArgs['restaurant'] is Map) {
           final Map r = currentArgs['restaurant'];
-          if (r['name'] != null) title.value = r['name'].toString().capitalizeWords();
+          if (r['name'] != null) {
+            title.value = r['name'].toString().capitalizeWords();
+          }
           if (r['id'] != null) restaurantId = r['id'];
         } else if (currentArgs['category'] != null) {
-          title.value = '${currentArgs['category'].toString().capitalizeWords()} List';
+          title.value =
+              '${currentArgs['category'].toString().capitalizeWords()} List';
         }
 
         if (currentArgs['restaurantId'] != null) {
@@ -92,6 +108,8 @@ class ProductController extends GetxController {
           categoryId = currentArgs['categoryId'];
         } else if (currentArgs['category_id'] != null) {
           categoryId = currentArgs['category_id'];
+        } else if (restaurantId != null) {
+          categoryId = null;
         }
 
         if (currentArgs['isClosed'] != null) {
@@ -102,8 +120,14 @@ class ProductController extends GetxController {
         }
       }
 
-      final shouldReload = (restaurantId != null && (restaurantId != oldRestId || categoryId != oldCatId || products.isEmpty)) ||
-          (restaurantId == null && categoryId != null && (categoryId != oldCatId || products.isEmpty));
+      final shouldReload =
+          (restaurantId != null &&
+              (restaurantId != oldRestId ||
+                  categoryId != oldCatId ||
+                  products.isEmpty)) ||
+          (restaurantId == null &&
+              categoryId != null &&
+              (categoryId != oldCatId || products.isEmpty));
 
       if (shouldReload && !isLoading.value) {
         _loadProducts();
@@ -122,14 +146,75 @@ class ProductController extends GetxController {
         categoryId: categoryId,
       );
     } else if (restaurantId != null) {
-      fetchRestaurantProducts(
-        restaurantId: restaurantId,
-        categoryId: 1,
-      );
+      fetchAllRestaurantProducts(restaurantId);
     } else if (categoryId != null) {
       fetchCategoryProducts(categoryId);
     } else {
       products.clear();
+    }
+  }
+
+  Future<void> fetchAllRestaurantProducts(dynamic selectedRestaurantId) async {
+    final wishlistController = Get.isRegistered<WishlistController>()
+        ? Get.find<WishlistController>()
+        : null;
+
+    try {
+      isLoading.value = true;
+      final categoriesResponse = await _getCategoriesUseCase();
+      final categoryIds = categoriesResponse.data
+          .expand(
+            (category) => category.categoryIds.isNotEmpty
+                ? category.categoryIds
+                : [category.id],
+          )
+          .where((id) => id != null && id.toString().isNotEmpty)
+          .toSet()
+          .toList();
+
+      final responses = await Future.wait(
+        categoryIds.map(
+          (id) => _restaurantProductsUseCase(
+            restaurantId: selectedRestaurantId,
+            categoryId: id,
+          ),
+        ),
+      );
+
+      final uniqueProducts = <String, RestaurantProductItemModel>{};
+      for (final response in responses) {
+        if (!response.success) continue;
+        for (final item in response.productsForRestaurant(
+          selectedRestaurantId,
+        )) {
+          uniqueProducts[item.id.toString()] = item;
+        }
+      }
+
+      final loaded = uniqueProducts.values.map((item) {
+        final model = ProductModel(
+          id: item.id.toString(),
+          name: item.name.capitalizeWords(),
+          type: item.type.capitalizeWords(),
+          isVeg: item.isVeg,
+          oldPrice: item.oldPrice > 0 ? item.oldPrice : item.price,
+          newPrice: item.price,
+          image: (item.image != null && item.image!.isNotEmpty)
+              ? item.image!
+              : productImg1,
+        );
+        if (wishlistController != null) {
+          model.isFavorite.value = wishlistController.isFavorite(model.name);
+        }
+        return model;
+      }).toList();
+
+      products.assignAll(loaded);
+    } catch (e) {
+      debugPrint('fetchAllRestaurantProducts error: $e');
+      products.clear();
+    } finally {
+      isLoading.value = false;
     }
   }
 
@@ -147,13 +232,18 @@ class ProductController extends GetxController {
         categoryId: categoryId,
       );
 
-      if (response.success && response.products.isNotEmpty) {
+      final restaurantProducts = response.productsForRestaurant(restaurantId);
+      if (response.success && restaurantProducts.isNotEmpty) {
         // If restaurant_products endpoint returns null/0 prices, enrich with category products
-        final bool hasMissingPrices = response.products.any((p) => p.price <= 0);
+        final bool hasMissingPrices = restaurantProducts.any(
+          (p) => p.price <= 0,
+        );
         final Map<String, CategoryProductItemModel> catProductsMap = {};
         if (hasMissingPrices && categoryId != null) {
           try {
-            final catResponse = await _getCategoryProductsUseCase(categoryId: categoryId);
+            final catResponse = await _getCategoryProductsUseCase(
+              categoryId: categoryId,
+            );
             if (catResponse.success && catResponse.data.isNotEmpty) {
               for (var cp in catResponse.data) {
                 catProductsMap[cp.id.toString()] = cp;
@@ -162,16 +252,24 @@ class ProductController extends GetxController {
           } catch (_) {}
         }
 
-        final loaded = response.products.map((item) {
+        final loaded = restaurantProducts.map((item) {
           final catProduct = catProductsMap[item.id.toString()];
           final double effPrice = item.price > 0
               ? item.price
-              : (catProduct != null && catProduct.price > 0 ? catProduct.price : 0.0);
+              : (catProduct != null && catProduct.price > 0
+                    ? catProduct.price
+                    : 0.0);
           final double effOldPrice = item.oldPrice > 0
               ? item.oldPrice
-              : (catProduct != null && catProduct.oldPrice > 0 ? catProduct.oldPrice : effPrice);
-          final bool effIsVeg = catProduct != null ? catProduct.isVeg : item.isVeg;
-          final String effType = catProduct != null ? catProduct.type : item.type;
+              : (catProduct != null && catProduct.oldPrice > 0
+                    ? catProduct.oldPrice
+                    : effPrice);
+          final bool effIsVeg = catProduct != null
+              ? catProduct.isVeg
+              : item.isVeg;
+          final String effType = catProduct != null
+              ? catProduct.type
+              : item.type;
 
           final model = ProductModel(
             id: item.id.toString(),
@@ -209,7 +307,8 @@ class ProductController extends GetxController {
       isLoading.value = true;
       final response = await _getCategoryProductsUseCase(categoryId: catId);
       if (response.success && response.data.isNotEmpty) {
-        if (response.categoryName != null && response.categoryName!.isNotEmpty) {
+        if (response.categoryName != null &&
+            response.categoryName!.isNotEmpty) {
           title.value = '${response.categoryName!.capitalizeWords()} List';
         }
         final loaded = response.data.map((item) {
@@ -320,14 +419,14 @@ class ProductController extends GetxController {
       );
       return;
     }
-    
+
     final index = products.indexWhere((p) => p.id == id);
     if (index != -1) {
       final product = products[index];
       incrementQuantity(product);
     }
   }
-  
+
   void openFilter() {
     Get.snackbar(
       'Filter',
@@ -335,7 +434,7 @@ class ProductController extends GetxController {
       snackPosition: SnackPosition.BOTTOM,
     );
   }
-  
+
   void viewCart() {
     Get.toNamed(AppRoutes.cart);
   }

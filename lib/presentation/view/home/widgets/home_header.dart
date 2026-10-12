@@ -36,24 +36,28 @@ class HomeHeader extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    padding: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                      border: Border.all(color: Colors.white, width: 2),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Color(0x22000000),
-                          blurRadius: 5,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: ClipOval(
-                      child: Image.asset(profileImg, fit: BoxFit.cover),
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: controller.openProfile,
+                    child: Container(
+                      width: 48,
+                      height: 48,
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white,
+                        border: Border.all(color: Colors.white, width: 2),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x22000000),
+                            blurRadius: 5,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: ClipOval(
+                        child: Image.asset(profileImg, fit: BoxFit.cover),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 7),
@@ -75,27 +79,35 @@ class HomeHeader extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 5),
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.location_on,
-                                size: 16,
-                                color: Color(0xFF1F2937),
-                              ),
-                              const SizedBox(width: 4),
-                              Expanded(
-                                child: Text(
-                                  controller.userLocation.value,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    color: Color(0xFF1F2937),
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                          GestureDetector(
+                            onTap: controller.isLocationEnabled.value
+                                ? null
+                                : controller.showEnableLocationDialog,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  controller.isLocationEnabled.value
+                                      ? Icons.location_on
+                                      : Icons.location_off_rounded,
+                                  size: 16,
+                                  color: const Color(0xFF1F2937),
                                 ),
-                              ),
-                            ],
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: controller.isLocationEnabled.value
+                                      ? Text(
+                                          controller.userLocation.value,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: _locationTextStyle,
+                                        )
+                                      : const _LocationNewsTicker(
+                                          text:
+                                              'Please enable location  •  Tap here to enable location',
+                                        ),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -127,6 +139,12 @@ class HomeHeader extends StatelessWidget {
       ),
     );
   }
+
+  static const TextStyle _locationTextStyle = TextStyle(
+    color: Color(0xFF1F2937),
+    fontSize: 9,
+    fontWeight: FontWeight.w500,
+  );
 
   Widget _headerButton({
     required String asset,
@@ -186,6 +204,69 @@ class HomeHeader extends StatelessWidget {
                 ),
               ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LocationNewsTicker extends StatefulWidget {
+  final String text;
+
+  const _LocationNewsTicker({required this.text});
+
+  @override
+  State<_LocationNewsTicker> createState() => _LocationNewsTickerState();
+}
+
+class _LocationNewsTickerState extends State<_LocationNewsTicker>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 7),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const style = HomeHeader._locationTextStyle;
+    final painter = TextPainter(
+      text: TextSpan(text: widget.text, style: style),
+      maxLines: 1,
+      textDirection: TextDirection.ltr,
+    )..layout();
+
+    return SizedBox(
+      height: 14,
+      child: ClipRect(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final travel = constraints.maxWidth + painter.width;
+            return AnimatedBuilder(
+              animation: _controller,
+              child: Text(widget.text, maxLines: 1, style: style),
+              builder: (context, child) {
+                return Transform.translate(
+                  offset: Offset(
+                    constraints.maxWidth - (travel * _controller.value),
+                    0,
+                  ),
+                  child: child,
+                );
+              },
+            );
+          },
         ),
       ),
     );

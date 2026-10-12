@@ -2,12 +2,12 @@ import 'package:kayal_userapp/core/utils/helper/food_type_helper.dart';
 import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
 
 class RestaurantProductsResponseModel {
-
   final bool success;
   final String message;
   final RestaurantInfoModel? restaurant;
   final CategoryInfoModel? category;
   final List<RestaurantProductItemModel> products;
+  final Map<String, List<RestaurantProductItemModel>> productsByRestaurant;
   final dynamic errors;
 
   RestaurantProductsResponseModel({
@@ -16,12 +16,14 @@ class RestaurantProductsResponseModel {
     this.restaurant,
     this.category,
     this.products = const [],
+    this.productsByRestaurant = const {},
     this.errors,
   });
 
   factory RestaurantProductsResponseModel.fromJson(Map<String, dynamic> json) {
     RestaurantInfoModel? parsedRestaurant;
-    if (json['restaurant'] != null && json['restaurant'] is Map<String, dynamic>) {
+    if (json['restaurant'] != null &&
+        json['restaurant'] is Map<String, dynamic>) {
       parsedRestaurant = RestaurantInfoModel.fromJson(
         json['restaurant'] as Map<String, dynamic>,
       );
@@ -29,9 +31,12 @@ class RestaurantProductsResponseModel {
       parsedRestaurant = RestaurantInfoModel.fromJson(
         Map<String, dynamic>.from(json['restaurant'] as Map),
       );
-    } else if (json['restaurants'] is List && (json['restaurants'] as List).isNotEmpty) {
+    } else if (json['restaurants'] is List &&
+        (json['restaurants'] as List).isNotEmpty) {
       final first = (json['restaurants'] as List).first;
-      if (first is Map && first['restaurant'] != null && first['restaurant'] is Map) {
+      if (first is Map &&
+          first['restaurant'] != null &&
+          first['restaurant'] is Map) {
         parsedRestaurant = RestaurantInfoModel.fromJson(
           Map<String, dynamic>.from(first['restaurant'] as Map),
         );
@@ -50,7 +55,9 @@ class RestaurantProductsResponseModel {
     }
 
     List<RestaurantProductItemModel> parsedProducts = [];
-    dynamic rawProducts = json['products'] ??
+    final Map<String, List<RestaurantProductItemModel>> groupedProducts = {};
+    dynamic rawProducts =
+        json['products'] ??
         (json['data'] is Map ? json['data']['products'] : json['data']);
 
     if (rawProducts == null && json['restaurants'] is List) {
@@ -58,6 +65,21 @@ class RestaurantProductsResponseModel {
       for (var r in (json['restaurants'] as List)) {
         if (r is Map && r['products'] is List) {
           allProds.addAll(r['products'] as List);
+          final restaurantData = r['restaurant'];
+          if (restaurantData is Map) {
+            final restaurantId =
+                restaurantData['id'] ?? restaurantData['restaurant_id'];
+            if (restaurantId != null) {
+              groupedProducts[restaurantId.toString()] = (r['products'] as List)
+                  .whereType<Map>()
+                  .map(
+                    (item) => RestaurantProductItemModel.fromJson(
+                      Map<String, dynamic>.from(item),
+                    ),
+                  )
+                  .toList();
+            }
+          }
         }
       }
       rawProducts = allProds;
@@ -85,6 +107,7 @@ class RestaurantProductsResponseModel {
       restaurant: parsedRestaurant,
       category: parsedCategory,
       products: parsedProducts,
+      productsByRestaurant: groupedProducts,
       errors: json['errors'],
     );
   }
@@ -96,6 +119,10 @@ class RestaurantProductsResponseModel {
       if (restaurant != null) 'restaurant': restaurant!.toJson(),
       if (category != null) 'category': category!.toJson(),
       'products': products.map((e) => e.toJson()).toList(),
+      if (productsByRestaurant.isNotEmpty)
+        'products_by_restaurant': productsByRestaurant.map(
+          (key, value) => MapEntry(key, value.map((e) => e.toJson()).toList()),
+        ),
       'errors': errors,
     };
   }
@@ -117,6 +144,11 @@ class RestaurantProductsResponseModel {
     }
     return message;
   }
+
+  List<RestaurantProductItemModel> productsForRestaurant(dynamic restaurantId) {
+    if (productsByRestaurant.isEmpty) return products;
+    return productsByRestaurant[restaurantId.toString()] ?? const [];
+  }
 }
 
 class RestaurantInfoModel {
@@ -124,11 +156,7 @@ class RestaurantInfoModel {
   final String restaurantId;
   final String name;
 
-  RestaurantInfoModel({
-    this.id,
-    this.restaurantId = '',
-    this.name = '',
-  });
+  RestaurantInfoModel({this.id, this.restaurantId = '', this.name = ''});
 
   factory RestaurantInfoModel.fromJson(Map<String, dynamic> json) {
     return RestaurantInfoModel(
@@ -139,11 +167,7 @@ class RestaurantInfoModel {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'restaurant_id': restaurantId,
-      'name': name,
-    };
+    return {'id': id, 'restaurant_id': restaurantId, 'name': name};
   }
 }
 
@@ -151,10 +175,7 @@ class CategoryInfoModel {
   final dynamic id;
   final String name;
 
-  CategoryInfoModel({
-    this.id,
-    this.name = '',
-  });
+  CategoryInfoModel({this.id, this.name = ''});
 
   factory CategoryInfoModel.fromJson(Map<String, dynamic> json) {
     return CategoryInfoModel(
@@ -164,10 +185,7 @@ class CategoryInfoModel {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-    };
+    return {'id': id, 'name': name};
   }
 }
 
@@ -199,13 +217,15 @@ class RestaurantProductItemModel {
         ? Map<String, dynamic>.from(json['product'])
         : json;
 
-    final rawPrice = itemMap['price'] ??
+    final rawPrice =
+        itemMap['price'] ??
         itemMap['sell_price'] ??
         itemMap['new_price'] ??
         itemMap['offer_price'] ??
         json['price'];
 
-    final rawOldPrice = itemMap['old_price'] ??
+    final rawOldPrice =
+        itemMap['old_price'] ??
         itemMap['mrp'] ??
         itemMap['original_price'] ??
         json['old_price'] ??
@@ -220,11 +240,13 @@ class RestaurantProductItemModel {
         : double.tryParse(rawOldPrice?.toString() ?? '0') ?? parsedPrice;
 
     final double finalPrice = parsedPrice > 0 ? parsedPrice : parsedOldPrice;
-    final double finalOldPrice =
-        parsedOldPrice > 0 ? parsedOldPrice : finalPrice;
+    final double finalOldPrice = parsedOldPrice > 0
+        ? parsedOldPrice
+        : finalPrice;
 
-    final rawName = (itemMap['name']?.toString() ?? json['name']?.toString() ?? '')
-        .capitalizeWords();
+    final rawName =
+        (itemMap['name']?.toString() ?? json['name']?.toString() ?? '')
+            .capitalizeWords();
 
     final bool isVegProduct = FoodTypeHelper.determineIsVeg(
       foodType: itemMap['food_type'] ?? json['food_type'],
@@ -243,20 +265,24 @@ class RestaurantProductItemModel {
     );
 
     return RestaurantProductItemModel(
-      id: itemMap['product_id'] ??
+      id:
+          itemMap['product_id'] ??
           itemMap['id'] ??
           json['product_id'] ??
           json['id'],
       name: rawName,
-      description: (itemMap['description']?.toString() ??
-              json['description']?.toString())
-          ?.capitalizeFirstLetter(),
+      description:
+          (itemMap['description']?.toString() ??
+                  json['description']?.toString())
+              ?.capitalizeFirstLetter(),
       price: finalPrice,
       oldPrice: finalOldPrice,
-      image: itemMap['image']?.toString() ??
+      image:
+          itemMap['image']?.toString() ??
           itemMap['image_url']?.toString() ??
           json['image']?.toString(),
-      isActive: itemMap['is_active'] == true ||
+      isActive:
+          itemMap['is_active'] == true ||
           itemMap['is_active']?.toString() == '1' ||
           itemMap['is_active'] == null,
       type: typeStr.capitalizeWords(),

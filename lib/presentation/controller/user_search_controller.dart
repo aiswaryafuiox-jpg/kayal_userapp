@@ -12,10 +12,11 @@ class UserSearchController extends GetxController {
   final SearchUseCase _searchUseCase;
 
   UserSearchController({SearchUseCase? searchUseCase})
-      : _searchUseCase = searchUseCase ??
-            (sl.isRegistered<SearchUseCase>()
-                ? sl<SearchUseCase>()
-                : SearchUseCase(SearchRepositoryImpl(ApiService())));
+    : _searchUseCase =
+          searchUseCase ??
+          (sl.isRegistered<SearchUseCase>()
+              ? sl<SearchUseCase>()
+              : SearchUseCase(SearchRepositoryImpl(ApiService())));
 
   final TextEditingController searchInputController = TextEditingController();
   final RxString query = ''.obs;
@@ -24,6 +25,7 @@ class UserSearchController extends GetxController {
   final Rx<SearchResponseModel?> searchResult = Rx<SearchResponseModel?>(null);
 
   Timer? _debounce;
+  int _requestId = 0;
 
   @override
   void onInit() {
@@ -35,7 +37,7 @@ class UserSearchController extends GetxController {
 
   void onQueryChanged(String value) {
     if (_debounce?.isActive ?? false) _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () {
+    _debounce = Timer(const Duration(milliseconds: 300), () {
       if (value.trim().isNotEmpty) {
         performSearch(value.trim());
       } else {
@@ -45,37 +47,41 @@ class UserSearchController extends GetxController {
   }
 
   Future<void> performSearch(String searchQuery) async {
+    _debounce?.cancel();
     final trimmed = searchQuery.trim();
     if (trimmed.isEmpty) {
       clearSearch();
       return;
     }
 
+    final requestId = ++_requestId;
     try {
       isLoading.value = true;
       hasSearched.value = true;
 
       final response = await _searchUseCase(query: trimmed);
+      if (requestId != _requestId || query.value.trim() != trimmed) return;
       searchResult.value = response;
 
       if (!response.success && response.message.isNotEmpty) {
-        AppNotification.showError(
-          title: 'Search',
-          message: response.message,
-        );
+        AppNotification.showError(title: 'Search', message: response.message);
       }
     } catch (e) {
+      if (requestId != _requestId) return;
       debugPrint('Search error: $e');
       AppNotification.showError(
         title: 'Search Error',
         message: 'Could not fetch search results. Please try again.',
       );
     } finally {
-      isLoading.value = false;
+      if (requestId == _requestId) {
+        isLoading.value = false;
+      }
     }
   }
 
   void clearSearch() {
+    _requestId++;
     searchInputController.clear();
     query.value = '';
     searchResult.value = null;

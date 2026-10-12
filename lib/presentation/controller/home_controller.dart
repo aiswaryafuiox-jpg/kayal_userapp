@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:kayal_userapp/core/const/app_color.dart';
 import 'package:kayal_userapp/core/di/service_locator.dart';
 import 'package:kayal_userapp/core/service/api_service.dart';
 import 'package:kayal_userapp/core/service/local_storage_service.dart';
@@ -18,7 +21,7 @@ import 'package:kayal_userapp/domain/usecase/get_categories_usecase.dart';
 import 'package:kayal_userapp/domain/usecase/offers_usecase.dart';
 import 'package:kayal_userapp/domain/usecase/popular_restaurants_usecase.dart';
 
-class HomeController extends GetxController {
+class HomeController extends GetxController with WidgetsBindingObserver {
   final BannerUseCase _bannerUseCase;
   final PopularRestaurantsUseCase _popularRestaurantsUseCase;
   final OffersUseCase _offersUseCase;
@@ -29,24 +32,28 @@ class HomeController extends GetxController {
     PopularRestaurantsUseCase? popularRestaurantsUseCase,
     OffersUseCase? offersUseCase,
     GetCategoriesUseCase? getCategoriesUseCase,
-  })  : _bannerUseCase = bannerUseCase ??
-            (sl.isRegistered<BannerUseCase>()
-                ? sl<BannerUseCase>()
-                : BannerUseCase(BannerRepositoryImpl(ApiService()))),
-        _popularRestaurantsUseCase = popularRestaurantsUseCase ??
-            (sl.isRegistered<PopularRestaurantsUseCase>()
-                ? sl<PopularRestaurantsUseCase>()
-                : PopularRestaurantsUseCase(
-                    PopularRestaurantsRepositoryImpl(ApiService()))),
-        _offersUseCase = offersUseCase ??
-            (sl.isRegistered<OffersUseCase>()
-                ? sl<OffersUseCase>()
-                : OffersUseCase(OffersRepositoryImpl(ApiService()))),
-        _getCategoriesUseCase = getCategoriesUseCase ??
-            (sl.isRegistered<GetCategoriesUseCase>()
-                ? sl<GetCategoriesUseCase>()
-                : GetCategoriesUseCase(
-                    CategoriesRepositoryImpl(ApiService())));
+  }) : _bannerUseCase =
+           bannerUseCase ??
+           (sl.isRegistered<BannerUseCase>()
+               ? sl<BannerUseCase>()
+               : BannerUseCase(BannerRepositoryImpl(ApiService()))),
+       _popularRestaurantsUseCase =
+           popularRestaurantsUseCase ??
+           (sl.isRegistered<PopularRestaurantsUseCase>()
+               ? sl<PopularRestaurantsUseCase>()
+               : PopularRestaurantsUseCase(
+                   PopularRestaurantsRepositoryImpl(ApiService()),
+                 )),
+       _offersUseCase =
+           offersUseCase ??
+           (sl.isRegistered<OffersUseCase>()
+               ? sl<OffersUseCase>()
+               : OffersUseCase(OffersRepositoryImpl(ApiService()))),
+       _getCategoriesUseCase =
+           getCategoriesUseCase ??
+           (sl.isRegistered<GetCategoriesUseCase>()
+               ? sl<GetCategoriesUseCase>()
+               : GetCategoriesUseCase(CategoriesRepositoryImpl(ApiService())));
 
   // ==============================
   // BANNER
@@ -119,19 +126,28 @@ class HomeController extends GetxController {
   ).obs;
 
   Timer? _timer;
+  StreamSubscription<ServiceStatus>? _locationServiceSubscription;
+  bool _locationDialogVisible = false;
 
   final userName = 'Guest'.obs;
   final userLocation = 'Chennai, Tamil Nadu'.obs;
+  final isLocationEnabled = true.obs;
+  final isLocationLoading = false.obs;
 
   @override
   void onInit() {
     super.onInit();
+    WidgetsBinding.instance.addObserver(this);
     loadUserInfo();
     startOfferTimer();
     fetchBanners();
     fetchPopularRestaurants();
     fetchOffers();
     fetchCategories();
+    _listenToLocationService();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      checkAndLoadCurrentLocation(showDialogWhenDisabled: true);
+    });
 
     final arguments = Get.arguments;
     if (arguments is Map && arguments['tab'] != null) {
@@ -143,6 +159,213 @@ class HomeController extends GetxController {
         }
       });
     }
+  }
+
+  void _listenToLocationService() {
+    _locationServiceSubscription?.cancel();
+    _locationServiceSubscription = Geolocator.getServiceStatusStream().listen(
+      (status) {
+        final enabled = status == ServiceStatus.enabled;
+        isLocationEnabled.value = enabled;
+        if (enabled) {
+          checkAndLoadCurrentLocation(showDialogWhenDisabled: false);
+        } else {
+          userLocation.value = 'Please enable location';
+          showEnableLocationDialog();
+        }
+      },
+      onError: (Object error) {
+        debugPrint('Location service stream error: $error');
+      },
+    );
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      checkAndLoadCurrentLocation(showDialogWhenDisabled: false);
+    }
+  }
+
+  Future<void> checkAndLoadCurrentLocation({
+    bool showDialogWhenDisabled = false,
+  }) async {
+    if (isLocationLoading.value) return;
+
+    try {
+      isLocationLoading.value = true;
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      isLocationEnabled.value = serviceEnabled;
+
+      if (!serviceEnabled) {
+        userLocation.value = 'Please enable location';
+        if (showDialogWhenDisabled) showEnableLocationDialog();
+        return;
+      }
+
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        isLocationEnabled.value = false;
+        userLocation.value = 'Please enable location permission';
+        if (showDialogWhenDisabled) {
+          showEnableLocationDialog(permissionDenied: true);
+        }
+        return;
+      }
+
+      Position? position;
+      try {
+        position = await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.medium,
+            timeLimit: Duration(seconds: 12),
+          ),
+        );
+      } catch (_) {
+        position = await Geolocator.getLastKnownPosition();
+      }
+
+      if (position == null) return;
+
+      try {
+        final placemarks = await placemarkFromCoordinates(
+          position.latitude,
+          position.longitude,
+        );
+        if (placemarks.isNotEmpty) {
+          final place = placemarks.first;
+          final parts =
+              <String?>[
+                    place.locality,
+                    place.subAdministrativeArea,
+                    place.administrativeArea,
+                  ]
+                  .whereType<String>()
+                  .map((value) => value.trim())
+                  .where((value) => value.isNotEmpty)
+                  .toSet()
+                  .take(2)
+                  .toList();
+          if (parts.isNotEmpty) {
+            userLocation.value = parts.join(', ').capitalizeWords();
+            return;
+          }
+        }
+      } catch (error) {
+        debugPrint('Reverse geocoding error: $error');
+      }
+
+      userLocation.value =
+          '${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)}';
+    } catch (error) {
+      debugPrint('Home location error: $error');
+    } finally {
+      isLocationLoading.value = false;
+    }
+  }
+
+  Future<void> enableLocation() async {
+    if (_locationDialogVisible && Get.isDialogOpen == true) {
+      Get.back<void>();
+    }
+    _locationDialogVisible = false;
+
+    final permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.deniedForever) {
+      await Geolocator.openAppSettings();
+    } else if (!await Geolocator.isLocationServiceEnabled()) {
+      await Geolocator.openLocationSettings();
+    } else {
+      await checkAndLoadCurrentLocation(showDialogWhenDisabled: false);
+    }
+  }
+
+  void showEnableLocationDialog({bool permissionDenied = false}) {
+    if (_locationDialogVisible || Get.context == null) return;
+    _locationDialogVisible = true;
+
+    Get.dialog<void>(
+      Dialog(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(22, 24, 22, 18),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 58,
+                height: 58,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.location_on_rounded,
+                  color: AppColors.primary,
+                  size: 31,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Enable Location',
+                style: TextStyle(
+                  color: AppColors.textprimary,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                permissionDenied
+                    ? 'Allow location permission in Settings to show your current location and nearby restaurants.'
+                    : 'Turn on location services to show your current location and nearby restaurants.',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Color(0xFF6B7280),
+                  fontSize: 13,
+                  height: 1.45,
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: enableLocation,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 13),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text(
+                    'Enable Location',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: () => Get.back<void>(),
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.textprimary,
+                ),
+                child: const Text('Not Now'),
+              ),
+            ],
+          ),
+        ),
+      ),
+      barrierDismissible: true,
+    ).whenComplete(() => _locationDialogVisible = false);
   }
 
   void loadUserInfo() {
@@ -160,7 +383,10 @@ class HomeController extends GetxController {
       final city = storage.getCity();
       final state = storage.getString(LocalStorageService.keyState);
       final address = storage.getAddress();
-      if (city != null && city.isNotEmpty && state != null && state.isNotEmpty) {
+      if (city != null &&
+          city.isNotEmpty &&
+          state != null &&
+          state.isNotEmpty) {
         userLocation.value = '$city, $state'.capitalizeWords();
       } else if (city != null && city.isNotEmpty) {
         userLocation.value = city.capitalizeWords();
@@ -218,22 +444,24 @@ class HomeController extends GetxController {
         lng: lng,
       );
       if (response.success && response.data.isNotEmpty) {
-        final fetched = response.data.map(
-          (item) => RestaurantItem(
-            id: item.id,
-            name: item.name.capitalizeWords(),
-            image: (item.image != null && item.image!.isNotEmpty)
-                ? item.image!
-                : 'assets/images/homeimg.png',
-            cuisine: (item.cuisine != null && item.cuisine!.isNotEmpty)
-                ? item.cuisine!.capitalizeWords()
-                : 'Special Dishes',
-            deliveryTime: item.deliveryTime ?? '25-30 mins',
-            distance: item.distance ?? '2.8 Km',
-            openingTime: item.openingTime ?? '10:00 Am - 11:00 Pm',
-            isOpen: item.isOpen,
-          ),
-        ).toList();
+        final fetched = response.data
+            .map(
+              (item) => RestaurantItem(
+                id: item.id,
+                name: item.name.capitalizeWords(),
+                image: (item.image != null && item.image!.isNotEmpty)
+                    ? item.image!
+                    : 'assets/images/homeimg.png',
+                cuisine: (item.cuisine != null && item.cuisine!.isNotEmpty)
+                    ? item.cuisine!.capitalizeWords()
+                    : 'Special Dishes',
+                deliveryTime: item.deliveryTime ?? '25-30 mins',
+                distance: item.distance ?? '2.8 Km',
+                openingTime: item.openingTime ?? '10:00 Am - 11:00 Pm',
+                isOpen: item.isOpen,
+              ),
+            )
+            .toList();
         restaurants.assignAll(fetched);
         if (categoryId == null) {
           allRestaurants.assignAll(fetched);
@@ -325,6 +553,8 @@ class HomeController extends GetxController {
   @override
   void onClose() {
     _timer?.cancel();
+    _locationServiceSubscription?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
     pageController.dispose();
     super.onClose();
   }
@@ -346,7 +576,7 @@ class HomeController extends GetxController {
   }
 
   void openProfile() {
-    debugPrint('Profile clicked');
+    changeBottomIndex(4);
   }
 
   void viewCategories() {
@@ -361,7 +591,8 @@ class HomeController extends GetxController {
     dynamic selectedCatId;
     String? selectedCatName;
 
-    if (selectedCategory.value >= 0 && selectedCategory.value < categories.length) {
+    if (selectedCategory.value >= 0 &&
+        selectedCategory.value < categories.length) {
       final item = categories[selectedCategory.value];
       if (item.name.toLowerCase() != 'all') {
         selectedCatId = item.id;
@@ -375,7 +606,7 @@ class HomeController extends GetxController {
         'restaurant': restaurant,
         'restaurantId': restaurant.id,
         'category': selectedCatName ?? restaurant.name,
-        'categoryId': selectedCatId ?? 1,
+        'categoryId': ?selectedCatId,
         'isClosed': !restaurant.isOpen,
         'notes': !restaurant.isOpen
             ? 'This restaurant is currently unavailable.\n${restaurant.openingTime}'

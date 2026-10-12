@@ -1,7 +1,7 @@
 import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
+import 'package:kayal_userapp/core/utils/helper/food_type_helper.dart';
 
 class SearchResponseModel {
-
   final bool success;
   final String message;
   final List<SearchRestaurantModel> restaurants;
@@ -28,21 +28,30 @@ class SearchResponseModel {
       message: json['message']?.toString() ?? '',
       restaurants: (dataMap['restaurants'] is List)
           ? (dataMap['restaurants'] as List)
-              .map((e) => SearchRestaurantModel.fromJson(
-                  Map<String, dynamic>.from(e as Map)))
-              .toList()
+                .map(
+                  (e) => SearchRestaurantModel.fromJson(
+                    Map<String, dynamic>.from(e as Map),
+                  ),
+                )
+                .toList()
           : [],
       dishes: (dataMap['dishes'] is List)
           ? (dataMap['dishes'] as List)
-              .map((e) => SearchDishModel.fromJson(
-                  Map<String, dynamic>.from(e as Map)))
-              .toList()
+                .map(
+                  (e) => SearchDishModel.fromJson(
+                    Map<String, dynamic>.from(e as Map),
+                  ),
+                )
+                .toList()
           : [],
       categories: (dataMap['categories'] is List)
           ? (dataMap['categories'] as List)
-              .map((e) => SearchCategoryModel.fromJson(
-                  Map<String, dynamic>.from(e as Map)))
-              .toList()
+                .map(
+                  (e) => SearchCategoryModel.fromJson(
+                    Map<String, dynamic>.from(e as Map),
+                  ),
+                )
+                .toList()
           : [],
       errors: json['errors'],
     );
@@ -76,24 +85,38 @@ class SearchRestaurantModel {
   });
 
   factory SearchRestaurantModel.fromJson(Map<String, dynamic> json) {
+    final rawOpenState = json['is_open'] ?? json['is_online'];
+    final startTime = json['start_time']?.toString();
+    final endTime = json['end_time']?.toString();
+
     return SearchRestaurantModel(
       id: json['id'] ?? json['restaurant_id'],
-      name: (json['name']?.toString() ??
-              json['restaurant_name']?.toString() ??
-              '')
-          .capitalizeWords(),
+      name:
+          (json['name']?.toString() ??
+                  json['restaurant_name']?.toString() ??
+                  '')
+              .capitalizeWords(),
       image: json['image']?.toString() ?? json['banner']?.toString(),
-      cuisine: (json['cuisine']?.toString() ?? json['description']?.toString())
-          ?.capitalizeWords(),
-      deliveryTime: json['delivery_time']?.toString() ??
-          json['estimated_time']?.toString(),
-      distance: json['distance']?.toString(),
+      cuisine:
+          (json['cuisine']?.toString() ??
+                  json['restaurant_type']?.toString() ??
+                  json['description']?.toString())
+              ?.capitalizeWords(),
+      deliveryTime:
+          json['delivery_time']?.toString() ??
+          json['estimated_time']?.toString() ??
+          json['food_preparation_time']?.toString(),
+      distance: json['distance']?.toString() ?? json['distance_km']?.toString(),
       openingTime:
-          json['opening_time']?.toString() ?? json['timing']?.toString(),
-      isOpen: json['is_open'] is bool
-          ? json['is_open']
-          : (json['is_open']?.toString() == '1' ||
-              json['is_open']?.toString() == 'true'),
+          json['opening_time']?.toString() ??
+          json['timing']?.toString() ??
+          (startTime != null && endTime != null
+              ? '$startTime - $endTime'
+              : startTime),
+      isOpen: rawOpenState is bool
+          ? rawOpenState
+          : (rawOpenState?.toString() == '1' ||
+                rawOpenState?.toString().toLowerCase() == 'true'),
     );
   }
 
@@ -117,6 +140,10 @@ class SearchDishModel {
   final String? description;
   final String? image;
   final double price;
+  final double oldPrice;
+  final String type;
+  final bool isVeg;
+  final dynamic categoryId;
   final dynamic restaurantId;
   final String? restaurantName;
 
@@ -126,25 +153,64 @@ class SearchDishModel {
     this.description,
     this.image,
     this.price = 0.0,
+    this.oldPrice = 0.0,
+    this.type = 'Veg',
+    this.isVeg = true,
+    this.categoryId,
     this.restaurantId,
     this.restaurantName,
   });
 
   factory SearchDishModel.fromJson(Map<String, dynamic> json) {
+    final rawName =
+        (json['name']?.toString() ??
+                json['dish_name']?.toString() ??
+                json['product_name']?.toString() ??
+                '')
+            .capitalizeWords();
+    final rawPrice =
+        json['sell_price'] ??
+        json['price'] ??
+        json['new_price'] ??
+        json['offer_price'];
+    final rawOldPrice =
+        json['mrp'] ?? json['old_price'] ?? json['original_price'] ?? rawPrice;
+    final price = rawPrice is num
+        ? rawPrice.toDouble()
+        : double.tryParse(rawPrice?.toString() ?? '0') ?? 0.0;
+    final oldPrice = rawOldPrice is num
+        ? rawOldPrice.toDouble()
+        : double.tryParse(rawOldPrice?.toString() ?? '0') ?? price;
+    final isVeg = FoodTypeHelper.determineIsVeg(
+      foodType: json['food_type'],
+      isVeg: json['is_veg'],
+      vegStatus: json['veg_status'],
+      type: json['type']?.toString(),
+      productName: rawName,
+    );
+
     return SearchDishModel(
       id: json['id'] ?? json['dish_id'] ?? json['product_id'],
-      name: (json['name']?.toString() ??
-              json['dish_name']?.toString() ??
-              json['product_name']?.toString() ??
-              '')
-          .capitalizeWords(),
-      description: json['description']?.toString().capitalizeFirstLetterOrNull(),
+      name: rawName,
+      description: json['description']
+          ?.toString()
+          .capitalizeFirstLetterOrNull(),
       image: json['image']?.toString(),
-      price: json['price'] is num
-          ? (json['price'] as num).toDouble()
-          : double.tryParse(json['price']?.toString() ?? '0') ?? 0.0,
+      price: price > 0 ? price : oldPrice,
+      oldPrice: oldPrice > 0 ? oldPrice : price,
+      type: FoodTypeHelper.determineType(
+        foodType: json['food_type'],
+        isVeg: json['is_veg'],
+        vegStatus: json['veg_status'],
+        type: json['type']?.toString(),
+        productName: rawName,
+      ).capitalizeWords(),
+      isVeg: isVeg,
+      categoryId: json['category_id'],
       restaurantId: json['restaurant_id'],
-      restaurantName: json['restaurant_name']?.toString().capitalizeWordsOrNull(),
+      restaurantName: json['restaurant_name']
+          ?.toString()
+          .capitalizeWordsOrNull(),
     );
   }
 
@@ -155,6 +221,10 @@ class SearchDishModel {
       'description': description,
       'image': image,
       'price': price,
+      'old_price': oldPrice,
+      'type': type,
+      'is_veg': isVeg,
+      'category_id': categoryId,
       'restaurant_id': restaurantId,
       'restaurant_name': restaurantName,
     };
@@ -166,28 +236,19 @@ class SearchCategoryModel {
   final String name;
   final String? image;
 
-  SearchCategoryModel({
-    this.id,
-    required this.name,
-    this.image,
-  });
+  SearchCategoryModel({this.id, required this.name, this.image});
 
   factory SearchCategoryModel.fromJson(Map<String, dynamic> json) {
     return SearchCategoryModel(
       id: json['id'] ?? json['category_id'],
-      name: (json['name']?.toString() ??
-              json['category_name']?.toString() ??
-              '')
-          .capitalizeWords(),
+      name:
+          (json['name']?.toString() ?? json['category_name']?.toString() ?? '')
+              .capitalizeWords(),
       image: json['image']?.toString() ?? json['icon']?.toString(),
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'image': image,
-    };
+    return {'id': id, 'name': name, 'image': image};
   }
 }
