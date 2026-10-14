@@ -11,12 +11,15 @@ import 'package:kayal_userapp/presentation/controller/home_controller.dart';
 class PopularNearYouController extends GetxController {
   final PopularRestaurantsUseCase _popularRestaurantsUseCase;
 
-  PopularNearYouController({PopularRestaurantsUseCase? popularRestaurantsUseCase})
-      : _popularRestaurantsUseCase = popularRestaurantsUseCase ??
-            (sl.isRegistered<PopularRestaurantsUseCase>()
-                ? sl<PopularRestaurantsUseCase>()
-                : PopularRestaurantsUseCase(
-                    PopularRestaurantsRepositoryImpl(ApiService())));
+  PopularNearYouController({
+    PopularRestaurantsUseCase? popularRestaurantsUseCase,
+  }) : _popularRestaurantsUseCase =
+           popularRestaurantsUseCase ??
+           (sl.isRegistered<PopularRestaurantsUseCase>()
+               ? sl<PopularRestaurantsUseCase>()
+               : PopularRestaurantsUseCase(
+                   PopularRestaurantsRepositoryImpl(ApiService()),
+                 ));
 
   final radiusText = 'Showing Restaurants within 700M'.obs;
   final RxBool isLoading = false.obs;
@@ -68,7 +71,6 @@ class PopularNearYouController extends GetxController {
         'restaurant': restaurant,
         'restaurantId': restaurant.id,
         'category': restaurant.name,
-        'categoryId': 1,
         'isClosed': !restaurant.isOpen,
         'notes': !restaurant.isOpen
             ? 'This restaurant is currently unavailable.\n${restaurant.openingTime}'

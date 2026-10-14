@@ -1,7 +1,6 @@
 import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
 
 class CategoriesResponseModel {
-
   final bool success;
   final String message;
   final List<CategoryModel> data;
@@ -82,6 +81,7 @@ class CategoriesResponseModel {
 
 class CategoryModel {
   final dynamic id;
+  final List<dynamic> categoryIds;
   final String name;
   final String? image;
   final String? description;
@@ -91,6 +91,7 @@ class CategoryModel {
 
   CategoryModel({
     this.id,
+    this.categoryIds = const [],
     required this.name,
     this.image,
     this.description,
@@ -100,8 +101,19 @@ class CategoryModel {
   });
 
   factory CategoryModel.fromJson(Map<String, dynamic> json) {
+    final ids = json['category_ids'] is List
+        ? List<dynamic>.from(json['category_ids'] as List)
+        : <dynamic>[];
     return CategoryModel(
-      id: json['id'] ?? json['category_id'],
+      id:
+          json['id'] ??
+          json['category_id'] ??
+          (ids.isNotEmpty ? ids.first : null),
+      categoryIds: ids.isNotEmpty
+          ? ids
+          : (json['id'] ?? json['category_id']) != null
+          ? [json['id'] ?? json['category_id']]
+          : const [],
       name:
           (json['name']?.toString() ?? json['category_name']?.toString() ?? '')
               .capitalizeWords(),
@@ -110,7 +122,9 @@ class CategoryModel {
           json['image_url']?.toString() ??
           json['icon']?.toString() ??
           json['banner']?.toString(),
-      description: json['description']?.toString().capitalizeFirstLetterOrNull(),
+      description: json['description']
+          ?.toString()
+          .capitalizeFirstLetterOrNull(),
       status: json['status'] ?? json['is_active'],
       createdAt: json['created_at']?.toString(),
       updatedAt: json['updated_at']?.toString(),
@@ -120,6 +134,7 @@ class CategoryModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'category_ids': categoryIds,
       'name': name,
       'image': image,
       'description': description,
