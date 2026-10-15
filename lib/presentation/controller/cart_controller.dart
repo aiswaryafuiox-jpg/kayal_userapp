@@ -312,6 +312,9 @@ class CartController extends GetxController {
 
   int get cartCount => cartItems.length;
 
+  int get totalQuantity =>
+      cartItems.fold(0, (sum, item) => sum + item.quantity.value);
+
   double get totalAmount {
     if (cartData.value != null && cartData.value!.totalAmount > 0) {
       return cartData.value!.totalAmount;

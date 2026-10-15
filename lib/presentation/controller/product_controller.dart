@@ -55,6 +55,82 @@ class ProductController extends GetxController {
   dynamic categoryId;
   dynamic restaurantId;
 
+  final TextEditingController searchController = TextEditingController();
+  final RxString searchQuery = ''.obs;
+  final RxString selectedSort = 'Popularity'.obs;
+  final RxString selectedDietary = ''.obs;
+
+  void onSearchChanged(String query) {
+    searchQuery.value = query;
+  }
+
+  void clearSearch() {
+    searchController.clear();
+    searchQuery.value = '';
+  }
+
+  void setSort(String sort) {
+    selectedSort.value = sort;
+  }
+
+  void toggleDietary(String type) {
+    if (selectedDietary.value == type) {
+      selectedDietary.value = '';
+    } else {
+      selectedDietary.value = type;
+    }
+  }
+
+  bool get hasActiveFilters =>
+      searchQuery.value.trim().isNotEmpty ||
+      selectedDietary.value.isNotEmpty ||
+      selectedSort.value != 'Popularity';
+
+  void resetFilters() {
+    clearSearch();
+    selectedDietary.value = '';
+    selectedSort.value = 'Popularity';
+  }
+
+  List<ProductModel> get filteredProducts {
+    List<ProductModel> list = List.from(products);
+
+    final query = searchQuery.value.trim().toLowerCase();
+    if (query.isNotEmpty) {
+      list = list.where((p) {
+        return p.name.toLowerCase().contains(query) ||
+            p.type.toLowerCase().contains(query);
+      }).toList();
+    }
+
+    if (selectedDietary.value == 'Veg') {
+      list = list.where((p) => p.isVeg).toList();
+    } else if (selectedDietary.value == 'Non-Veg') {
+      list = list.where((p) => !p.isVeg).toList();
+    }
+
+    switch (selectedSort.value) {
+      case 'Price : Low --> High':
+        list.sort((a, b) => a.newPrice.compareTo(b.newPrice));
+        break;
+      case 'Price : High --> Low':
+        list.sort((a, b) => b.newPrice.compareTo(a.newPrice));
+        break;
+      case 'Ratings':
+      case 'Popularity':
+      default:
+        break;
+    }
+
+    return list;
+  }
+
+  @override
+  void onClose() {
+    searchController.dispose();
+    super.onClose();
+  }
+
   @override
   void onInit() {
     super.onInit();

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="640" viewBox="0 0 512 640" fill="none">
+  <title>Empty wishlist illustration</title>
+  <desc>A clipboard with heart-shaped wishlist items, green leaves, and a coral heart on a transparent background.</desc>
+  <defs>
+    <linearGradient id="mint" x1="104" y1="180" x2="399" y2="404" gradientUnits="userSpaceOnUse"><stop stop-color="#DFF4EA"/><stop offset="1" stop-color="#C7EBDD"/></linearGradient>
+    <linearGradient id="paper" x1="159" y1="165" x2="340" y2="453" gradientUnits="userSpaceOnUse"><stop stop-color="#FFFEFC"/><stop offset="1" stop-color="#F8F5F0"/></linearGradient>
+    <linearGradient id="green" x1="96" y1="329" x2="177" y2="463" gradientUnits="userSpaceOnUse"><stop stop-color="#359A79"/><stop offset="1" stop-color="#16785E"/></linearGradient>
+    <linearGradient id="clip" x1="217" y1="95" x2="286" y2="151" gradientUnits="userSpaceOnUse"><stop stop-color="#258665"/><stop offset="1" stop-color="#176B53"/></linearGradient>
+    <linearGradient id="coral" x1="343" y1="365" x2="410" y2="468" gradientUnits="userSpaceOnUse"><stop stop-color="#FF7658"/><stop offset="1" stop-color="#F0442C"/></linearGradient>
+    <linearGradient id="line" x1="230" y1="204" x2="320" y2="211" gradientUnits="userSpaceOnUse"><stop stop-color="#B6C3D0"/><stop offset="1" stop-color="#A6B5C5"/></linearGradient>
+  </defs>
+  <!-- soft organic backdrop -->
+  <path d="M117 363C94 322 110 264 143 222C164 195 194 180 226 186C249 143 291 133 327 152C368 173 390 214 388 258C386 300 413 327 397 365C381 405 337 427 287 422L161 427C132 422 116 396 117 363Z" fill="url(#mint)"/>
+  <!-- leaves -->
+  <path d="M172 463C139 432 109 400 87 359C119 360 145 383 158 412C160 388 161 365 174 344C194 382 193 425 184 456L172 463Z" fill="url(#green)"/>
+  <path d="M169 459C138 446 111 437 84 416C115 405 144 420 169 459Z" fill="#2E9675"/>
+  <path d="M170 460C151 426 136 396 126 370" stroke="#176F58" stroke-width="3" stroke-linecap="round" opacity=".45"/>
+  <!-- clipboard paper -->
+  <path d="M163 187L322 169C334 168 344 176 346 189L375 432C377 445 369 454 357 456L179 474C167 475 158 467 157 455L137 211C136 199 149 189 163 187Z" fill="#9AD9C4" opacity=".45"/>
+  <path d="M153 190L311 173C324 172 334 180 336 193L363 428C365 440 357 449 345 451L176 466C164 467 155 459 154 447L132 214C131 202 140 192 153 190Z" fill="url(#paper)"/>
+  <!-- clipboard clip -->
+  <path d="M217 135C217 118 229 105 245 105C261 105 273 118 273 135V143H290C300 143 307 150 307 160V166C307 176 299 182 289 182H202C192 182 185 176 185 166V160C185 150 192 143 202 143H217V135Z" fill="url(#clip)"/>
+  <circle cx="245" cy="134" r="8" fill="#F9FBF9"/>
+  <!-- wishlist rows -->
+  <g stroke="#8C9BAB" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M163 229C155 220 143 226 146 237C148 245 163 255 163 255S179 243 179 235C179 224 168 221 163 229Z"/>
+    <path d="M195 225L273 217M197 241L244 236" stroke="url(#line)" stroke-width="6"/>
+    <path d="M168 294C160 285 148 291 151 302C153 310 168 320 168 320S184 308 184 300C184 289 173 286 168 294Z"/>
+    <path d="M202 290L282 282M204 306L252 301" stroke="url(#line)" stroke-width="6"/>
+    <path d="M173 359C165 350 153 356 156 367C158 375 173 385 173 385S189 373 189 365C189 354 178 351 173 359Z"/>
+    <path d="M207 355L267 349M209 371L248 367" stroke="url(#line)" stroke-width="6"/>
+  </g>
+  <!-- ground shadow -->
+  <ellipse cx="256" cy="474" rx="183" ry="15" fill="#D7E4E8" opacity=".8"/>
+  <!-- prominent heart -->
+  <path d="M352 467C338 454 316 440 317 416C318 395 334 383 351 387C364 390 372 401 376 411C385 396 399 389 413 395C432 403 436 425 425 444C414 463 390 480 379 489C372 494 364 487 352 467Z" fill="#F24A32" opacity=".18"/>
+  <path d="M355 461C341 449 324 432 325 412C326 394 340 383 355 388C367 392 374 403 377 412C386 398 399 392 412 398C430 406 433 426 423 444C412 463 391 478 380 487C373 492 366 482 355 461Z" fill="url(#coral)"/>
+  <path d="M342 411C345 402 352 399 359 398" stroke="#FF9A7C" stroke-width="6" stroke-linecap="round" opacity=".55"/>
+  <path d="M425 382L430 368M448 395L460 386M439 414L452 414" stroke="#F45B3D" stroke-width="5" stroke-linecap="round"/>
+  <!-- caption -->
+  <text x="256" y="548" text-anchor="middle" fill="#526579" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="600">Your wishlist is empty</text>
+</svg>
