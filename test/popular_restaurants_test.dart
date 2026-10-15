@@ -44,11 +44,11 @@ void main() {
     final restaurant = model.data.first;
     expect(restaurant.id, 2);
     expect(restaurant.restaurantId, 'RST0002');
-    expect(restaurant.name, 'faghja');
+    expect(restaurant.name, 'Faghja');
     expect(restaurant.isOpen, isTrue);
     expect(restaurant.freeDelivery, isFalse);
     expect(restaurant.openingTime, '03:09 PM - 03:09 PM');
-    expect(restaurant.cuisine, 'pizza Special');
+    expect(restaurant.cuisine, 'Pizza Special');
     expect(restaurant.image, contains('8WVsi4trcFw0XVMq4Y4w7Uvd7PrGdbGteXKjjM4V.jpg'));
   });
 }

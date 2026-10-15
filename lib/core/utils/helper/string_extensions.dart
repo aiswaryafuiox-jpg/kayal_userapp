@@ -9,14 +9,21 @@ extension StringCasingExtension on String {
   /// Capitalizes the first letter of each word in a string (e.g. "special dishes" -> "Special Dishes", "non-veg" -> "Non-Veg")
   String capitalizeWords() {
     if (trim().isEmpty) return this;
+    const preserveUpper = {'OFF', 'AM', 'PM', 'OTP', 'ID', 'GST'};
     return split(RegExp(r'\s+'))
         .map((word) {
           if (word.isEmpty) return '';
+          final upper = word.toUpperCase();
+          if (preserveUpper.contains(upper)) {
+            return upper;
+          }
           if (word.contains('-')) {
             return word
                 .split('-')
                 .map((sub) {
                   if (sub.isEmpty) return '';
+                  final subUpper = sub.toUpperCase();
+                  if (preserveUpper.contains(subUpper)) return subUpper;
                   return sub[0].toUpperCase() +
                       (sub.length > 1 ? sub.substring(1).toLowerCase() : '');
                 })
