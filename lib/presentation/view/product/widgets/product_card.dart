@@ -9,11 +9,13 @@ import 'package:kayal_userapp/presentation/controller/product_controller.dart';
 class ProductCard extends StatelessWidget {
   final ProductModel product;
   final ProductController controller;
+  final bool isRestaurantClosed;
 
   const ProductCard({
     super.key,
     required this.product,
     required this.controller,
+    required this.isRestaurantClosed,
   });
 
   String _resolveImageUrl(String path) {
@@ -29,10 +31,10 @@ class ProductCard extends StatelessWidget {
     final resolvedImage = _resolveImageUrl(product.image);
 
     return GestureDetector(
-      onTap: () => Get.toNamed(AppRoutes.productDetail, arguments: {
-        'product': product,
-        'isClosed': isClosed,
-      }),
+      onTap: () => Get.toNamed(
+        AppRoutes.productDetail,
+        arguments: {'product': product, 'isClosed': isClosed},
+      ),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -59,7 +61,8 @@ class ProductCard extends StatelessWidget {
                     ),
                     child: Opacity(
                       opacity: isClosed ? 0.45 : 1.0,
-                      child: resolvedImage.startsWith('http://') ||
+                      child:
+                          resolvedImage.startsWith('http://') ||
                               resolvedImage.startsWith('https://')
                           ? Image.network(
                               resolvedImage,
@@ -212,59 +215,100 @@ class ProductCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 4),
-                      Obx(
-                        () {
-                          final count = controller.getQuantity(product);
-                          return Container(
-                            height: 32,
-                            decoration: BoxDecoration(
-                              color: isClosed
-                                  ? const Color(0xFFFFB58F)
-                                  : const Color(0xFFFF823E),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                GestureDetector(
-                                  behavior: HitTestBehavior.opaque,
-                                  onTap: () => controller.decrementQuantity(product),
-                                  child: const Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 8),
-                                    child: Icon(
-                                      Icons.remove,
-                                      color: Colors.white,
-                                      size: 16,
+                      Obx(() {
+                        final count = controller.getQuantity(product);
+
+                        if (count == 0) {
+                          return Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () =>
+                                  controller.incrementQuantity(product),
+                              child: Ink(
+                                height: 32,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isClosed
+                                      ? const Color(0xFFFFB58F)
+                                      : const Color(0xFFFF823E),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'ADD',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white,
+                                        letterSpacing: 0.5,
+                                      ),
                                     ),
-                                  ),
-                                ),
-                                Text(
-                                  '$count',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                GestureDetector(
-                                  behavior: HitTestBehavior.opaque,
-                                  onTap: () => controller.incrementQuantity(product),
-                                  child: const Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 8),
-                                    child: Icon(
+                                    const SizedBox(width: 3),
+                                    const Icon(
                                       Icons.add,
                                       color: Colors.white,
-                                      size: 16,
+                                      size: 14,
                                     ),
-                                  ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
                           );
-                        },
-                      ),
+                        }
+                        return Container(
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: isClosed
+                                ? const Color(0xFFFFB58F)
+                                : const Color(0xFFFF823E),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () =>
+                                    controller.decrementQuantity(product),
+                                child: const Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 8),
+                                  child: Icon(
+                                    Icons.remove,
+                                    color: Colors.white,
+                                    size: 16,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                '$count',
+                                style: GoogleFonts.inter(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () =>
+                                    controller.incrementQuantity(product),
+                                child: const Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 8),
+                                  child: Icon(
+                                    Icons.add,
+                                    color: Colors.white,
+                                    size: 16,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
                     ],
                   ),
                 ],

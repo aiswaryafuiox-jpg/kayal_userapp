@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:kayal_userapp/core/const/app_images.dart';
-import 'package:kayal_userapp/presentation/controller/cart_controller.dart';
 import 'package:kayal_userapp/presentation/controller/product_controller.dart';
 import 'package:kayal_userapp/presentation/view/product/widgets/product_card.dart';
+import 'package:kayal_userapp/presentation/view/product/widgets/product_filter_section.dart';
+import 'package:kayal_userapp/presentation/view/product/widgets/restaurant_details_card.dart';
 import 'package:kayal_userapp/presentation/widgets/app_bar.dart';
 import 'package:kayal_userapp/presentation/widgets/restaurant_unavailable_banner.dart';
+import 'package:kayal_userapp/presentation/widgets/view_cart_bottom_bar.dart';
 
 class ProductScreen extends StatefulWidget {
   const ProductScreen({super.key});
@@ -43,177 +43,171 @@ class _ProductScreenState extends State<ProductScreen> {
           () => CustomAppBar(
             title: controller.title.value,
             showBackButton: true,
-            actions: [
-              Padding(
-                padding: const EdgeInsets.only(right: 16),
-                child: Center(
-                  child: GestureDetector(
-                    onTap: controller.viewCart,
-                    child: Container(
-                      width: 42,
-                      height: 42,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFFF823E),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Obx(() {
-                        int count = 0;
-                        if (Get.isRegistered<CartController>()) {
-                          final cartController = Get.find<CartController>();
-                          count = cartController.cartItems.length;
-                        }
-                        return Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            SvgPicture.asset(
-                              carticon,
-                              width: 22,
-                              height: 22,
-                              colorFilter: const ColorFilter.mode(
-                                Colors.white,
-                                BlendMode.srcIn,
-                              ),
-                            ),
-                            if (count > 0)
-                              Positioned(
-                                right: 6,
-                                top: 4,
-                                child: Container(
-                                  padding: const EdgeInsets.all(2),
-                                  constraints: const BoxConstraints(
-                                    minWidth: 16,
-                                    minHeight: 16,
-                                  ),
-                                  decoration: const BoxDecoration(
-                                    color: Colors.white,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      '$count',
-                                      style: GoogleFonts.inter(
-                                        color: const Color(0xFFFF823E),
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w800,
-                                        height: 1.0,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        );
-                      }),
-                    ),
-                  ),
-                ),
-              ),
-            ],
           ),
         ),
       ),
+      bottomNavigationBar: const ViewCartBottomBar(),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            children: [
-              Obx(
-                () => controller.isRestaurantClosed.value
-                    ? Padding(
-                        padding: const EdgeInsets.only(top: 12),
-                        child: RestaurantUnavailableBanner(
-                          notes: controller.closedNotes.value,
-                        ),
-                      )
-                    : const SizedBox.shrink(),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: RefreshIndicator(
-                  color: const Color(0xFFFF823E),
-                  onRefresh: controller.refreshProducts,
+        child: RefreshIndicator(
+          color: const Color(0xFFFF823E),
+          onRefresh: controller.refreshProducts,
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
+            slivers: [
+              // Restaurant Details Card
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Obx(() {
-                    if (controller.isLoading.value &&
-                        controller.products.isEmpty) {
-                      return const Center(
-                        child: CircularProgressIndicator(
-                          color: Color(0xFFFF823E),
-                        ),
-                      );
-                    }
-
-                    if (controller.products.isEmpty) {
-                      return ListView(
-                        physics: const AlwaysScrollableScrollPhysics(
-                          parent: BouncingScrollPhysics(),
-                        ),
-                        children: [
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.25,
-                          ),
-                          Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  width: 72,
-                                  height: 72,
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFFFFECE0),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.fastfood_outlined,
-                                    size: 36,
-                                    color: Color(0xFFFF823E),
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'No Data',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w700,
-                                    color: const Color(0xFF252B35),
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  'No products found',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 13,
-                                    color: const Color(0xFF6B7280),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      );
-                    }
-
-                    return GridView.builder(
-                      physics: const AlwaysScrollableScrollPhysics(
-                        parent: BouncingScrollPhysics(),
+                    final restaurant = controller.restaurantItem.value;
+                    if (restaurant == null) return const SizedBox.shrink();
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: RestaurantDetailsCard(
+                        restaurant: restaurant,
+                        isClosed: controller.isRestaurantClosed.value,
                       ),
-                      itemCount: controller.products.length,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                        childAspectRatio: 0.70,
-                      ),
-                      itemBuilder: (context, index) {
-                        return ProductCard(
-                          product: controller.products[index],
-                          controller: controller,
-                        );
-                      },
                     );
                   }),
                 ),
               ),
+
+              // Restaurant Unavailable Banner (if closed)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Obx(
+                    () => controller.isRestaurantClosed.value
+                        ? Padding(
+                            padding: const EdgeInsets.only(top: 12),
+                            child: RestaurantUnavailableBanner(
+                              notes: controller.closedNotes.value,
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+                ),
+              ),
+
+              // Filter Section (Search, Quick Filter Chips & Count)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 14, 24, 12),
+                  child: ProductFilterSection(controller: controller),
+                ),
+              ),
+
+              // Products Content (Loading, Empty state, or Grid)
+              Obx(() {
+                if (controller.isLoading.value && controller.products.isEmpty) {
+                  return const SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFFFF823E),
+                      ),
+                    ),
+                  );
+                }
+
+                final items = controller.filteredProducts;
+
+                if (items.isEmpty) {
+                  final bool isFilterEmpty =
+                      controller.products.isNotEmpty &&
+                      controller.hasActiveFilters;
+
+                  return SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 72,
+                              height: 72,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFFFECE0),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                isFilterEmpty
+                                    ? Icons.filter_alt_off_outlined
+                                    : Icons.fastfood_outlined,
+                                size: 36,
+                                color: const Color(0xFFFF823E),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              isFilterEmpty ? 'No Matching Dishes' : 'No Data',
+                              style: GoogleFonts.inter(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                color: const Color(0xFF252B35),
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              isFilterEmpty
+                                  ? 'No dishes match your selected filter criteria.'
+                                  : 'No products found',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.inter(
+                                fontSize: 13,
+                                color: const Color(0xFF6B7280),
+                              ),
+                            ),
+                            if (isFilterEmpty) ...[
+                              const SizedBox(height: 16),
+                              TextButton.icon(
+                                onPressed: controller.resetFilters,
+                                icon: const Icon(
+                                  Icons.refresh_rounded,
+                                  size: 18,
+                                  color: Color(0xFFFF823E),
+                                ),
+                                label: Text(
+                                  'Clear All Filters',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: const Color(0xFFFF823E),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                return SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
+                  sliver: SliverGrid(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          childAspectRatio: 0.70,
+                        ),
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      return ProductCard(
+                        product: items[index],
+                        controller: controller,
+                        isRestaurantClosed: controller.isRestaurantClosed.value,
+                      );
+                    }, childCount: items.length),
+                  ),
+                );
+              }),
             ],
           ),
         ),

@@ -48,12 +48,89 @@ class ProductController extends GetxController {
 
   final products = <ProductModel>[].obs;
   final RxBool isLoading = false.obs;
+  final Rxn<RestaurantItem> restaurantItem = Rxn<RestaurantItem>();
   final isRestaurantClosed = false.obs;
   final closedNotes =
       'This restaurant is currently unavailable.\nOpens today at 10:00 AM'.obs;
   final title = 'Product List'.obs;
   dynamic categoryId;
   dynamic restaurantId;
+
+  final TextEditingController searchController = TextEditingController();
+  final RxString searchQuery = ''.obs;
+  final RxString selectedSort = 'Popularity'.obs;
+  final RxString selectedDietary = ''.obs;
+
+  void onSearchChanged(String query) {
+    searchQuery.value = query;
+  }
+
+  void clearSearch() {
+    searchController.clear();
+    searchQuery.value = '';
+  }
+
+  void setSort(String sort) {
+    selectedSort.value = sort;
+  }
+
+  void toggleDietary(String type) {
+    if (selectedDietary.value == type) {
+      selectedDietary.value = '';
+    } else {
+      selectedDietary.value = type;
+    }
+  }
+
+  bool get hasActiveFilters =>
+      searchQuery.value.trim().isNotEmpty ||
+      selectedDietary.value.isNotEmpty ||
+      selectedSort.value != 'Popularity';
+
+  void resetFilters() {
+    clearSearch();
+    selectedDietary.value = '';
+    selectedSort.value = 'Popularity';
+  }
+
+  List<ProductModel> get filteredProducts {
+    List<ProductModel> list = List.from(products);
+
+    final query = searchQuery.value.trim().toLowerCase();
+    if (query.isNotEmpty) {
+      list = list.where((p) {
+        return p.name.toLowerCase().contains(query) ||
+            p.type.toLowerCase().contains(query);
+      }).toList();
+    }
+
+    if (selectedDietary.value == 'Veg') {
+      list = list.where((p) => p.isVeg).toList();
+    } else if (selectedDietary.value == 'Non-Veg') {
+      list = list.where((p) => !p.isVeg).toList();
+    }
+
+    switch (selectedSort.value) {
+      case 'Price : Low --> High':
+        list.sort((a, b) => a.newPrice.compareTo(b.newPrice));
+        break;
+      case 'Price : High --> Low':
+        list.sort((a, b) => b.newPrice.compareTo(a.newPrice));
+        break;
+      case 'Ratings':
+      case 'Popularity':
+      default:
+        break;
+    }
+
+    return list;
+  }
+
+  @override
+  void onClose() {
+    searchController.dispose();
+    super.onClose();
+  }
 
   @override
   void onInit() {
@@ -68,6 +145,7 @@ class ProductController extends GetxController {
       final oldRestId = restaurantId;
 
       if (currentArgs is RestaurantItem) {
+        restaurantItem.value = currentArgs;
         title.value = currentArgs.name.capitalizeWords();
         isRestaurantClosed.value = !currentArgs.isOpen;
         if (!currentArgs.isOpen) {
@@ -82,6 +160,7 @@ class ProductController extends GetxController {
         if (currentArgs['restaurant'] != null &&
             currentArgs['restaurant'] is RestaurantItem) {
           final RestaurantItem r = currentArgs['restaurant'];
+          restaurantItem.value = r;
           title.value = r.name.capitalizeWords();
           restaurantId = r.id;
           isRestaurantClosed.value = !r.isOpen;
@@ -97,6 +176,7 @@ class ProductController extends GetxController {
           }
           if (r['id'] != null) restaurantId = r['id'];
         } else if (currentArgs['category'] != null) {
+          restaurantItem.value = null;
           title.value =
               '${currentArgs['category'].toString().capitalizeWords()} List';
         }
@@ -356,7 +436,7 @@ class ProductController extends GetxController {
         (item) => item.id == product.id || item.name == product.name,
       );
       if (cartItem != null) {
-        return cartItem.quantity.value;
+        return cartItem.qty;
       }
     }
     return 0;

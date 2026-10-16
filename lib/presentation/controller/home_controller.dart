@@ -95,9 +95,25 @@ class HomeController extends GetxController with WidgetsBindingObserver {
   // ==============================
 
   final selectedBottomIndex = 0.obs;
+  final isBottomNavVisible = true.obs;
+  final isBottomNavFullyHidden = false.obs;
   final pageController = PageController();
 
+  void hideBottomNav() {
+    if (isBottomNavVisible.value) {
+      isBottomNavVisible.value = false;
+    }
+  }
+
+  void showBottomNav() {
+    isBottomNavFullyHidden.value = false;
+    if (!isBottomNavVisible.value) {
+      isBottomNavVisible.value = true;
+    }
+  }
+
   Future<void> changeBottomIndex(int index) async {
+    showBottomNav();
     if (selectedBottomIndex.value == index) return;
 
     selectedBottomIndex.value = index;
@@ -459,6 +475,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
                 distance: item.distance ?? '2.8 Km',
                 openingTime: item.openingTime ?? '10:00 Am - 11:00 Pm',
                 isOpen: item.isOpen,
+                rating: item.rating ?? '4.2',
               ),
             )
             .toList();
@@ -645,6 +662,7 @@ class RestaurantItem {
   final String distance;
   final String openingTime;
   final bool isOpen;
+  final dynamic rating;
 
   RestaurantItem({
     this.id,
@@ -655,5 +673,6 @@ class RestaurantItem {
     required this.distance,
     required this.openingTime,
     required this.isOpen,
+    this.rating = '4.2',
   });
 }

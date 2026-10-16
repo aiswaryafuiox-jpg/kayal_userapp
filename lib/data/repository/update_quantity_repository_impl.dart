@@ -1,11 +1,13 @@
 import 'package:dio/dio.dart';
 import 'package:kayal_userapp/core/const/api_routes.dart';
 import 'package:kayal_userapp/core/service/api_service.dart';
+import 'package:kayal_userapp/core/service/local_storage_service.dart';
 import 'package:kayal_userapp/data/model/update_quantity_response_model.dart';
 import 'package:kayal_userapp/domain/repository/update_quantity_repository.dart';
 
 class UpdateQuantityRepositoryImpl implements UpdateQuantityRepository {
   final ApiService _apiService;
+  final LocalStorageService _storage = LocalStorageService();
 
   UpdateQuantityRepositoryImpl(this._apiService);
 
@@ -17,12 +19,17 @@ class UpdateQuantityRepositoryImpl implements UpdateQuantityRepository {
     try {
       final endpoint = '${ApiRoutes.updateQuantity}/$cartId';
       final int parsedQuantity = (int.tryParse(quantity.toString()) ?? 1).clamp(0, 999);
+      final session = _storage.getOrCreateSessionId();
 
       final response = await _apiService.post(
         endpoint,
         useFormData: true,
         data: {
           'quantity': parsedQuantity.toString(),
+          'session_id': session,
+        },
+        queryParameters: {
+          'session_id': session,
         },
       );
 

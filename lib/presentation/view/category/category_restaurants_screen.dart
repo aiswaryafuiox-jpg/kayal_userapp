@@ -8,6 +8,7 @@ import 'package:kayal_userapp/presentation/controller/category_restaurants_contr
 import 'package:kayal_userapp/presentation/view/home/widgets/restaurant_card.dart';
 import 'package:kayal_userapp/presentation/widgets/app_bar.dart';
 import 'package:kayal_userapp/presentation/widgets/restaurant_unavailable_banner.dart';
+import 'package:kayal_userapp/presentation/widgets/view_cart_bottom_bar.dart';
 
 class CategoryRestaurantsScreen extends StatefulWidget {
   const CategoryRestaurantsScreen({super.key});
@@ -333,6 +334,7 @@ class _CategoryRestaurantsScreenState
           ],
         ),
       ),
+      bottomNavigationBar: const ViewCartBottomBar(),
     );
   }
 }

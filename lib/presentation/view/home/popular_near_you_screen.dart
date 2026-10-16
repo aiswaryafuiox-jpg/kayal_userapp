@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:kayal_userapp/presentation/controller/popular_near_you_controller.dart';
 import 'package:kayal_userapp/presentation/view/home/widgets/restaurant_card.dart';
 import 'package:kayal_userapp/presentation/widgets/app_bar.dart';
+import 'package:kayal_userapp/presentation/widgets/view_cart_bottom_bar.dart';
 
 class PopularNearYouScreen extends StatelessWidget {
   PopularNearYouScreen({super.key});
@@ -121,6 +122,7 @@ class PopularNearYouScreen extends StatelessWidget {
           ],
         ),
       ),
+      bottomNavigationBar: const ViewCartBottomBar(),
     );
   }
 }

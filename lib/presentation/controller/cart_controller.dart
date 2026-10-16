@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:kayal_userapp/core/const/app_images.dart';
 import 'package:kayal_userapp/core/di/service_locator.dart';
 import 'package:kayal_userapp/core/service/api_service.dart';
 import 'package:kayal_userapp/core/service/local_storage_service.dart';
@@ -21,30 +20,9 @@ import 'package:kayal_userapp/domain/usecase/clear_cart_usecase.dart';
 import 'package:kayal_userapp/domain/usecase/get_cart_usecase.dart';
 import 'package:kayal_userapp/domain/usecase/remove_cart_item_usecase.dart';
 import 'package:kayal_userapp/domain/usecase/update_quantity_usecase.dart';
-
-class CartItemModel {
-  final String id;
-  final String name;
-  final String type;
-  final bool isVeg;
-  final double oldPrice;
-  final double newPrice;
-  final String discount;
-  final String image;
-  final RxInt quantity;
-
-  CartItemModel({
-    required this.id,
-    required this.name,
-    required this.type,
-    required this.isVeg,
-    required this.oldPrice,
-    required this.newPrice,
-    this.discount = '20 %',
-    required this.image,
-    int quantity = 1,
-  }) : quantity = quantity.obs;
-}
+// To parse this JSON data, do
+//
+//     final cartItemModel = cartItemModelFromJson(jsonString);
 
 class CartController extends GetxController {
   final AddToCartUseCase _addToCartUseCase;
@@ -89,8 +67,8 @@ class CartController extends GetxController {
                ? sl<ClearCartUseCase>()
                : ClearCartUseCase(ClearCartRepositoryImpl(ApiService())));
 
-  final cartItems = <CartItemModel>[].obs;
-  final Rxn<GetCartDataModel> cartData = Rxn<GetCartDataModel>();
+  final cartItems = <CartItem>[].obs;
+  final Rxn<GetCartData> cartData = Rxn<GetCartData>();
   final RxBool isApiLoading = false.obs;
   final RxBool isLoadingCart = false.obs;
   final RxString errorMessage = ''.obs;
@@ -119,28 +97,15 @@ class CartController extends GetxController {
 
     try {
       final response = await _getCartUseCase();
-      if (response.success && response.items.isNotEmpty) {
+      if ((response.success ?? false) &&
+          (response.data?.items?.isNotEmpty ?? false)) {
         cartData.value = response.data;
-        cartItems.assignAll(
-          response.items.map((item) {
-            return CartItemModel(
-              id: item.id.toString(),
-              name: item.name.capitalizeWords(),
-              type: item.type.capitalizeWords(),
-              isVeg: item.isVeg,
-              oldPrice: item.oldPrice,
-              newPrice: item.newPrice,
-              discount: item.discount,
-              image: item.image.isNotEmpty ? item.image : productImg3,
-              quantity: item.quantity,
-            );
-          }).toList(),
-        );
-      } else if (response.items.isEmpty) {
+        cartItems.assignAll(response.data!.items!);
+      } else if ((response.data?.items?.isEmpty ?? false)) {
         cartItems.clear();
         cartData.value = null;
       } else {
-        errorMessage.value = response.formattedErrorMessage;
+        errorMessage.value = response.message ?? "";
       }
     } catch (e) {
       debugPrint('Error fetching cart: $e');
@@ -161,31 +126,22 @@ class CartController extends GetxController {
     int quantity = 1,
   }) async {
     final index = cartItems.indexWhere(
-      (item) => item.name == name || item.id == id,
+      (item) => item.name == name || item.cartItemId == id,
     );
     if (index != -1) {
-      cartItems[index].quantity.value += quantity;
+      cartItems[index].quantity = (cartItems[index].quantity ?? 0) + quantity;
     } else {
       cartItems.add(
-        CartItemModel(
-          id: id,
+        CartItem(
+          cartItemId: id,
           name: name.capitalizeWords(),
-          type: type.capitalizeWords(),
-          isVeg: isVeg,
-          oldPrice: oldPrice,
-          newPrice: newPrice,
-          image: image,
+          sellPrice: newPrice,
+          mrp: oldPrice.toInt(),
+          imageUrl: image,
           quantity: quantity,
         ),
       );
     }
-    Get.snackbar(
-      'Cart',
-      '$name added to cart.',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: const Color(0xFFFFEBDC),
-      colorText: const Color(0xFF1F2937),
-    );
 
     try {
       isApiLoading.value = true;
@@ -248,18 +204,22 @@ class CartController extends GetxController {
 
   void incrementQuantity(int index) {
     if (index >= 0 && index < cartItems.length) {
-      cartItems[index].quantity.value++;
+      final currentQty = cartItems[index].quantity ?? 0;
+      cartItems[index].quantity = currentQty + 1;
+      cartItems.refresh();
       final item = cartItems[index];
-      updateCartQuantity(cartId: item.id, quantity: item.quantity.value);
+      updateCartQuantity(cartId: item.productId, quantity: item.qty);
     }
   }
 
   void decrementQuantity(int index) {
     if (index >= 0 && index < cartItems.length) {
-      if (cartItems[index].quantity.value > 1) {
-        cartItems[index].quantity.value--;
+      final currentQty = cartItems[index].quantity ?? 1;
+      if (currentQty > 1) {
+        cartItems[index].quantity = currentQty - 1;
+        cartItems.refresh();
         final item = cartItems[index];
-        updateCartQuantity(cartId: item.id, quantity: item.quantity.value);
+        updateCartQuantity(cartId: item.productId, quantity: item.qty);
       } else {
         removeItem(index);
       }
@@ -288,7 +248,18 @@ class CartController extends GetxController {
     if (index >= 0 && index < cartItems.length) {
       final item = cartItems[index];
       cartItems.removeAt(index);
-      await removeCartItem(cartId: item.id);
+      await removeCartItem(cartId: item.productId);
+    }
+  }
+
+  Future<void> removeItemById(dynamic id) async {
+    final index = cartItems.indexWhere(
+      (item) => item.productId.toString() == id.toString(),
+    );
+    if (index != -1) {
+      final item = cartItems[index];
+      cartItems.removeAt(index);
+      await removeCartItem(cartId: item.productId);
     }
   }
 
@@ -312,14 +283,14 @@ class CartController extends GetxController {
 
   int get cartCount => cartItems.length;
 
+  int get totalQuantity => cartItems.fold(0, (sum, item) => sum + item.qty);
+
   double get totalAmount {
-    if (cartData.value != null && cartData.value!.totalAmount > 0) {
-      return cartData.value!.totalAmount;
+    if (cartData.value?.totalAmount != null &&
+        cartData.value!.totalAmount! > 0) {
+      return cartData.value!.totalAmount!;
     }
-    return cartItems.fold(
-      0.0,
-      (sum, item) => sum + (item.newPrice * item.quantity.value),
-    );
+    return cartItems.fold(0.0, (sum, item) => sum + (item.newPrice * item.qty));
   }
 
   Future<void> proceedToCheckout() async {

@@ -35,81 +35,147 @@ class ProductDetailController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxString description = ''.obs;
   final RxString offerPercentage = ''.obs;
+  final RxString errorMessage = ''.obs;
+  String? _loadedProductId;
 
   Future<void> refreshDetails() async {
-    final dynamic id = product.value?.id ?? productDetail.value?.id;
-    if (id != null && id.toString().isNotEmpty) {
-      await fetchProductDetails(id);
+    final dynamic id =
+        product.value?.id ?? productDetail.value?.id ?? _loadedProductId;
+    if (id != null && id.toString().trim().isNotEmpty) {
+      await fetchProductDetails(id.toString().trim(), forceRefresh: true);
     }
   }
 
   @override
   void onInit() {
     super.onInit();
-    updateArguments(Get.arguments);
+    resetAndFetch(Get.arguments);
+  }
+
+  @override
+  void onClose() {
+    _loadedProductId = null;
+    productDetail.value = null;
+    product.value = null;
+    errorMessage.value = '';
+    description.value = '';
+    offerPercentage.value = '';
+    super.onClose();
+  }
+
+  void resetAndFetch([dynamic args]) {
+    final currentArgs = args ?? Get.arguments;
+    _parseArguments(currentArgs, forceRefresh: true);
   }
 
   void updateArguments([dynamic args]) {
     final currentArgs = args ?? Get.arguments;
+    _parseArguments(currentArgs, forceRefresh: false);
+  }
+
+  void _parseArguments(dynamic currentArgs, {bool forceRefresh = false}) {
+    dynamic targetId;
+
     if (currentArgs != null) {
       if (currentArgs is Map) {
         if (currentArgs['isClosed'] != null) {
           isRestaurantClosed.value = currentArgs['isClosed'] == true;
         }
         if (currentArgs['notes'] != null) {
-          closedNotes.value = currentArgs['notes'];
+          closedNotes.value = currentArgs['notes'].toString();
         }
         if (currentArgs['product'] != null &&
             currentArgs['product'] is ProductModel) {
-          product.value = currentArgs['product'];
+          final p = currentArgs['product'] as ProductModel;
+          product.value = p;
+          targetId = p.id;
 
           if (Get.isRegistered<WishlistController>()) {
             final wishlistController = Get.find<WishlistController>();
-            isFavorite.value = wishlistController.isFavorite(
-              product.value!.name,
-            );
-          }
-
-          if (product.value!.id.isNotEmpty) {
-            fetchProductDetails(product.value!.id);
+            isFavorite.value = wishlistController.isFavorite(p.name);
+          } else {
+            isFavorite.value = p.isFavorite.value;
           }
         } else if (currentArgs['productId'] != null ||
-            currentArgs['id'] != null) {
-          final id = currentArgs['productId'] ?? currentArgs['id'];
-          fetchProductDetails(id);
+            currentArgs['id'] != null ||
+            currentArgs['product_id'] != null ||
+            currentArgs['dish_id'] != null ||
+            currentArgs['dishId'] != null) {
+          targetId =
+              currentArgs['productId'] ??
+              currentArgs['id'] ??
+              currentArgs['product_id'] ??
+              currentArgs['dish_id'] ??
+              currentArgs['dishId'];
         }
       } else if (currentArgs is RestaurantItem) {
         isRestaurantClosed.value = !currentArgs.isOpen;
       } else if (currentArgs is ProductModel) {
         product.value = currentArgs;
+        targetId = currentArgs.id;
         if (Get.isRegistered<WishlistController>()) {
           final wishlistController = Get.find<WishlistController>();
-          isFavorite.value = wishlistController.isFavorite(product.value!.name);
-        }
-        if (currentArgs.id.isNotEmpty) {
-          fetchProductDetails(currentArgs.id);
+          isFavorite.value = wishlistController.isFavorite(currentArgs.name);
+        } else {
+          isFavorite.value = currentArgs.isFavorite.value;
         }
       } else if (currentArgs is String || currentArgs is int) {
-        fetchProductDetails(currentArgs);
+        targetId = currentArgs;
       }
+    }
+
+    if (targetId != null && targetId.toString().trim().isNotEmpty) {
+      final idStr = targetId.toString().trim();
+      if (forceRefresh || _loadedProductId != idStr) {
+        productDetail.value = null;
+        description.value = '';
+        offerPercentage.value = '';
+        errorMessage.value = '';
+      }
+      fetchProductDetails(idStr, forceRefresh: forceRefresh);
+    } else if (product.value != null && product.value!.id.isNotEmpty) {
+      fetchProductDetails(product.value!.id, forceRefresh: forceRefresh);
     }
   }
 
-  Future<void> fetchProductDetails(dynamic productId) async {
+  Future<void> fetchProductDetails(
+    dynamic productId, {
+    bool forceRefresh = false,
+  }) async {
+    if (productId == null || productId.toString().trim().isEmpty) {
+      if (productDetail.value == null && product.value == null) {
+        errorMessage.value = 'Product ID not specified';
+      }
+      return;
+    }
+
+    final idStr = productId.toString().trim();
+    if (!forceRefresh &&
+        _loadedProductId == idStr &&
+        productDetail.value != null) {
+      return;
+    }
+
     try {
       isLoading.value = true;
-      final response = await _getProductDetailsUseCase(productId: productId);
+      errorMessage.value = '';
+      final response = await _getProductDetailsUseCase(productId: idStr);
+
       if (response.success && response.data != null) {
+        _loadedProductId = idStr;
         final data = response.data!;
         productDetail.value = data;
 
-        if (data.description != null && data.description!.isNotEmpty) {
-          description.value = data.description!.capitalizeFirstLetter();
-        }
+        description.value =
+            (data.description != null && data.description!.trim().isNotEmpty)
+            ? data.description!.trim().capitalizeFirstLetter()
+            : '';
 
-        if (data.offerPercentage != null && data.offerPercentage!.isNotEmpty) {
-          offerPercentage.value = data.offerPercentage!;
-        }
+        offerPercentage.value =
+            (data.offerPercentage != null &&
+                data.offerPercentage!.trim().isNotEmpty)
+            ? data.offerPercentage!.trim()
+            : '';
 
         final wishlistController = Get.isRegistered<WishlistController>()
             ? Get.find<WishlistController>()
@@ -122,19 +188,17 @@ class ProductDetailController extends GetxController {
         final double effPrice = data.price > 0
             ? data.price
             : ((product.value != null && product.value!.newPrice > 0)
-                ? product.value!.newPrice
-                : data.oldPrice);
+                  ? product.value!.newPrice
+                  : data.oldPrice);
         final double effOldPrice = data.oldPrice > 0
             ? data.oldPrice
             : ((product.value != null && product.value!.oldPrice > 0)
-                ? product.value!.oldPrice
-                : effPrice);
+                  ? product.value!.oldPrice
+                  : effPrice);
 
         final updatedProduct = ProductModel(
-          id: data.id?.toString() ?? productId.toString(),
-          name: (data.name.isNotEmpty
-                  ? data.name
-                  : (product.value?.name ?? 'Product Details'))
+          id: data.id?.toString() ?? idStr,
+          name: (data.name.isNotEmpty ? data.name : (product.value?.name ?? ''))
               .capitalizeWords(),
           type: data.type.capitalizeWords(),
           isVeg: data.isVeg,
@@ -142,15 +206,25 @@ class ProductDetailController extends GetxController {
           newPrice: effPrice,
           image: (data.image != null && data.image!.isNotEmpty)
               ? data.image!
-              : (product.value?.image ?? 'assets/images/product1.png'),
+              : (product.value?.image ?? ''),
           isFavorite: currentFav,
         );
 
         product.value = updatedProduct;
         isFavorite.value = currentFav;
+
+        if (data.cartQuantity > 0) {
+          quantity.value = data.cartQuantity;
+        }
+      } else {
+        errorMessage.value = response.formattedErrorMessage.isNotEmpty
+            ? response.formattedErrorMessage
+            : 'Unable to load product details';
       }
     } catch (e) {
       debugPrint('fetchProductDetails error: $e');
+      errorMessage.value =
+          'Failed to load product details. Please check your connection.';
     } finally {
       isLoading.value = false;
     }
@@ -165,7 +239,7 @@ class ProductDetailController extends GetxController {
           (item) => item.id == prod.id || item.name == prod.name,
         );
         if (cartItem != null) {
-          return cartItem.quantity.value;
+          return cartItem.qty;
         }
       }
     }

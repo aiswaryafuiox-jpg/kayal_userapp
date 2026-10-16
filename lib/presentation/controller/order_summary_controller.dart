@@ -80,14 +80,14 @@ class OrderSummaryController extends GetxController {
           return OrderSummaryItemModel(
             id: cartItem.id,
             productId: cartItem.id,
-            name: cartItem.name,
+            name: cartItem.name ?? '',
             image: cartItem.image,
             price: cartItem.newPrice,
             oldPrice: cartItem.oldPrice,
-            quantity: cartItem.quantity.value,
+            quantity: cartItem.quantity ?? 1,
             type: cartItem.type,
-            isVeg: cartItem.isVeg,
-            totalPrice: cartItem.newPrice * cartItem.quantity.value,
+            isVeg: cartItem.isVeg ?? false,
+            totalPrice: cartItem.newPrice * (cartItem.quantity ?? 1),
           );
         }).toList();
         items.assignAll(cartList);
