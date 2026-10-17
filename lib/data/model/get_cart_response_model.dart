@@ -104,6 +104,9 @@ class CartItem {
     String? type,
   }) {
     if (id != null && cartItemId == null) cartItemId = id;
+    if (productId == null && cartItemId != null) {
+      productId = int.tryParse(cartItemId!);
+    }
     if (image != null && imageUrl == null) imageUrl = image;
     if (newPrice != null && sellPrice == null) sellPrice = newPrice;
     if (oldPrice != null && mrp == null) mrp = oldPrice.toInt();
@@ -114,7 +117,12 @@ class CartItem {
     }
   }
 
-  String get id => cartItemId ?? productId?.toString() ?? '';
+  String get id => (productId != null && productId! > 0)
+      ? productId.toString()
+      : (cartItemId ?? '');
+  String get productIdentifier => (productId != null && productId! > 0)
+      ? productId.toString()
+      : (cartItemId ?? '');
   String get displayName => (name ?? '').capitalizeWords();
   String get image => imageUrl ?? '';
   bool get isVegetarian => isVeg ?? true;
@@ -125,17 +133,37 @@ class CartItem {
   int get qty => quantity ?? 1;
 
   factory CartItem.fromJson(Map<String, dynamic> json) => CartItem(
-    cartItemId: json["cart_item_id"]?.toString(),
+    cartItemId: json["cart_item_id"]?.toString() ??
+        json["cart_id"]?.toString() ??
+        json["id"]?.toString(),
     productId: json["product_id"] is int
         ? json["product_id"]
-        : int.tryParse(json["product_id"]?.toString() ?? ''),
+        : int.tryParse(json["product_id"]?.toString() ?? '') ??
+            (json["product"] is Map && json["product"]["id"] != null
+                ? int.tryParse(json["product"]["id"].toString())
+                : null) ??
+            (json["productId"] is int
+                ? json["productId"]
+                : int.tryParse(json["productId"]?.toString() ?? '')) ??
+            (json["item_id"] is int
+                ? json["item_id"]
+                : int.tryParse(json["item_id"]?.toString() ?? '')) ??
+            (json["cart_item_id"] != null
+                ? null
+                : int.tryParse(json["id"]?.toString() ?? '')),
     name: json["name"],
-    imageUrl: json["image_url"],
-    isVeg: json["is_veg"],
+    imageUrl: json["image_url"] ?? json["image"],
+    isVeg: json["is_veg"] is bool
+        ? json["is_veg"]
+        : (json["is_veg"]?.toString() == '1' ||
+            json["is_veg"]?.toString().toLowerCase() == 'true'),
     mrp: (json["mrp"] as num?)?.toInt(),
-    sellPrice: (json["sell_price"] as num?)?.toDouble(),
+    sellPrice: (json["sell_price"] as num?)?.toDouble() ??
+        (json["price"] as num?)?.toDouble(),
     discountPct: (json["discount_pct"] as num?)?.toInt(),
-    quantity: (json["quantity"] as num?)?.toInt(),
+    quantity: (json["quantity"] as num?)?.toInt() ??
+        (json["qty"] as num?)?.toInt() ??
+        1,
   );
 
   Map<String, dynamic> toJson() => {

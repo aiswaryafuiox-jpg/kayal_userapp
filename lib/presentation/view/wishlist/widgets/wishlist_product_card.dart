@@ -1,204 +1,313 @@
 import 'package:flutter/material.dart';
-import 'package:kayal_userapp/core/const/app_color.dart';
+import 'package:get/get.dart';
+import 'package:kayal_userapp/core/const/api_routes.dart';
+import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
+import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
+import 'package:kayal_userapp/data/model/get_wishlist_response_model.dart';
 import 'package:kayal_userapp/presentation/controller/wishlist_controller.dart';
 
 class WishlistProductCard extends StatelessWidget {
-  final WishlistItem item;
-  final VoidCallback onFavoriteTap;
-  final VoidCallback onAddTap;
+  final WishlistItemModel product;
+  final VoidCallback? onFavoriteTap;
+  final VoidCallback? onAddTap;
+  final VoidCallback? onRemoveTap;
+  final bool isClosed;
+  final WishlistController? controller;
 
-  const WishlistProductCard({
+  WishlistProductCard({
     super.key,
-    required this.item,
-    required this.onFavoriteTap,
-    required this.onAddTap,
-  });
+    WishlistItemModel? product,
+    WishlistItemModel? item,
+    this.onFavoriteTap,
+    this.onAddTap,
+    this.onRemoveTap,
+    this.isClosed = false,
+    this.controller,
+  }) : product = (product ?? item)!,
+       assert(
+         product != null || item != null,
+         'Either product or item must be provided',
+       );
+
+  String _resolveImageUrl(String path) {
+    if (path.isEmpty || path == 'null') return '';
+    if (path.startsWith('http://') || path.startsWith('https://')) return path;
+    if (path.startsWith('assets/')) return path;
+    return '${ApiRoutes.imageBaseURL}$path';
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+    final wishlistController =
+        controller ??
+        (Get.isRegistered<WishlistController>()
+            ? Get.find<WishlistController>()
+            : Get.put(WishlistController()));
+    final resolvedImage = _resolveImageUrl(product.imageUrl ?? '');
+
+    return GestureDetector(
+      onTap: () => Get.toNamed(
+        AppRoutes.productDetail,
+        arguments: {
+          'product': product.toJson(),
+          'productId': product.productId.toString(),
+          'id': product.productId.toString(),
+          'isClosed': isClosed,
+        },
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image and Favorite Button
-          Expanded(
-            child: Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(12),
-                    topRight: Radius.circular(12),
-                  ),
-                  child: item.image.startsWith('http://') ||
-                          item.image.startsWith('https://')
-                      ? Image.network(
-                          item.image,
-                          width: double.infinity,
-                          height: double.infinity,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              color: Colors.grey.shade100,
-                              child: const Icon(Icons.image, color: Colors.grey),
-                            );
-                          },
-                        )
-                      : Image.asset(
-                          item.image.isNotEmpty ? item.image : 'assets/images/product1.png',
-                          width: double.infinity,
-                          height: double.infinity,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              color: Colors.grey.shade100,
-                              child: const Icon(Icons.image, color: Colors.grey),
-                            );
-                          },
-                        ),
-                ),
-                Positioned(
-                  top: 10,
-                  right: 10,
-                  child: InkWell(
-                    onTap: onFavoriteTap,
-                    child: Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Icon(
-                        item.isFavorite ? Icons.favorite : Icons.favorite_border,
-                        size: 16,
-                        color: AppColors.red,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
-          ),
-          
-          // Details
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Title and Veg Icon
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        item.title,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textprimary,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // IMAGE AND FAVORITE ICON
+            Expanded(
+              child: Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(12),
+                      topRight: Radius.circular(12),
                     ),
-                    const SizedBox(width: 8),
-                    Container(
-                      width: 14,
-                      height: 14,
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: item.isVeg ? AppColors.green : AppColors.red,
-                          width: 1,
-                        ),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Center(
-                        child: Container(
-                          width: 6,
-                          height: 6,
-                          decoration: BoxDecoration(
-                            color: item.isVeg ? AppColors.green : AppColors.red,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ),
+                    child: Opacity(
+                      opacity: 1.0,
+                      child:
+                          resolvedImage.startsWith('http://') ||
+                              resolvedImage.startsWith('https://')
+                          ? Image.network(
+                              resolvedImage,
+                              width: double.infinity,
+                              height: double.infinity,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, _, _) => Image.asset(
+                                'assets/images/product1.png',
+                                width: double.infinity,
+                                height: double.infinity,
+                                fit: BoxFit.cover,
+                              ),
+                            )
+                          : Image.asset(
+                              resolvedImage.isNotEmpty
+                                  ? resolvedImage
+                                  : 'assets/images/product1.png',
+                              width: double.infinity,
+                              height: double.infinity,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, _, _) => Image.asset(
+                                'assets/images/product1.png',
+                                width: double.infinity,
+                                height: double.infinity,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                
-                // Type
-                Text(
-                  item.type,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF6B7280), // Muted grey for subtitle
                   ),
-                ),
-                const SizedBox(height: 8),
-                
-                // Prices and Add Button
-                Row(
-                  children: [
-                    Text(
-                      '₹${item.originalPrice.toInt()}',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF9CA3AF),
-                        decoration: TextDecoration.lineThrough,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        '₹${item.price.toInt()}',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textprimary,
+                ],
+              ),
+            ),
+
+            // DETAILS
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // TITLE & TYPE
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          product.name.capitalizeWords(),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF202733),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                    ),
-                    InkWell(
-                      onTap: onAddTap,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
+                      const SizedBox(width: 4),
+                      Container(
+                        padding: const EdgeInsets.all(2),
                         decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                            color: product.isVeg ?? false
+                                ? const Color(0xFF4CAF50)
+                                : const Color(0xFFF44336),
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(2),
                         ),
-                        child: const Icon(
-                          Icons.add,
-                          size: 20,
-                          color: Colors.white,
+                        child: Icon(
+                          Icons.circle,
+                          size: 8,
+                          color: product.isVeg ?? false
+                              ? const Color(0xFF4CAF50)
+                              : const Color(0xFFF44336),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+
+                  const SizedBox(height: 2),
+
+                  const SizedBox(height: 8),
+
+                  // PRICE AND QUANTITY SELECTOR
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (product.mrp! > product.sellPrice! &&
+                                product.sellPrice! > 0)
+                              Text(
+                                '₹${product.mrp! % 1 == 0 ? product.mrp!.toInt() : product.mrp!.toStringAsFixed(2)}',
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w400,
+                                  color: Color(0xFFB0B3BA),
+                                  decoration: TextDecoration.lineThrough,
+                                ),
+                              ),
+                            Text(
+                              '₹${(product.sellPrice! % 1 == 0) ? product.sellPrice?.toInt() : product.sellPrice?.toStringAsFixed(2)}',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF202733),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Obx(() {
+                        final count =
+                            wishlistController?.getQuantity(product) ?? 0;
+
+                        if (count == 0) {
+                          return Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap:
+                                  onAddTap ??
+                                  () => wishlistController?.incrementQuantity(
+                                    product,
+                                  ),
+                              child: Ink(
+                                height: 32,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isClosed
+                                      ? const Color(0xFFFFB58F)
+                                      : const Color(0xFFFF823E),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: const [
+                                    Text(
+                                      'ADD',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                    SizedBox(width: 3),
+                                    Icon(
+                                      Icons.add,
+                                      color: Colors.white,
+                                      size: 14,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+                        return Container(
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: isClosed
+                                ? const Color(0xFFFFB58F)
+                                : const Color(0xFFFF823E),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap:
+                                    onRemoveTap ??
+                                    () => wishlistController?.decrementQuantity(
+                                      product,
+                                    ),
+                                child: const Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 8),
+                                  child: Icon(
+                                    Icons.remove,
+                                    color: Colors.white,
+                                    size: 16,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                '$count',
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap:
+                                    onAddTap ??
+                                    () => wishlistController?.incrementQuantity(
+                                      product,
+                                    ),
+                                child: const Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 8),
+                                  child: Icon(
+                                    Icons.add,
+                                    color: Colors.white,
+                                    size: 16,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

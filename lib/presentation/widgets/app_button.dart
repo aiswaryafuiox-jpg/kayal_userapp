@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kayal_userapp/core/const/app_color.dart';
 
-
 class AppButton extends StatelessWidget {
   const AppButton({
     required this.text,
@@ -37,7 +36,7 @@ class AppButton extends StatelessWidget {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
           textStyle:
               style ??
-              const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
         ),
         child: Text(text),
       ),

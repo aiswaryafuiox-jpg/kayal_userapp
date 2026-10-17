@@ -7,10 +7,12 @@ class RemoveCartItemUseCase {
   RemoveCartItemUseCase(this._repository);
 
   Future<RemoveCartItemResponseModel> call({
-    required dynamic cartId,
+    dynamic productId,
+    dynamic cartId,
     dynamic sessionId,
   }) async {
     return await _repository.removeCartItem(
+      productId: productId ?? cartId,
       cartId: cartId,
       sessionId: sessionId,
     );

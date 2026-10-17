@@ -46,11 +46,8 @@ class LiveTrackingScreen extends StatelessWidget {
                         color: Colors.blue,
                         shape: BoxShape.circle,
                         boxShadow: [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 4,
-                          )
-                        ]
+                          BoxShadow(color: Colors.black26, blurRadius: 4),
+                        ],
                       ),
                     ),
                   ),
@@ -110,7 +107,7 @@ class LiveTrackingScreen extends StatelessWidget {
                           'Live Tracking',
                           style: TextStyle(
                             fontSize: 18,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w500,
                             color: AppColors.grey,
                           ),
                         ),
@@ -136,7 +133,7 @@ class LiveTrackingScreen extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 20),
-                
+
                 // Arriving Card
                 Container(
                   width: double.infinity,
@@ -162,7 +159,7 @@ class LiveTrackingScreen extends StatelessWidget {
                               text: const TextSpan(
                                 style: TextStyle(
                                   fontSize: 14,
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.w500,
                                   color: AppColors.grey,
                                 ),
                                 children: [
@@ -178,7 +175,7 @@ class LiveTrackingScreen extends StatelessWidget {
                               '1.2 km away',
                               style: TextStyle(
                                 fontSize: 13,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w400,
                                 color: Color(0xFF6B7280),
                               ),
                             ),
@@ -200,7 +197,9 @@ class LiveTrackingScreen extends StatelessWidget {
                           ),
                           Container(
                             height: 4,
-                            width: MediaQuery.of(context).size.width * 0.6, // Progress width
+                            width:
+                                MediaQuery.of(context).size.width *
+                                0.6, // Progress width
                             decoration: const BoxDecoration(
                               color: Color(0xFFC05912), // Orange progress
                               borderRadius: BorderRadius.only(
@@ -249,7 +248,8 @@ class LiveTrackingScreen extends StatelessWidget {
                         ),
                         alignment: Alignment.center,
                         child: const Icon(
-                          Icons.storefront, // Using storefront as placeholder for driver icon
+                          Icons
+                              .storefront, // Using storefront as placeholder for driver icon
                           color: AppColors.green,
                           size: 24,
                         ),
@@ -263,7 +263,7 @@ class LiveTrackingScreen extends StatelessWidget {
                               'Delivery Partner',
                               style: TextStyle(
                                 fontSize: 14,
-                                fontWeight: FontWeight.w700,
+                                fontWeight: FontWeight.w500,
                                 color: AppColors.grey,
                               ),
                             ),
@@ -272,7 +272,7 @@ class LiveTrackingScreen extends StatelessWidget {
                               'Miller',
                               style: TextStyle(
                                 fontSize: 13,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w400,
                                 color: Color(0xFF6B7280),
                               ),
                             ),
@@ -281,7 +281,7 @@ class LiveTrackingScreen extends StatelessWidget {
                               '+91 9856345239',
                               style: TextStyle(
                                 fontSize: 12,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w400,
                                 color: Color(0xFF9CA3AF),
                               ),
                             ),
@@ -320,7 +320,7 @@ class LiveTrackingScreen extends StatelessWidget {
                             'Estimated Arrival',
                             style: TextStyle(
                               fontSize: 13,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                               color: Color(0xFF6B7280),
                             ),
                           ),
@@ -329,7 +329,7 @@ class LiveTrackingScreen extends StatelessWidget {
                             '4:30 PM',
                             style: TextStyle(
                               fontSize: 14,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w500,
                               color: Color(0xFFC05912),
                             ),
                           ),
@@ -342,7 +342,7 @@ class LiveTrackingScreen extends StatelessWidget {
                             'Order Status',
                             style: TextStyle(
                               fontSize: 13,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                               color: Color(0xFF6B7280),
                             ),
                           ),
@@ -351,7 +351,7 @@ class LiveTrackingScreen extends StatelessWidget {
                             'Out for Delivery',
                             style: TextStyle(
                               fontSize: 14,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                               color: Color(0xFF6B7280),
                             ),
                           ),

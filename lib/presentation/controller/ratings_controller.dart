@@ -21,6 +21,7 @@ class RatingsController extends GetxController {
   final rating = 0.obs;
   final reviewTextController = TextEditingController();
   final isLoading = false.obs;
+  final selectedChips = <String>{}.obs;
 
   dynamic get foodId {
     final args = Get.arguments;
@@ -34,7 +35,137 @@ class RatingsController extends GetxController {
   }
 
   void setRating(int value) {
+    if (rating.value == value) return;
+
+    // Remove previously selected chips from review text
+    for (final chip in selectedChips) {
+      _removeChipFromText(chip);
+    }
+    selectedChips.clear();
     rating.value = value;
+  }
+
+  List<String> get suggestedChips {
+    switch (rating.value) {
+      case 5:
+        return const [
+          'Delicious Food 😋',
+          'Hot & Fresh 🔥',
+          'Super Fast Delivery ⚡',
+          'Great Packaging 📦',
+          'Friendly Rider 🛵',
+          'Worth Every Penny 💰',
+        ];
+      case 4:
+        return const [
+          'Tasty Food 👌',
+          'Good Portion Size 🍽️',
+          'On-Time Delivery ⏰',
+          'Neat Packaging 📦',
+          'Polite Rider 😊',
+          'Good Value 🥗',
+        ];
+      case 3:
+        return const [
+          'Average Taste 😐',
+          'Food Was Lukewarm ♨️',
+          'Portion Was Small 🥣',
+          'Delivery Was Delayed ⏳',
+          'Packaging Needs Work 📦',
+          'Slightly Overpriced 💸',
+        ];
+      case 2:
+        return const [
+          'Cold Food ❄️',
+          'Delayed Delivery 🕒',
+          'Spilled / Leaking 💧',
+          'Poor Taste 👎',
+          'Small Portions 📉',
+          'Unprofessional Rider 📵',
+        ];
+      case 1:
+        return const [
+          'Very Late Delivery ⌛',
+          'Food Damaged or Spilled ⚠️',
+          'Bad Taste / Stale ❌',
+          'Missing Items 📦',
+          'Wrong Items Delivered 🚫',
+          'Poor Hygiene 🪳',
+        ];
+      default:
+        return const [];
+    }
+  }
+
+  String get suggestedChipsTitle {
+    if (rating.value == 5) {
+      return 'What did you love the most?';
+    } else if (rating.value == 4) {
+      return 'What did you like?';
+    } else if (rating.value == 3) {
+      return 'What could be improved?';
+    } else if (rating.value > 0) {
+      return 'What went wrong?';
+    }
+    return '';
+  }
+
+  String get ratingLabel {
+    switch (rating.value) {
+      case 5:
+        return 'Excellent! Loved it 😍';
+      case 4:
+        return 'Good! Liked it 😊';
+      case 3:
+        return 'Average! Could be better 😐';
+      case 2:
+        return 'Poor! Not satisfied 😕';
+      case 1:
+        return 'Terrible! Very disappointed 😞';
+      default:
+        return 'Tap to rate your experience';
+    }
+  }
+
+  void toggleChip(String chip) {
+    if (selectedChips.contains(chip)) {
+      selectedChips.remove(chip);
+      _removeChipFromText(chip);
+    } else {
+      selectedChips.add(chip);
+      _addChipToText(chip);
+    }
+  }
+
+  void _addChipToText(String chip) {
+    final current = reviewTextController.text.trim();
+    if (current.isEmpty) {
+      reviewTextController.text = chip;
+    } else if (!current.contains(chip)) {
+      reviewTextController.text = '$current, $chip';
+    }
+    reviewTextController.selection = TextSelection.fromPosition(
+      TextPosition(offset: reviewTextController.text.length),
+    );
+  }
+
+  void _removeChipFromText(String chip) {
+    String currentText = reviewTextController.text;
+    currentText = currentText.replaceAll(', $chip', '');
+    currentText = currentText.replaceAll('$chip, ', '');
+    currentText = currentText.replaceAll(chip, '');
+    currentText = currentText.replaceAll(RegExp(r',\s*,'), ',');
+    currentText = currentText.trim();
+    if (currentText.startsWith(',')) {
+      currentText = currentText.substring(1).trim();
+    }
+    if (currentText.endsWith(',')) {
+      currentText = currentText.substring(0, currentText.length - 1).trim();
+    }
+    reviewTextController.text = currentText;
+    reviewTextController.selection = TextSelection.fromPosition(
+      TextPosition(offset: reviewTextController.text.length),
+    );
   }
 
   Future<void> submitReview() async {
@@ -46,11 +177,16 @@ class RatingsController extends GetxController {
       return;
     }
 
-    final reviewText = reviewTextController.text.trim();
+    String reviewText = reviewTextController.text.trim();
+    if (reviewText.isEmpty && selectedChips.isNotEmpty) {
+      reviewText = selectedChips.join(', ');
+      reviewTextController.text = reviewText;
+    }
+
     if (reviewText.isEmpty) {
       AppNotification.showError(
         title: 'Review Required',
-        message: 'Please write a brief review of your experience.',
+        message: 'Please select suggested tags or write a brief review.',
       );
       return;
     }

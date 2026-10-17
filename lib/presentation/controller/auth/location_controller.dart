@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'dart:async';
+import 'package:kayal_userapp/core/utils/helper/app_toast.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
 
 class LocationController extends GetxController {
@@ -12,16 +13,14 @@ class LocationController extends GetxController {
       isLoading.value = true;
 
       // 1. Check location service
-      final serviceEnabled =
-          await Geolocator.isLocationServiceEnabled();
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
 
       if (!serviceEnabled) {
         isLoading.value = false;
 
-        Get.snackbar(
-          'Location Disabled',
+        AppToast.warning(
           'Please turn on location service',
-          snackPosition: SnackPosition.BOTTOM,
+          title: 'Location Disabled',
         );
 
         await Geolocator.openLocationSettings();
@@ -29,8 +28,7 @@ class LocationController extends GetxController {
       }
 
       // 2. Check permission
-      LocationPermission permission =
-          await Geolocator.checkPermission();
+      LocationPermission permission = await Geolocator.checkPermission();
 
       // 3. Request permission
       if (permission == LocationPermission.denied) {
@@ -41,10 +39,9 @@ class LocationController extends GetxController {
       if (permission == LocationPermission.denied) {
         isLoading.value = false;
 
-        Get.snackbar(
-          'Permission Denied',
+        AppToast.warning(
           'Please allow location permission',
-          snackPosition: SnackPosition.BOTTOM,
+          title: 'Permission Denied',
         );
 
         return;
@@ -54,10 +51,9 @@ class LocationController extends GetxController {
       if (permission == LocationPermission.deniedForever) {
         isLoading.value = false;
 
-        Get.snackbar(
-          'Permission Required',
+        AppToast.warning(
           'Please enable location permission from Settings',
-          snackPosition: SnackPosition.BOTTOM,
+          title: 'Permission Required',
         );
 
         await Geolocator.openAppSettings();
@@ -80,7 +76,8 @@ class LocationController extends GetxController {
       isLoading.value = false;
 
       // If position is retrieved or fallback position
-      final effectivePosition = position ??
+      final effectivePosition =
+          position ??
           Position(
             latitude: 13.0827,
             longitude: 80.2707,
@@ -98,19 +95,12 @@ class LocationController extends GetxController {
       debugPrint('Longitude: ${effectivePosition.longitude}');
 
       // Go to Confirm Location screen
-      Get.toNamed(
-        AppRoutes.confirmlocation,
-        arguments: effectivePosition,
-      );
+      Get.toNamed(AppRoutes.confirmlocation, arguments: effectivePosition);
     } catch (e) {
       isLoading.value = false;
       debugPrint('LOCATION ERROR: $e');
 
-      Get.snackbar(
-        'Location Error',
-        e.toString(),
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      AppToast.error(e.toString(), title: 'Location Error');
     }
   }
 

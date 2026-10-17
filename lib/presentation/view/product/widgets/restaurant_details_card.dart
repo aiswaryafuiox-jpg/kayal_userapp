@@ -1,6 +1,5 @@
 import 'package:cached_network_image_ce/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
 import 'package:kayal_userapp/presentation/controller/home_controller.dart';
 
@@ -89,11 +88,11 @@ class RestaurantDetailsCard extends StatelessWidget {
                   restaurant.name.capitalizeWords(),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.poppins(
+                  style: TextStyle(
                     color: titleColor,
                     fontSize: 18,
 
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
                 const SizedBox(height: 5),
@@ -101,11 +100,11 @@ class RestaurantDetailsCard extends StatelessWidget {
                   restaurant.cuisine.capitalizeWords(),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.poppins(
+                  style: TextStyle(
                     color: muted,
                     fontSize: 12,
 
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
                 const SizedBox(height: 14),
@@ -158,22 +157,22 @@ class RestaurantDetailsCard extends StatelessWidget {
                               isOpen
                                   ? 'Accepting orders'
                                   : 'Not accepting orders right now',
-                              style: GoogleFonts.poppins(
+                              style: TextStyle(
                                 color: isOpen
                                     ? const Color(0xFF18794E)
                                     : const Color(0xFFB45309),
                                 fontSize: 12,
-                                fontWeight: FontWeight.w700,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                             if (restaurant.openingTime.trim().isNotEmpty) ...[
                               const SizedBox(height: 3),
                               Text(
                                 'Hours: ${restaurant.openingTime.trim()}',
-                                style: GoogleFonts.poppins(
+                                style: TextStyle(
                                   color: muted,
                                   fontSize: 11,
-                                  fontWeight: FontWeight.w500,
+                                  fontWeight: FontWeight.w400,
                                 ),
                               ),
                             ],
@@ -218,10 +217,10 @@ class _DetailChip extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             label.trim().isEmpty ? '—' : label,
-            style: GoogleFonts.poppins(
+            style: TextStyle(
               color: const Color(0xFF383B43),
               fontSize: 12,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],

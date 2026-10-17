@@ -165,7 +165,10 @@ class HomeDashboardWidget extends StatelessWidget {
         return const SliverToBoxAdapter(child: _NoData(verticalPadding: 16));
       }
 
-      final restaurant = controller.restaurants.first;
+      final restaurant = controller.restaurants.firstWhere(
+        (r) => r.isOpen,
+        orElse: () => controller.restaurants.first,
+      );
       return SliverToBoxAdapter(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -195,7 +198,7 @@ class _NoData extends StatelessWidget {
           'No Data',
           style: TextStyle(
             fontSize: 14,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w400,
             color: Color(0xFF6B7280),
           ),
         ),

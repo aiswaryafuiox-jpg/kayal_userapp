@@ -26,7 +26,7 @@ class SearchResponseModel {
     return SearchResponseModel(
       success: json['success'] ?? true,
       message: json['message']?.toString() ?? '',
-      restaurants: (dataMap['restaurants'] is List)
+      restaurants: ((dataMap['restaurants'] is List)
           ? (dataMap['restaurants'] as List)
                 .map(
                   (e) => SearchRestaurantModel.fromJson(
@@ -34,7 +34,8 @@ class SearchResponseModel {
                   ),
                 )
                 .toList()
-          : [],
+          : <SearchRestaurantModel>[])
+        ..sort((a, b) => (b.isOpen ? 1 : 0).compareTo(a.isOpen ? 1 : 0)),
       dishes: (dataMap['dishes'] is List)
           ? (dataMap['dishes'] as List)
                 .map(
@@ -85,7 +86,26 @@ class SearchRestaurantModel {
   });
 
   factory SearchRestaurantModel.fromJson(Map<String, dynamic> json) {
-    final rawOpenState = json['is_open'] ?? json['is_online'];
+    final rawOpenState = json['is_open'] ??
+        json['is_online'] ??
+        json['open_status'] ??
+        json['is_active'];
+    bool parsedIsOpen = true;
+    if (rawOpenState is bool) {
+      parsedIsOpen = rawOpenState;
+    } else if (rawOpenState != null) {
+      final s = rawOpenState.toString().toLowerCase().trim();
+      parsedIsOpen = s == '1' || s == 'true' || s == 'open' || s == 'opened';
+    } else if (json['is_closed'] != null) {
+      final s = json['is_closed'].toString().toLowerCase().trim();
+      parsedIsOpen = !(s == '1' || s == 'true' || s == 'closed');
+    } else if (json['status'] != null) {
+      final s = json['status'].toString().toLowerCase().trim();
+      if (s == 'closed' || s == '0' || s == 'false') {
+        parsedIsOpen = false;
+      }
+    }
+
     final startTime = json['start_time']?.toString();
     final endTime = json['end_time']?.toString();
 
@@ -113,10 +133,7 @@ class SearchRestaurantModel {
           (startTime != null && endTime != null
               ? '$startTime - $endTime'
               : startTime),
-      isOpen: rawOpenState is bool
-          ? rawOpenState
-          : (rawOpenState?.toString() == '1' ||
-                rawOpenState?.toString().toLowerCase() == 'true'),
+      isOpen: parsedIsOpen,
     );
   }
 

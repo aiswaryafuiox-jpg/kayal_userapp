@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:kayal_userapp/presentation/controller/product_controller.dart';
 import 'package:kayal_userapp/presentation/view/product/widgets/product_card.dart';
 import 'package:kayal_userapp/presentation/view/product/widgets/product_filter_section.dart';
@@ -40,10 +39,8 @@ class _ProductScreenState extends State<ProductScreen> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(70),
         child: Obx(
-          () => CustomAppBar(
-            title: controller.title.value,
-            showBackButton: true,
-          ),
+          () =>
+              CustomAppBar(title: controller.title.value, showBackButton: true),
         ),
       ),
       bottomNavigationBar: const ViewCartBottomBar(),
@@ -145,9 +142,9 @@ class _ProductScreenState extends State<ProductScreen> {
                             const SizedBox(height: 16),
                             Text(
                               isFilterEmpty ? 'No Matching Dishes' : 'No Data',
-                              style: GoogleFonts.inter(
+                              style: TextStyle(
                                 fontSize: 18,
-                                fontWeight: FontWeight.w700,
+                                fontWeight: FontWeight.w500,
                                 color: const Color(0xFF252B35),
                               ),
                             ),
@@ -157,7 +154,7 @@ class _ProductScreenState extends State<ProductScreen> {
                                   ? 'No dishes match your selected filter criteria.'
                                   : 'No products found',
                               textAlign: TextAlign.center,
-                              style: GoogleFonts.inter(
+                              style: TextStyle(
                                 fontSize: 13,
                                 color: const Color(0xFF6B7280),
                               ),
@@ -173,9 +170,9 @@ class _ProductScreenState extends State<ProductScreen> {
                                 ),
                                 label: Text(
                                   'Clear All Filters',
-                                  style: GoogleFonts.inter(
+                                  style: TextStyle(
                                     fontSize: 14,
-                                    fontWeight: FontWeight.w700,
+                                    fontWeight: FontWeight.w500,
                                     color: const Color(0xFFFF823E),
                                   ),
                                 ),

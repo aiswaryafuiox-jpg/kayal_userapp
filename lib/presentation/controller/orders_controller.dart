@@ -1,10 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kayal_userapp/core/const/app_images.dart';
 import 'package:kayal_userapp/core/di/service_locator.dart';
 import 'package:kayal_userapp/core/service/api_service.dart';
 import 'package:kayal_userapp/core/service/local_storage_service.dart';
-import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
+import 'package:kayal_userapp/core/utils/helper/app_toast.dart';
 import 'package:kayal_userapp/data/model/get_orders_response_model.dart';
 import 'package:kayal_userapp/data/repository/get_orders_repository_impl.dart';
 import 'package:kayal_userapp/data/repository/re_order_repository_impl.dart';
@@ -59,14 +58,16 @@ class OrdersController extends GetxController {
   OrdersController({
     GetOrdersUseCase? getOrdersUseCase,
     ReOrderUseCase? reOrderUseCase,
-  })  : _getOrdersUseCase = getOrdersUseCase ??
-            (sl.isRegistered<GetOrdersUseCase>()
-                ? sl<GetOrdersUseCase>()
-                : GetOrdersUseCase(GetOrdersRepositoryImpl(ApiService()))),
-        _reOrderUseCase = reOrderUseCase ??
-            (sl.isRegistered<ReOrderUseCase>()
-                ? sl<ReOrderUseCase>()
-                : ReOrderUseCase(ReOrderRepositoryImpl(ApiService())));
+  }) : _getOrdersUseCase =
+           getOrdersUseCase ??
+           (sl.isRegistered<GetOrdersUseCase>()
+               ? sl<GetOrdersUseCase>()
+               : GetOrdersUseCase(GetOrdersRepositoryImpl(ApiService()))),
+       _reOrderUseCase =
+           reOrderUseCase ??
+           (sl.isRegistered<ReOrderUseCase>()
+               ? sl<ReOrderUseCase>()
+               : ReOrderUseCase(ReOrderRepositoryImpl(ApiService())));
 
   final ordersList = <UserOrderItemModel>[].obs;
   final isLoading = false.obs;
@@ -103,8 +104,9 @@ class OrdersController extends GetxController {
     try {
       final response = await _getOrdersUseCase(page: 1);
       if (response.success) {
-        final completeOrders =
-            response.orders.where((order) => !order.isIncomplete).toList();
+        final completeOrders = response.orders
+            .where((order) => !order.isIncomplete)
+            .toList();
         ordersList.assignAll(completeOrders);
       } else {
         errorMessage.value = response.formattedErrorMessage.isNotEmpty
@@ -125,56 +127,35 @@ class OrdersController extends GetxController {
   Future<void> reOrder(UserOrderItemModel order) async {
     isReordering.value = true;
     try {
-      Get.snackbar(
-        'Re-Ordering',
+      AppToast.info(
         'Adding items from order #${order.orderId} to cart...',
-        snackPosition: SnackPosition.BOTTOM,
-        duration: const Duration(seconds: 2),
+        title: 'Re-Ordering',
       );
 
       final response = await _reOrderUseCase(orderId: order.orderId);
       if (response.success) {
         if (Get.isRegistered<CartController>()) {
-          Get.find<CartController>().fetchCart();
+          Get.find<CartController>().fetchCart(showLoading: false);
         }
 
-        Get.snackbar(
-          'Added to Cart',
+        AppToast.success(
           response.message.isNotEmpty
               ? response.message
               : 'Items added to cart successfully.',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: const Color(0xFF2E7D32),
-          colorText: Colors.white,
-          mainButton: TextButton(
-            onPressed: () => Get.toNamed(AppRoutes.cart),
-            child: const Text(
-              'VIEW CART',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
+          title: 'Added to Cart',
         );
       } else {
-        Get.snackbar(
-          'Re-Order Failed',
+        AppToast.error(
           response.formattedErrorMessage.isNotEmpty
               ? response.formattedErrorMessage
               : 'Failed to re-order items.',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white,
+          title: 'Re-Order Failed',
         );
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
+      AppToast.error(
         e.toString().replaceAll('Exception: ', ''),
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.redAccent,
-        colorText: Colors.white,
+        title: 'Error',
       );
     } finally {
       isReordering.value = false;

@@ -15,10 +15,7 @@ class AddTipScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: CustomAppBar(
-        title: 'Add Tip',
-        showBackButton: true,
-      ),
+      appBar: CustomAppBar(title: 'Add Tip', showBackButton: true),
       body: SafeArea(
         child: Stack(
           children: [
@@ -28,17 +25,13 @@ class AddTipScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Image.asset(
-                    tipPersonImg,
-                    height: 200,
-                    fit: BoxFit.contain,
-                  ),
+                  Image.asset(tipPersonImg, height: 200, fit: BoxFit.contain),
                   const SizedBox(height: 16),
                   const Text(
                     'Thank you Delivery partner',
                     style: TextStyle(
                       fontSize: 18,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       color: AppColors.grey,
                     ),
                   ),
@@ -58,38 +51,42 @@ class AddTipScreen extends StatelessWidget {
                     'Choose Tip Amount',
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       color: AppColors.grey,
                     ),
                   ),
                   const SizedBox(height: 24),
-                  
+
                   // Predefined Tip Amounts Grid
                   GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 2.5,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                    ),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 2.5,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                        ),
                     itemCount: controller.tipOptions.length,
                     itemBuilder: (context, index) {
                       final amount = controller.tipOptions[index];
-                      
+
                       return Obx(() {
-                        final isSelected = controller.selectedTip.value == amount;
+                        final isSelected =
+                            controller.selectedTip.value == amount;
                         return GestureDetector(
                           onTap: () => controller.selectTip(amount),
                           child: Container(
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              color: isSelected ? AppColors.checkoutbackground : Colors.white,
+                              color: isSelected
+                                  ? AppColors.checkoutbackground
+                                  : Colors.white,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: isSelected 
-                                    ? AppColors.primary 
+                                color: isSelected
+                                    ? AppColors.primary
                                     : const Color(0xFFE5E7EB),
                                 width: 1.5,
                               ),
@@ -98,8 +95,10 @@ class AddTipScreen extends StatelessWidget {
                               '₹$amount',
                               style: TextStyle(
                                 fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: isSelected ? AppColors.primary : AppColors.grey,
+                                fontWeight: FontWeight.w500,
+                                color: isSelected
+                                    ? AppColors.primary
+                                    : AppColors.grey,
                               ),
                             ),
                           ),
@@ -108,7 +107,7 @@ class AddTipScreen extends StatelessWidget {
                     },
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Custom Tip TextField
                   TextFormField(
                     controller: controller.customTipController,
@@ -117,7 +116,7 @@ class AddTipScreen extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 14,
                       color: AppColors.grey,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w400,
                     ),
                     onChanged: controller.onCustomTipChanged,
                     decoration: InputDecoration(
@@ -146,13 +145,13 @@ class AddTipScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  
+
                   // Space for bottom button
                   const SizedBox(height: 100),
                 ],
               ),
             ),
-            
+
             // Continue Button at bottom
             Positioned(
               left: 24,

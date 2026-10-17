@@ -10,12 +10,13 @@ class FeedbackController extends GetxController {
   final StoreUserFeedbackUseCase _storeUserFeedbackUseCase;
 
   FeedbackController({StoreUserFeedbackUseCase? storeUserFeedbackUseCase})
-      : _storeUserFeedbackUseCase = storeUserFeedbackUseCase ??
-            (sl.isRegistered<StoreUserFeedbackUseCase>()
-                ? sl<StoreUserFeedbackUseCase>()
-                : StoreUserFeedbackUseCase(
-                    StoreUserFeedbackRepositoryImpl(ApiService()),
-                  ));
+    : _storeUserFeedbackUseCase =
+          storeUserFeedbackUseCase ??
+          (sl.isRegistered<StoreUserFeedbackUseCase>()
+              ? sl<StoreUserFeedbackUseCase>()
+              : StoreUserFeedbackUseCase(
+                  StoreUserFeedbackRepositoryImpl(ApiService()),
+                ));
 
   final rating = 5.obs;
   final feedbackTextController = TextEditingController();
@@ -51,9 +52,7 @@ class FeedbackController extends GetxController {
     isLoading.value = true;
 
     try {
-      final response = await _storeUserFeedbackUseCase(
-        message: message,
-      );
+      final response = await _storeUserFeedbackUseCase(message: message);
 
       if (response.success) {
         feedbackTextController.clear();
@@ -87,7 +86,7 @@ class FeedbackController extends GetxController {
                     'Thank You!',
                     style: TextStyle(
                       fontSize: 18,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       color: Color(0xFF1F2937),
                     ),
                   ),
@@ -122,7 +121,7 @@ class FeedbackController extends GetxController {
                         'Done',
                         style: TextStyle(
                           color: Colors.white,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
@@ -138,7 +137,9 @@ class FeedbackController extends GetxController {
             : response.message;
         AppNotification.showError(
           title: 'Submission Failed',
-          message: errorMsg.isNotEmpty ? errorMsg : 'Failed to submit feedback.',
+          message: errorMsg.isNotEmpty
+              ? errorMsg
+              : 'Failed to submit feedback.',
         );
       }
     } catch (e) {

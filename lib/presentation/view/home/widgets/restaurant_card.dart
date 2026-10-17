@@ -38,7 +38,8 @@ class RestaurantCard extends StatelessWidget {
                 ),
                 child: Opacity(
                   opacity: isOpen ? 1.0 : 0.45,
-                  child: restaurant.image.startsWith('http://') ||
+                  child:
+                      restaurant.image.startsWith('http://') ||
                           restaurant.image.startsWith('https://')
                       ? Image.network(
                           restaurant.image,
@@ -86,7 +87,7 @@ class RestaurantCard extends StatelessWidget {
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 10,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
@@ -103,7 +104,7 @@ class RestaurantCard extends StatelessWidget {
               restaurant.name.capitalizeWords(),
               style: TextStyle(
                 fontSize: 14,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w500,
                 color: isOpen
                     ? const Color(0xFF252B35)
                     : const Color(0xFF8C9199),
@@ -158,7 +159,7 @@ class RestaurantCard extends StatelessWidget {
                   isOpen ? 'Opened' : 'Closed',
                   style: TextStyle(
                     fontSize: 10,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                     color: isOpen
                         ? const Color(0xFF22C55E)
                         : const Color(0xFFFF383C),
@@ -169,10 +170,7 @@ class RestaurantCard extends StatelessWidget {
 
                 const Text(
                   '|',
-                  style: TextStyle(
-                    color: Color(0xFFD1D5DB),
-                    fontSize: 10,
-                  ),
+                  style: TextStyle(color: Color(0xFFD1D5DB), fontSize: 10),
                 ),
 
                 const SizedBox(width: 6),
@@ -206,7 +204,7 @@ class RestaurantCard extends StatelessWidget {
                         ? const Color(0xFFFF383C)
                         : const Color(0xFFFCA5A5),
                     fontSize: 9,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
 
@@ -214,10 +212,7 @@ class RestaurantCard extends StatelessWidget {
 
                 const Text(
                   '|',
-                  style: TextStyle(
-                    color: Color(0xFFD1D5DB),
-                    fontSize: 10,
-                  ),
+                  style: TextStyle(color: Color(0xFFD1D5DB), fontSize: 10),
                 ),
 
                 const SizedBox(width: 6),

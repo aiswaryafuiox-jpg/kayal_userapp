@@ -16,17 +16,16 @@ class CategoryGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (categories.isEmpty) {
-      return ListView(
-        physics: const AlwaysScrollableScrollPhysics(
-          parent: BouncingScrollPhysics(),
-        ),
-        children: [
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.2,
+      return SliverFillRemaining(
+        hasScrollBody: false,
+        child: Padding(
+          padding: EdgeInsets.only(
+            top: MediaQuery.of(context).size.height * 0.1,
+            bottom: 24,
           ),
-          Center(
+          child: Center(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
                   width: 72,
@@ -46,56 +45,44 @@ class CategoryGrid extends StatelessWidget {
                   'No Data',
                   style: TextStyle(
                     fontSize: 18,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w500,
                     color: Color(0xFF252B35),
                   ),
                 ),
                 const SizedBox(height: 6),
                 const Text(
                   'No categories available',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF6B7280),
-                  ),
+                  style: TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
                 ),
               ],
             ),
           ),
-        ],
+        ),
       );
     }
 
-    return GridView.builder(
-      physics: const AlwaysScrollableScrollPhysics(
-        parent: BouncingScrollPhysics(),
-      ),
-      padding: const EdgeInsets.fromLTRB(
-        24,
-        0,
-        24,
-        100,
-      ),
-      itemCount: categories.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 20,
-        mainAxisSpacing: 14,
-        childAspectRatio: 0.92,
-      ),
-      itemBuilder: (context, index) {
-        final category = categories[index];
+    return SliverPadding(
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 100),
+      sliver: SliverGrid(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 20,
+          mainAxisSpacing: 14,
+          childAspectRatio: 0.92,
+        ),
+        delegate: SliverChildBuilderDelegate((context, index) {
+          final category = categories[index];
+          final name = category['name'] ?? '';
+          final image = category['image'] ?? '';
 
-        return CategoryCard(
-          name: category['name']!,
-          image: category['image']!,
-          isClosed: isClosed,
-          onTap: () {
-            onCategoryTap(
-              category['name']!,
-            );
-          },
-        );
-      },
+          return CategoryCard(
+            name: name,
+            image: image,
+            isClosed: isClosed,
+            onTap: () => onCategoryTap(name),
+          );
+        }, childCount: categories.length),
+      ),
     );
   }
 }

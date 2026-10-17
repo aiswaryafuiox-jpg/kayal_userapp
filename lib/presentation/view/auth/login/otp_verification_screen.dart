@@ -7,7 +7,7 @@ import 'package:kayal_userapp/core/const/app_images.dart';
 import 'package:kayal_userapp/core/utils/helper/texthelper.dart';
 import 'package:kayal_userapp/presentation/controller/auth/otp_controller.dart';
 import 'package:kayal_userapp/presentation/widgets/app_button.dart';
-
+import 'package:pinput/pinput.dart';
 
 class OtpVerificationScreen extends GetView<OtpController> {
   const OtpVerificationScreen({super.key});
@@ -42,7 +42,7 @@ class OtpVerificationScreen extends GetView<OtpController> {
                       style: TextHelper.heading2.copyWith(
                         color: AppColors.primary,
                         fontSize: 13,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -52,7 +52,11 @@ class OtpVerificationScreen extends GetView<OtpController> {
                       borderRadius: BorderRadius.circular(4),
                       child: Padding(
                         padding: const EdgeInsets.all(2),
-                        child: SvgPicture.asset(editicon, width: 18, height: 18),
+                        child: SvgPicture.asset(
+                          editicon,
+                          width: 18,
+                          height: 18,
+                        ),
                       ),
                     ),
                   ],
@@ -60,7 +64,6 @@ class OtpVerificationScreen extends GetView<OtpController> {
               ),
               const SizedBox(height: 34),
               Center(child: _OtpInput(controller: controller)),
-              const SizedBox(height: 12),
               const SizedBox(height: 30),
               Obx(
                 () => Row(
@@ -149,93 +152,105 @@ class _OtpInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const inputWidth = 240.0;
+    final defaultPinTheme = PinTheme(
+      width: 54,
+      height: 54,
+      textStyle: const TextStyle(
+        fontFamily: 'Poppins',
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+        color: AppColors.textprimary,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: AppColors.primary.withValues(alpha: 0.25),
+          width: 1.2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+    );
 
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTapDown: (details) {
-        final boxWidth = inputWidth / OtpController.otpLength;
-        final index = (details.localPosition.dx / boxWidth).floor().clamp(
-          0,
-          OtpController.otpLength - 1,
-        );
-        controller.selectDigit(index);
-      },
-      child: SizedBox(
-        width: inputWidth,
-        height: 48,
-        child: Stack(
-          children: [
-            Obx(
-              () => Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: List.generate(OtpController.otpLength, (index) {
-                  final digit = index < controller.otp.value.length
-                      ? controller.otp.value[index]
-                      : '';
-                  final hasValue = digit.isNotEmpty;
-                  final isActive =
-                      controller.otpFocusNode.hasFocus &&
-                      controller.activeDigit.value == index;
+    final focusedPinTheme = defaultPinTheme.copyWith(
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.primary, width: 1.8),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.18),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+    );
 
-                  return AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
-                    width: 48,
-                    height: 48,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: hasValue
-                          ? AppColors.primary
-                          : AppColors.background,
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(
-                        color: isActive || hasValue
-                            ? AppColors.primary
-                            : AppColors.primary.withValues(alpha: 0.18),
-                        width: isActive ? 1.5 : 1,
-                      ),
-                    ),
-                    child: Text(
-                      digit,
-                      style: TextHelper.heading1.copyWith(
-                        color: hasValue
-                            ? AppColors.background
-                            : AppColors.textprimary,
-                        fontSize: 15,
-                      ),
-                    ),
-                  );
-                }),
-              ),
-            ),
-            Positioned(
-              left: 0,
-              top: 0,
-              width: 1,
-              height: 1,
-              child: IgnorePointer(
-                child: Opacity(
-                  opacity: 0.01,
-                  child: TextField(
-                    controller: controller.otpController,
-                    focusNode: controller.otpFocusNode,
-                    onChanged: controller.onOtpChanged,
-                    onSubmitted: (_) => controller.verifyOtp(),
-                    keyboardType: TextInputType.number,
-                    textInputAction: TextInputAction.done,
-                    enableSuggestions: false,
-                    autocorrect: false,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(OtpController.otpLength),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
+    final submittedPinTheme = defaultPinTheme.copyWith(
+      decoration: BoxDecoration(
+        color: AppColors.primary,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.primary, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.25),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      textStyle: const TextStyle(
+        fontFamily: 'Poppins',
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+        color: Colors.white,
+      ),
+    );
+
+    final errorPinTheme = defaultPinTheme.copyWith(
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.red, width: 1.5),
+      ),
+      textStyle: defaultPinTheme.textStyle?.copyWith(color: AppColors.red),
+    );
+
+    return Pinput(
+      length: OtpController.otpLength,
+      controller: controller.otpController,
+      focusNode: controller.otpFocusNode,
+      autofocus: true,
+      defaultPinTheme: defaultPinTheme,
+      focusedPinTheme: focusedPinTheme,
+      submittedPinTheme: submittedPinTheme,
+      errorPinTheme: errorPinTheme,
+      separatorBuilder: (index) => const SizedBox(width: 12),
+      pinAnimationType: PinAnimationType.scale,
+      hapticFeedbackType: HapticFeedbackType.lightImpact,
+      showCursor: true,
+      cursor: Container(
+        width: 2,
+        height: 22,
+        decoration: BoxDecoration(
+          color: AppColors.primary,
+          borderRadius: BorderRadius.circular(1),
         ),
       ),
+      onChanged: controller.onOtpChanged,
+      onCompleted: (pin) {
+        controller.onOtpChanged(pin);
+        controller.verifyOtp();
+      },
+      keyboardType: TextInputType.number,
+      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
     );
   }
 }

@@ -13,20 +13,20 @@ class UpdateProfileRepositoryImpl implements UpdateProfileRepository {
   Future<UpdateProfileResponseModel> updateProfile({
     required String fullName,
     required String email,
-    required String address,
-    String? locationType,
+    // required String address,
+    // String? locationType,
     dynamic profileImageFile,
   }) async {
     try {
       final Map<String, dynamic> formMap = {
         'full_name': fullName.trim(),
         'email': email.trim(),
-        'address': address.trim(),
+        // 'address': address.trim(),
       };
 
-      if (locationType != null && locationType.trim().isNotEmpty) {
-        formMap['location_type'] = locationType.trim();
-      }
+      // if (locationType != null && locationType.trim().isNotEmpty) {
+      //   formMap['location_type'] = locationType.trim();
+      // }
 
       if (profileImageFile != null) {
         if (profileImageFile is MultipartFile) {

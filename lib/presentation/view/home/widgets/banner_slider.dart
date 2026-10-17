@@ -90,7 +90,7 @@ class _PromotionCarouselState extends State<PromotionCarousel> {
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(8, 8, 8, 7),
+          padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
           child: Column(
             children: [
               SizedBox(
@@ -116,8 +116,6 @@ class _PromotionCarouselState extends State<PromotionCarousel> {
                             errorBuilder: (_, _, _) => const AppEmbeddedImage(
                               asset: bannerImg,
                               fit: BoxFit.cover,
-                              fallback:
-                                  ColoredBox(color: Color(0xFFFFC400)),
                             ),
                           );
                         }
@@ -125,7 +123,7 @@ class _PromotionCarouselState extends State<PromotionCarousel> {
                       return const AppEmbeddedImage(
                         asset: bannerImg,
                         fit: BoxFit.cover,
-                        fallback: ColoredBox(color: Color(0xFFFFC400)),
+                        backgroundColor: Color(0xFFFFC400),
                       );
                     },
                   ),

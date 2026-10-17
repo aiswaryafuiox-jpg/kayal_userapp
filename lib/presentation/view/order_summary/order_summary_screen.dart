@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:kayal_userapp/core/const/api_routes.dart';
 import 'package:kayal_userapp/core/const/app_color.dart';
 import 'package:kayal_userapp/core/const/app_images.dart';
@@ -47,18 +46,13 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
       backgroundColor: const Color(0xFFFFFCFA),
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(70),
-        child: CustomAppBar(
-          title: 'Order Summary',
-          showBackButton: true,
-        ),
+        child: CustomAppBar(title: 'Order Summary', showBackButton: true),
       ),
       body: SafeArea(
         child: Obx(() {
           if (controller.isLoading.value && controller.items.isEmpty) {
             return const Center(
-              child: CircularProgressIndicator(
-                color: Color(0xFFFF823E),
-              ),
+              child: CircularProgressIndicator(color: Color(0xFFFF823E)),
             );
           }
 
@@ -85,9 +79,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                     const SizedBox(height: 20),
                     Text(
                       'Your order is empty',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         fontSize: 20,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w500,
                         color: const Color(0xFF252B35),
                       ),
                     ),
@@ -95,7 +89,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                     Text(
                       'Add dishes to your cart or select an item from the menu to proceed with your order.',
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         fontSize: 14,
                         color: const Color(0xFF6B7280),
                         height: 1.4,
@@ -167,9 +161,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                   //             controller.specialInstructions.value.isNotEmpty
                   //                 ? 'Instructions: ${controller.specialInstructions.value}'
                   //                 : 'Add Special instructions',
-                  //             style: GoogleFonts.inter(
+                  //             style: TextStyle(
                   //               fontSize: 14,
-                  //               fontWeight: FontWeight.w500,
+                  //               fontWeight: FontWeight.w400,
                   //               color: controller
                   //                       .specialInstructions.value.isNotEmpty
                   //                   ? const Color(0xFFFF823E)
@@ -212,16 +206,25 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                           _buildBillRow(
                             item.name,
                             '${item.quantity}X',
-                            '₹${(item.totalPrice > 0 ? item.totalPrice : (item.price * item.quantity)).toInt()}',
+                            '₹${(item.mrp * item.quantity).toStringAsFixed(2)}',
                           ),
                           const SizedBox(height: 10),
                         ],
 
+                        if (controller.subTotal > 0) ...[
+                          _buildBillRow(
+                            'Subtotal',
+                            '',
+                            '₹${controller.subTotal.toStringAsFixed(2)}',
+                            isBold: true,
+                          ),
+                          const SizedBox(height: 10),
+                        ],
                         if (controller.discount > 0) ...[
                           _buildBillRow(
                             'Discount',
                             '',
-                            '-₹${controller.discount.toInt()}',
+                            '-₹${controller.discount.toStringAsFixed(2)}',
                           ),
                           const SizedBox(height: 10),
                         ],
@@ -235,26 +238,23 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                           const SizedBox(height: 10),
                         ],
 
-                        const Divider(
-                          color: Color(0xFFF3F4F6),
-                          height: 16,
-                        ),
+                        const Divider(color: Color(0xFFF3F4F6), height: 16),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
                               'Total Amount',
-                              style: GoogleFonts.inter(
+                              style: TextStyle(
                                 fontSize: 16,
-                                fontWeight: FontWeight.w700,
+                                fontWeight: FontWeight.w500,
                                 color: const Color(0xFF252B35),
                               ),
                             ),
                             Text(
-                              '₹${controller.totalAmount.toInt()}',
-                              style: GoogleFonts.inter(
+                              '₹${controller.totalAmount.toStringAsFixed(2)}',
+                              style: TextStyle(
                                 fontSize: 18,
-                                fontWeight: FontWeight.w700,
+                                fontWeight: FontWeight.w500,
                                 color: const Color(0xFFFF823E),
                               ),
                             ),
@@ -271,17 +271,17 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                     children: [
                       Text(
                         'Estimate delivery time',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w400,
                           color: const Color(0xFF66CA7A),
                         ),
                       ),
                       Text(
                         controller.estimatedDeliveryTime,
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w400,
                           color: const Color(0xFF66CA7A),
                         ),
                       ),
@@ -315,17 +315,15 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFFFFF1EB),
-          width: 1.5,
-        ),
+        border: Border.all(color: const Color(0xFFFFF1EB), width: 1.5),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: resolvedImage.startsWith('http://') ||
+            child:
+                resolvedImage.startsWith('http://') ||
                     resolvedImage.startsWith('https://')
                 ? Image.network(
                     resolvedImage,
@@ -361,9 +359,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                 const SizedBox(height: 4),
                 Text(
                   item.name,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 15,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w500,
                     color: const Color(0xFF252B35),
                   ),
                   maxLines: 1,
@@ -394,9 +392,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                     const SizedBox(width: 6),
                     Text(
                       item.type,
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         fontSize: 13,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w400,
                         color: const Color(0xFF6B7280),
                       ),
                     ),
@@ -408,9 +406,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                     if (item.oldPrice > item.price && item.price > 0) ...[
                       Text(
                         '₹${item.oldPrice.toInt()}',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontSize: 12,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w400,
                           color: const Color(0xFF9E9E9E),
                           decoration: TextDecoration.lineThrough,
                         ),
@@ -419,9 +417,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                     ],
                     Text(
                       '₹${item.price.toInt()}',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         fontSize: 15,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w500,
                         color: const Color(0xFFFF823E),
                       ),
                     ),
@@ -437,9 +435,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                       ),
                       child: Text(
                         'Qty: ${item.quantity}',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                           color: Colors.white,
                         ),
                       ),
@@ -467,12 +465,10 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
           flex: 2,
           child: Text(
             title,
-            style: GoogleFonts.inter(
+            style: TextStyle(
               fontSize: 14,
-              fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
-              color: isBold
-                  ? const Color(0xFF252B35)
-                  : const Color(0xFF4B5563),
+              fontWeight: isBold ? FontWeight.w500 : FontWeight.w400,
+              color: isBold ? const Color(0xFF252B35) : const Color(0xFF4B5563),
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -484,9 +480,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
             child: Text(
               qty,
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 fontSize: 14,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w400,
                 color: const Color(0xFF4B5563),
               ),
             ),
@@ -498,12 +494,10 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
           child: Text(
             price,
             textAlign: TextAlign.right,
-            style: GoogleFonts.inter(
+            style: TextStyle(
               fontSize: 14,
-              fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
-              color: isBold
-                  ? const Color(0xFF252B35)
-                  : const Color(0xFF252B35),
+              fontWeight: isBold ? FontWeight.w500 : FontWeight.w400,
+              color: isBold ? const Color(0xFF252B35) : const Color(0xFF252B35),
             ),
           ),
         ),

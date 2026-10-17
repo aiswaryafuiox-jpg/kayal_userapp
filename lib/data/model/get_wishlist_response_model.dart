@@ -1,229 +1,101 @@
-import 'package:kayal_userapp/core/const/app_images.dart';
-import 'package:kayal_userapp/core/utils/helper/food_type_helper.dart';
-import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
+
+import 'dart:convert';
+
+GetWishlistResponseModel getWishlistResponseModelFromJson(String str) => GetWishlistResponseModel.fromJson(json.decode(str));
+
+String getWishlistResponseModelToJson(GetWishlistResponseModel data) => json.encode(data.toJson());
 
 class GetWishlistResponseModel {
+    bool? success;
+    WishlistData? data;
+    String? message;
+    int? code;
 
-  final bool success;
-  final String message;
-  final List<WishlistItemModel> data;
-  final dynamic errors;
-  final int? code;
+    GetWishlistResponseModel({
+        this.success,
+        this.data,
+        this.message,
+        this.code,
+    });
 
-  GetWishlistResponseModel({
-    this.success = true,
-    this.message = '',
-    this.data = const [],
-    this.errors,
-    this.code,
-  });
-
-  factory GetWishlistResponseModel.fromJson(Map<String, dynamic> json) {
-    final rawSuccess = json['success'] ?? json['status'];
-    final bool isSuccess =
-        rawSuccess == true ||
-        rawSuccess == 1 ||
-        rawSuccess == '1' ||
-        rawSuccess == 'true' ||
-        rawSuccess == 'success';
-
-    final rawCode = json['code'] ?? json['status_code'];
-    final parsedCode = rawCode is int
-        ? rawCode
-        : int.tryParse(rawCode?.toString() ?? '');
-
-    List<WishlistItemModel> items = [];
-
-    List<WishlistItemModel> parseList(dynamic rawList) {
-      if (rawList is List) {
-        return rawList
-            .map((item) {
-              if (item is Map<String, dynamic>) {
-                return WishlistItemModel.fromJson(item);
-              } else if (item is Map) {
-                return WishlistItemModel.fromJson(
-                  Map<String, dynamic>.from(item),
-                );
-              }
-              return null;
-            })
-            .whereType<WishlistItemModel>()
-            .toList();
-      }
-      return [];
-    }
-
-    if (json['data'] != null) {
-      if (json['data'] is List) {
-        items = parseList(json['data']);
-      } else if (json['data'] is Map<String, dynamic>) {
-        final dataMap = json['data'] as Map<String, dynamic>;
-        final rawList =
-            dataMap['items'] ??
-            dataMap['wishlist'] ??
-            dataMap['products'] ??
-            dataMap['favorite_items'];
-        if (rawList != null) {
-          items = parseList(rawList);
-        }
-      }
-    } else if (json['wishlist'] != null) {
-      items = parseList(json['wishlist']);
-    } else if (json['items'] != null) {
-      items = parseList(json['items']);
-    } else if (json['products'] != null) {
-      items = parseList(json['products']);
-    }
-
-    return GetWishlistResponseModel(
-      success: isSuccess,
-      message: json['message']?.toString() ?? '',
-      data: items,
-      errors: json['errors'],
-      code: parsedCode,
+    factory GetWishlistResponseModel.fromJson(Map<String, dynamic> json) => GetWishlistResponseModel(
+        success: json["success"],
+        data: json["data"] == null ? null : WishlistData.fromJson(json["data"]),
+        message: json["message"],
+        code: json["code"],
     );
-  }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'success': success,
-      'message': message,
-      'data': data.map((e) => e.toJson()).toList(),
-      'errors': errors,
-      if (code != null) 'code': code,
+    Map<String, dynamic> toJson() => {
+        "success": success,
+        "data": data?.toJson(),
+        "message": message,
+        "code": code,
     };
-  }
+}
+class WishlistData {
+    List<WishlistItemModel>? items;
+    int? currentPage;
+    int? lastPage;
+    int? total;
 
-  String get formattedErrorMessage {
-    if (errors == null) return message;
-    if (errors is String) return errors as String;
-    if (errors is Map) {
-      final map = errors as Map;
-      final errorList = <String>[];
-      map.forEach((key, value) {
-        if (value is List) {
-          errorList.addAll(value.map((e) => e.toString()));
-        } else if (value is String) {
-          errorList.add(value);
-        }
-      });
-      if (errorList.isNotEmpty) {
-        return errorList.join('\n');
-      }
-    }
-    return message;
-  }
+  WishlistData({
+        this.items,
+        this.currentPage,
+        this.lastPage,
+        this.total,
+    });
+
+    factory WishlistData.fromJson(Map<String, dynamic> json) => WishlistData(
+        items: json["items"] == null ? [] : List<WishlistItemModel>.from(json["items"]!.map((x) => WishlistItemModel.fromJson(x))),
+        currentPage: json["current_page"],
+        lastPage: json["last_page"],
+        total: json["total"],
+    );
+
+    Map<String, dynamic> toJson() => {
+        "items": items == null ? [] : List<dynamic>.from(items!.map((x) => x.toJson())),
+        "current_page": currentPage,
+        "last_page": lastPage,
+        "total": total,
+    };
 }
 
 class WishlistItemModel {
-  final dynamic id;
-  final dynamic productId;
-  final String name;
-  final String type;
-  final bool isVeg;
-  final double oldPrice;
-  final double price;
-  final String image;
-  final String discount;
+   int? productId;
+    String? name;
+    String? imageUrl;
+    bool? isVeg;
+    num? mrp;
+    num? sellPrice;
+    bool? isFavorite;
 
-  WishlistItemModel({
-    this.id,
-    this.productId,
-    this.name = '',
-    this.type = 'Veg',
-    this.isVeg = true,
-    this.oldPrice = 0.0,
-    this.price = 0.0,
-    this.image = '',
-    this.discount = '20 %',
-  });
+    WishlistItemModel({
+        this.productId,
+        this.name,
+        this.imageUrl,
+        this.isVeg,
+        this.mrp,
+        this.sellPrice,
+        this.isFavorite,
+    });
 
-  factory WishlistItemModel.fromJson(Map<String, dynamic> json) {
-    final productMap = (json['product'] != null && json['product'] is Map)
-        ? Map<String, dynamic>.from(json['product'])
-        : json;
-
-    final rawPrice =
-        productMap['price'] ??
-        productMap['new_price'] ??
-        productMap['unit_price'] ??
-        productMap['offer_price'] ??
-        json['price'];
-    final parsedPrice = rawPrice is num
-        ? rawPrice.toDouble()
-        : double.tryParse(rawPrice?.toString() ?? '0') ?? 0.0;
-
-    final rawOldPrice =
-        productMap['old_price'] ??
-        productMap['mrp'] ??
-        productMap['original_price'] ??
-        json['old_price'] ??
-        parsedPrice;
-    final parsedOldPrice = rawOldPrice is num
-        ? rawOldPrice.toDouble()
-        : double.tryParse(rawOldPrice?.toString() ?? '0') ?? parsedPrice;
-
-    final rawName =
-        (productMap['name'] ??
-                productMap['title'] ??
-                json['name'] ??
-                'Product')
-            .toString()
-            .capitalizeWords();
-
-    final bool isVegBool = FoodTypeHelper.determineIsVeg(
-      foodType: productMap['food_type'] ?? json['food_type'],
-      isVeg: productMap['is_veg'] ?? json['is_veg'],
-      vegStatus: productMap['veg_status'] ?? json['veg_status'],
-      type: (productMap['type'] ?? json['type'])?.toString(),
-      productName: rawName,
+    factory WishlistItemModel.fromJson(Map<String, dynamic> json) => WishlistItemModel(
+        productId: json["product_id"],
+        name: json["name"],
+        imageUrl: json["image_url"],
+        isVeg: json["is_veg"],
+        mrp: json["mrp"],
+        sellPrice: json["sell_price"],
+        isFavorite: json["is_favorite"],
     );
 
-    final String typeStr = FoodTypeHelper.determineType(
-      foodType: productMap['food_type'] ?? json['food_type'],
-      isVeg: productMap['is_veg'] ?? json['is_veg'],
-      vegStatus: productMap['veg_status'] ?? json['veg_status'],
-      type: (productMap['type'] ?? json['type'])?.toString(),
-      productName: rawName,
-    );
-
-    final rawImage =
-        productMap['image'] ??
-        productMap['product_image'] ??
-        productMap['image_url'] ??
-        json['image'] ??
-        productImg1;
-
-    final rawDiscount =
-        productMap['discount'] ??
-        productMap['discount_percentage'] ??
-        json['discount'];
-    final discountStr = rawDiscount != null ? rawDiscount.toString() : '20 %';
-
-    return WishlistItemModel(
-      id: json['id'] ?? productMap['id'],
-      productId: productMap['id'] ?? json['product_id'] ?? json['id'],
-      name: rawName,
-      type: typeStr.capitalizeWords(),
-      isVeg: isVegBool,
-      oldPrice: parsedOldPrice > 0 ? parsedOldPrice : parsedPrice,
-      price: parsedPrice,
-      image: rawImage.toString(),
-      discount: discountStr.contains('%') ? discountStr : '$discountStr %',
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'product_id': productId,
-      'name': name,
-      'type': type,
-      'is_veg': isVeg,
-      'old_price': oldPrice,
-      'price': price,
-      'image': image,
-      'discount': discount,
+    Map<String, dynamic> toJson() => {
+        "product_id": productId,
+        "name": name,
+        "image_url": imageUrl,
+        "is_veg": isVeg,
+        "mrp": mrp,
+        "sell_price": sellPrice,
+        "is_favorite": isFavorite,
     };
-  }
 }

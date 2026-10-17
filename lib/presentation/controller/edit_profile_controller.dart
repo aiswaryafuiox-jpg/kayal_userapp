@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kayal_userapp/core/const/app_color.dart';
 import 'package:kayal_userapp/core/const/app_images.dart';
+import 'package:kayal_userapp/core/utils/helper/app_toast.dart';
 import 'package:kayal_userapp/core/di/service_locator.dart';
 import 'package:kayal_userapp/core/service/api_service.dart';
 import 'package:kayal_userapp/data/model/get_profile_response_model.dart';
@@ -23,18 +24,25 @@ class EditProfileController extends GetxController {
     GetProfileUseCase? getProfileUseCase,
     UpdateProfileUseCase? updateProfileUseCase,
     UpdateProfilePhotoUseCase? updateProfilePhotoUseCase,
-  })  : _getProfileUseCase = getProfileUseCase ??
-            (sl.isRegistered<GetProfileUseCase>()
-                ? sl<GetProfileUseCase>()
-                : GetProfileUseCase(GetProfileRepositoryImpl(ApiService()))),
-        _updateProfileUseCase = updateProfileUseCase ??
-            (sl.isRegistered<UpdateProfileUseCase>()
-                ? sl<UpdateProfileUseCase>()
-                : UpdateProfileUseCase(UpdateProfileRepositoryImpl(ApiService()))),
-        _updateProfilePhotoUseCase = updateProfilePhotoUseCase ??
-            (sl.isRegistered<UpdateProfilePhotoUseCase>()
-                ? sl<UpdateProfilePhotoUseCase>()
-                : UpdateProfilePhotoUseCase(UpdateProfilePhotoRepositoryImpl(ApiService())));
+  }) : _getProfileUseCase =
+           getProfileUseCase ??
+           (sl.isRegistered<GetProfileUseCase>()
+               ? sl<GetProfileUseCase>()
+               : GetProfileUseCase(GetProfileRepositoryImpl(ApiService()))),
+       _updateProfileUseCase =
+           updateProfileUseCase ??
+           (sl.isRegistered<UpdateProfileUseCase>()
+               ? sl<UpdateProfileUseCase>()
+               : UpdateProfileUseCase(
+                   UpdateProfileRepositoryImpl(ApiService()),
+                 )),
+       _updateProfilePhotoUseCase =
+           updateProfilePhotoUseCase ??
+           (sl.isRegistered<UpdateProfilePhotoUseCase>()
+               ? sl<UpdateProfilePhotoUseCase>()
+               : UpdateProfilePhotoUseCase(
+                   UpdateProfilePhotoRepositoryImpl(ApiService()),
+                 ));
 
   final profileImageUrl = ''.obs;
   final profileImage = profileImg.obs;
@@ -48,8 +56,8 @@ class EditProfileController extends GetxController {
   final fullNameController = TextEditingController();
   final phoneController = TextEditingController();
   final emailController = TextEditingController();
-  final addressController = TextEditingController();
-  final locationTypeController = TextEditingController(text: 'Home');
+
+
 
   @override
   void onInit() {
@@ -69,10 +77,7 @@ class EditProfileController extends GetxController {
     fullNameController.text = data.fullName;
     phoneController.text = data.phone;
     emailController.text = data.email;
-    if (data.defaultAddress != null) {
-      addressController.text = data.defaultAddress!.text;
-      locationTypeController.text = data.defaultAddress!.locationType;
-    }
+   
     if (data.profileImage != null && data.profileImage!.isNotEmpty) {
       profileImageUrl.value = data.profileImage!;
     }
@@ -97,8 +102,6 @@ class EditProfileController extends GetxController {
     fullNameController.dispose();
     phoneController.dispose();
     emailController.dispose();
-    addressController.dispose();
-    locationTypeController.dispose();
     super.onClose();
   }
 
@@ -121,7 +124,7 @@ class EditProfileController extends GetxController {
               'Select Profile Photo',
               style: TextStyle(
                 fontSize: 16,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w500,
                 color: Color(0xFF1F2937),
               ),
             ),
@@ -139,7 +142,7 @@ class EditProfileController extends GetxController {
                 'Take Photo',
                 style: TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                   color: Color(0xFF1F2937),
                 ),
               ),
@@ -156,13 +159,16 @@ class EditProfileController extends GetxController {
                   color: AppColors.primary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.photo_library, color: AppColors.primary),
+                child: const Icon(
+                  Icons.photo_library,
+                  color: AppColors.primary,
+                ),
               ),
               title: const Text(
                 'Choose from Gallery',
                 style: TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                   color: Color(0xFF1F2937),
                 ),
               ),
@@ -191,11 +197,9 @@ class EditProfileController extends GetxController {
 
       isUploadingPhoto.value = true;
 
-      Get.snackbar(
-        'Uploading Photo',
+      AppToast.info(
         'Please wait while your profile photo is being uploaded...',
-        snackPosition: SnackPosition.BOTTOM,
-        duration: const Duration(seconds: 2),
+        title: 'Uploading Photo',
       );
 
       final response = await _updateProfilePhotoUseCase(
@@ -207,37 +211,29 @@ class EditProfileController extends GetxController {
 
         // Update active ProfileController instance
         if (Get.isRegistered<ProfileController>()) {
-          Get.find<ProfileController>().profileImageUrl.value = response.photoUrl;
+          Get.find<ProfileController>().profileImageUrl.value =
+              response.photoUrl;
           Get.find<ProfileController>().fetchProfile();
         }
 
-        Get.snackbar(
-          'Photo Updated',
+        AppToast.success(
           response.message.isNotEmpty
               ? response.message
               : 'Profile photo updated successfully',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: const Color(0xFF2E7D32),
-          colorText: Colors.white,
+          title: 'Photo Updated',
         );
       } else {
-        Get.snackbar(
-          'Upload Failed',
+        AppToast.error(
           response.formattedErrorMessage.isNotEmpty
               ? response.formattedErrorMessage
               : 'Failed to upload profile photo',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white,
+          title: 'Upload Failed',
         );
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
+      AppToast.error(
         e.toString().replaceAll('Exception: ', ''),
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.redAccent,
-        colorText: Colors.white,
+        title: 'Error',
       );
     } finally {
       isUploadingPhoto.value = false;
@@ -247,27 +243,20 @@ class EditProfileController extends GetxController {
   Future<void> saveProfile() async {
     final name = fullNameController.text.trim();
     final email = emailController.text.trim();
-    final address = addressController.text.trim();
-    final locationType = locationTypeController.text.trim();
+
 
     if (name.isEmpty) {
-      Get.snackbar(
-        'Validation Error',
+      AppToast.warning(
         'Please enter your full name',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.redAccent,
-        colorText: Colors.white,
+        title: 'Validation Error',
       );
       return;
     }
 
     if (email.isEmpty) {
-      Get.snackbar(
-        'Validation Error',
+      AppToast.warning(
         'Please enter your email address',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.redAccent,
-        colorText: Colors.white,
+        title: 'Validation Error',
       );
       return;
     }
@@ -278,8 +267,7 @@ class EditProfileController extends GetxController {
       final response = await _updateProfileUseCase(
         fullName: name,
         email: email,
-        address: address,
-        locationType: locationType.isNotEmpty ? locationType : null,
+       
       );
 
       if (response.success) {
@@ -290,33 +278,24 @@ class EditProfileController extends GetxController {
 
         Get.back();
 
-        Get.snackbar(
-          'Success',
+        AppToast.success(
           response.message.isNotEmpty
               ? response.message
               : 'Profile updated successfully',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: const Color(0xFF2E7D32),
-          colorText: Colors.white,
+          title: 'Success',
         );
       } else {
-        Get.snackbar(
-          'Update Failed',
+        AppToast.error(
           response.formattedErrorMessage.isNotEmpty
               ? response.formattedErrorMessage
               : 'Failed to update profile',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white,
+          title: 'Update Failed',
         );
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
+      AppToast.error(
         e.toString().replaceAll('Exception: ', ''),
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.redAccent,
-        colorText: Colors.white,
+        title: 'Error',
       );
     } finally {
       isSaving.value = false;

@@ -9,15 +9,12 @@ class UpdateProfileUseCase {
   Future<UpdateProfileResponseModel> call({
     required String fullName,
     required String email,
-    required String address,
-    String? locationType,
     dynamic profileImageFile,
   }) {
     return _repository.updateProfile(
       fullName: fullName,
       email: email,
-      address: address,
-      locationType: locationType,
+    
       profileImageFile: profileImageFile,
     );
   }

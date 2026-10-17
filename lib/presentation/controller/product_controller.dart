@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:kayal_userapp/core/const/app_color.dart';
 import 'package:kayal_userapp/core/const/app_images.dart';
+import 'package:kayal_userapp/core/utils/helper/app_toast.dart';
 import 'package:kayal_userapp/core/di/service_locator.dart';
 import 'package:kayal_userapp/core/service/api_service.dart';
 import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
@@ -74,12 +76,21 @@ class ProductController extends GetxController {
     selectedSort.value = sort;
   }
 
-  void toggleDietary(String type) {
-    if (selectedDietary.value == type) {
+  void setDietary(String type) {
+    final current = selectedDietary.value;
+    final isMatching =
+        current == type ||
+        ((current == 'Non-Veg' || current == 'Non - Veg') &&
+            (type == 'Non-Veg' || type == 'Non - Veg'));
+    if (isMatching) {
       selectedDietary.value = '';
     } else {
       selectedDietary.value = type;
     }
+  }
+
+  void toggleDietary(String type) {
+    setDietary(type);
   }
 
   bool get hasActiveFilters =>
@@ -106,7 +117,8 @@ class ProductController extends GetxController {
 
     if (selectedDietary.value == 'Veg') {
       list = list.where((p) => p.isVeg).toList();
-    } else if (selectedDietary.value == 'Non-Veg') {
+    } else if (selectedDietary.value == 'Non-Veg' ||
+        selectedDietary.value == 'Non - Veg') {
       list = list.where((p) => !p.isVeg).toList();
     }
 
@@ -433,7 +445,11 @@ class ProductController extends GetxController {
     if (Get.isRegistered<CartController>()) {
       final cartController = Get.find<CartController>();
       final cartItem = cartController.cartItems.firstWhereOrNull(
-        (item) => item.id == product.id || item.name == product.name,
+        (item) =>
+            item.id == product.id ||
+            item.productId?.toString() == product.id ||
+            item.cartItemId == product.id ||
+            item.name?.toLowerCase() == product.name.toLowerCase(),
       );
       if (cartItem != null) {
         return cartItem.qty;
@@ -444,10 +460,9 @@ class ProductController extends GetxController {
 
   void incrementQuantity(ProductModel product) {
     if (isRestaurantClosed.value) {
-      Get.snackbar(
-        'Restaurant Unavailable',
+      AppToast.warning(
         'Cannot add items to cart while restaurant is closed.',
-        snackPosition: SnackPosition.BOTTOM,
+        title: 'Restaurant Unavailable',
       );
       return;
     }
@@ -455,7 +470,11 @@ class ProductController extends GetxController {
     if (Get.isRegistered<CartController>()) {
       final cartController = Get.find<CartController>();
       final cartIndex = cartController.cartItems.indexWhere(
-        (item) => item.name == product.name || item.id == product.id,
+        (item) =>
+            item.id == product.id ||
+            item.productId?.toString() == product.id ||
+            item.cartItemId == product.id ||
+            item.name?.toLowerCase() == product.name.toLowerCase(),
       );
       if (cartIndex != -1) {
         cartController.incrementQuantity(cartIndex);
@@ -482,7 +501,11 @@ class ProductController extends GetxController {
     if (Get.isRegistered<CartController>()) {
       final cartController = Get.find<CartController>();
       final cartIndex = cartController.cartItems.indexWhere(
-        (item) => item.name == product.name || item.id == product.id,
+        (item) =>
+            item.id == product.id ||
+            item.productId?.toString() == product.id ||
+            item.cartItemId == product.id ||
+            item.name?.toLowerCase() == product.name.toLowerCase(),
       );
       if (cartIndex != -1) {
         cartController.decrementQuantity(cartIndex);
@@ -492,10 +515,9 @@ class ProductController extends GetxController {
 
   void addToCart(String id) {
     if (isRestaurantClosed.value) {
-      Get.snackbar(
-        'Restaurant Unavailable',
+      AppToast.warning(
         'Cannot add items to cart while restaurant is closed.',
-        snackPosition: SnackPosition.BOTTOM,
+        title: 'Restaurant Unavailable',
       );
       return;
     }
@@ -508,10 +530,288 @@ class ProductController extends GetxController {
   }
 
   void openFilter() {
-    Get.snackbar(
-      'Filter',
-      'Filter clicked',
-      snackPosition: SnackPosition.BOTTOM,
+    final tempSort = selectedSort.value.obs;
+    final initialDietary = (selectedDietary.value == 'Non-Veg')
+        ? 'Non - Veg'
+        : selectedDietary.value;
+    final tempDietary = initialDietary.obs;
+
+    Get.bottomSheet(
+      Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: SafeArea(
+          top: false,
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title and Close Icon
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Filter',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textprimary,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => Get.back(),
+                        behavior: HitTestBehavior.opaque,
+                        child: const Padding(
+                          padding: EdgeInsets.all(4),
+                          child: Icon(
+                            Icons.close,
+                            color: AppColors.red,
+                            size: 22,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Sort By Header
+                  Text(
+                    'Sort By',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.textprimary,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Sort By Options
+                  Obx(
+                    () => Column(
+                      children: [
+                        _buildFilterOption(
+                          'Popularity',
+                          tempSort.value,
+                          (val) => tempSort.value = val,
+                        ),
+                        const SizedBox(height: 8),
+                        _buildFilterOption(
+                          'Ratings',
+                          tempSort.value,
+                          (val) => tempSort.value = val,
+                        ),
+                        const SizedBox(height: 8),
+                        _buildFilterOption(
+                          'Price : Low --> High',
+                          tempSort.value,
+                          (val) => tempSort.value = val,
+                        ),
+                        const SizedBox(height: 8),
+                        _buildFilterOption(
+                          'Price : High --> Low',
+                          tempSort.value,
+                          (val) => tempSort.value = val,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Dietary Header
+                  Text(
+                    'Dietary',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.textprimary,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Dietary Options
+                  Obx(
+                    () => Column(
+                      children: [
+                        _buildFilterOption('Veg', tempDietary.value, (val) {
+                          if (tempDietary.value == 'Veg') {
+                            tempDietary.value = '';
+                          } else {
+                            tempDietary.value = 'Veg';
+                          }
+                        }),
+                        const SizedBox(height: 8),
+                        _buildFilterOption('Non - Veg', tempDietary.value, (
+                          val,
+                        ) {
+                          if (tempDietary.value == 'Non - Veg' ||
+                              tempDietary.value == 'Non-Veg') {
+                            tempDietary.value = '';
+                          } else {
+                            tempDietary.value = 'Non - Veg';
+                          }
+                        }),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+
+                  // Buttons Row: Reset & Apply
+                  Row(
+                    children: [
+                      Expanded(
+                        child: SizedBox(
+                          height: 48,
+                          child: OutlinedButton(
+                            onPressed: () {
+                              tempSort.value = 'Popularity';
+                              tempDietary.value = '';
+                              resetFilters();
+                            },
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(
+                                color: Color(0xFFFFDFC6),
+                                width: 1.2,
+                              ),
+                              backgroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: Text(
+                              'Reset',
+                              style: TextStyle(
+                                color: AppColors.primary,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: SizedBox(
+                          height: 48,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              selectedSort.value = tempSort.value;
+                              selectedDietary.value = tempDietary.value;
+                              applyFilters();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: Text(
+                              'Apply',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 18),
+
+                  // Bottom Drag handle / Home indicator bar
+                  Center(
+                    child: Container(
+                      width: 134,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1F2937),
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+    );
+  }
+
+  void applyFilters() {
+    Get.back();
+  }
+
+  Widget _buildFilterOption(
+    String option,
+    String selectedValue,
+    ValueChanged<String> onTap,
+  ) {
+    final bool isSelected =
+        option == selectedValue ||
+        ((option == 'Non - Veg' || option == 'Non-Veg') &&
+            (selectedValue == 'Non - Veg' || selectedValue == 'Non-Veg'));
+
+    return GestureDetector(
+      onTap: () => onTap(option),
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: const Color(0xFFFFEBE3), width: 1.2),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 18,
+              height: 18,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isSelected
+                      ? AppColors.primary
+                      : const Color(0xFFFFB27A),
+                  width: 1.5,
+                ),
+              ),
+              padding: const EdgeInsets.all(2.5),
+              child: isSelected
+                  ? const DecoratedBox(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColors.primary,
+                      ),
+                    )
+                  : null,
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Text(
+                option,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  color: AppColors.textprimary,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

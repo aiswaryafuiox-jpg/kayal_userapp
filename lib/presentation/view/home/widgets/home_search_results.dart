@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ionicons/flutter_ionicons.dart';
 import 'package:get/get.dart';
 import 'package:kayal_userapp/core/const/api_routes.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
@@ -94,7 +95,7 @@ class HomeSearchResults extends StatelessWidget {
             if (!searchController.hasSearched.value ||
                 (loading && result == null))
               const _DropdownMessage(
-                icon: Icons.search,
+                icon: Ionicons.search_outline,
                 message: 'Finding matching products...',
               )
             else if (result == null || (!loading && result.isEmpty))
@@ -109,7 +110,7 @@ class HomeSearchResults extends StatelessWidget {
                   'Suggestions for "${searchController.query.value.trim()}"',
                   style: const TextStyle(
                     fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                     color: Color(0xFF6B7280),
                   ),
                 ),
@@ -187,7 +188,7 @@ class _SectionLabel extends StatelessWidget {
         title,
         style: const TextStyle(
           fontSize: 13,
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w700,
           color: Color(0xFF252B35),
         ),
       ),
@@ -273,7 +274,7 @@ class _SuggestionTile extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 13,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       color: Color(0xFF252B35),
                     ),
                   ),

@@ -14,10 +14,7 @@ class CheckoutScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: CustomAppBar(
-        title: 'Checkout',
-        showBackButton: true,
-      ),
+      appBar: CustomAppBar(title: 'Checkout', showBackButton: true),
       body: SafeArea(
         child: Stack(
           children: [
@@ -25,26 +22,28 @@ class CheckoutScreen extends StatelessWidget {
               color: AppColors.primary,
               onRefresh: () => controller.fetchSavedAddresses(),
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 16,
+                ),
                 physics: const AlwaysScrollableScrollPhysics(
                   parent: BouncingScrollPhysics(),
                 ),
                 child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Delivery Address',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.grey,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Delivery Address',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.grey,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  // Addresses List
-                  Obx(
-                    () {
+                    const SizedBox(height: 16),
+
+                    // Addresses List
+                    Obx(() {
                       if (controller.isLoadingAddresses.value) {
                         return const Center(
                           child: Padding(
@@ -80,7 +79,7 @@ class CheckoutScreen extends StatelessWidget {
                                 'No saved addresses found',
                                 style: TextStyle(
                                   fontSize: 14,
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.w500,
                                   color: AppColors.grey,
                                 ),
                               ),
@@ -100,51 +99,58 @@ class CheckoutScreen extends StatelessWidget {
 
                       // Explicitly read the observable so Obx tracks it and rebuilds the list
                       final _ = controller.selectedAddressIndex.value;
-                      
+
                       return ListView.separated(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: controller.addresses.length,
-                        separatorBuilder: (context, index) => const SizedBox(height: 16),
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 16),
                         itemBuilder: (context, index) {
                           final address = controller.addresses[index];
-                          final isSelected = controller.selectedAddressIndex.value == index;
-                          
+                          final isSelected =
+                              controller.selectedAddressIndex.value == index;
+
                           return GestureDetector(
                             onTap: () => controller.selectAddress(index),
                             child: Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: isSelected 
-                                    ? AppColors.checkoutbackground 
+                                color: isSelected
+                                    ? AppColors.checkoutbackground
                                     : AppColors.white,
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                  color: isSelected 
-                                      ? AppColors.checkoutbackground 
+                                  color: isSelected
+                                      ? AppColors.checkoutbackground
                                       : const Color(0xFFF0F0F0),
                                   width: 1.5,
                                 ),
-                                boxShadow: isSelected ? [] : [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.02),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 4),
-                                  )
-                                ],
+                                boxShadow: isSelected
+                                    ? []
+                                    : [
+                                        BoxShadow(
+                                          color: Colors.black.withValues(
+                                            alpha: 0.02,
+                                          ),
+                                          blurRadius: 10,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ],
                               ),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           address['type'] ?? 'Address',
                                           style: const TextStyle(
                                             fontSize: 15,
-                                            fontWeight: FontWeight.w700,
+                                            fontWeight: FontWeight.w500,
                                             color: AppColors.grey,
                                           ),
                                         ),
@@ -167,19 +173,22 @@ class CheckoutScreen extends StatelessWidget {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       GestureDetector(
-                                        onTap: () => controller.editAddress(index),
+                                        onTap: () =>
+                                            controller.editAddress(index),
                                         child: const Text(
                                           'Edit Address',
                                           style: TextStyle(
                                             fontSize: 12,
-                                            fontWeight: FontWeight.w500,
+                                            fontWeight: FontWeight.w400,
                                             color: AppColors.primary,
                                           ),
                                         ),
                                       ),
                                       const SizedBox(height: 14),
                                       Icon(
-                                        isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
+                                        isSelected
+                                            ? Icons.radio_button_checked
+                                            : Icons.radio_button_off,
                                         color: AppColors.primary,
                                         size: 24,
                                       ),
@@ -191,40 +200,42 @@ class CheckoutScreen extends StatelessWidget {
                           );
                         },
                       );
-                    },
-                  ),
-                  const SizedBox(height: 16),
+                    }),
+                    const SizedBox(height: 16),
 
-                  // Add New Address Button
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: GestureDetector(
-                      onTap: controller.addNewAddress,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: AppColors.checkoutbackground,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Text(
-                          'Add New Address',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.primary,
+                    // Add New Address Button
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: GestureDetector(
+                        onTap: controller.addNewAddress,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.checkoutbackground,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Text(
+                            'Add New Address',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.primary,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  
-                  // Space for bottom button
-                  const SizedBox(height: 100),
-                ],
+
+                    // Space for bottom button
+                    const SizedBox(height: 100),
+                  ],
+                ),
               ),
             ),
-          ),
-         
+
             // Continue Button at bottom
             Positioned(
               left: 24,

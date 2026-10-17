@@ -19,12 +19,7 @@ class CategoryCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.fromLTRB(
-          10,
-          10,
-          10,
-          8,
-        ),
+        padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(6),
@@ -46,7 +41,8 @@ class CategoryCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(5),
                 child: Opacity(
                   opacity: isClosed ? 0.45 : 1.0,
-                  child: image.startsWith('http://') ||
+                  child:
+                      image.startsWith('http://') ||
                           image.startsWith('https://')
                       ? Image.network(
                           image,
@@ -90,7 +86,7 @@ class CategoryCard extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w400,
                 color: isClosed
                     ? const Color(0xFF8C9199)
                     : const Color(0xFF202733),

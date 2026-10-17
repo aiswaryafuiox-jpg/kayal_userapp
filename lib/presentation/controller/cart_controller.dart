@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:kayal_userapp/core/di/service_locator.dart';
 import 'package:kayal_userapp/core/service/api_service.dart';
 import 'package:kayal_userapp/core/service/local_storage_service.dart';
+import 'package:kayal_userapp/core/utils/helper/app_toast.dart';
 import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
 import 'package:kayal_userapp/data/model/add_to_cart_response_model.dart';
@@ -79,6 +80,8 @@ class CartController extends GetxController {
     fetchCart();
   }
 
+  bool _isFetchingCart = false;
+
   Future<void> fetchCart({bool showLoading = true}) async {
     final token = LocalStorageService().getString("auth_token");
     if (token == null ||
@@ -90,6 +93,9 @@ class CartController extends GetxController {
       return;
     }
 
+    if (_isFetchingCart) return;
+    _isFetchingCart = true;
+
     if (showLoading) {
       isLoadingCart.value = true;
     }
@@ -97,13 +103,15 @@ class CartController extends GetxController {
 
     try {
       final response = await _getCartUseCase();
-      if ((response.success ?? false) &&
-          (response.data?.items?.isNotEmpty ?? false)) {
-        cartData.value = response.data;
-        cartItems.assignAll(response.data!.items!);
-      } else if ((response.data?.items?.isEmpty ?? false)) {
-        cartItems.clear();
-        cartData.value = null;
+      if (response.success ?? false) {
+        if (response.data != null &&
+            (response.data!.items?.isNotEmpty ?? false)) {
+          cartData.value = response.data;
+          cartItems.assignAll(response.data!.items!);
+        } else {
+          cartItems.clear();
+          cartData.value = null;
+        }
       } else {
         errorMessage.value = response.message ?? "";
       }
@@ -111,6 +119,7 @@ class CartController extends GetxController {
       debugPrint('Error fetching cart: $e');
       errorMessage.value = e.toString();
     } finally {
+      _isFetchingCart = false;
       isLoadingCart.value = false;
     }
   }
@@ -126,14 +135,20 @@ class CartController extends GetxController {
     int quantity = 1,
   }) async {
     final index = cartItems.indexWhere(
-      (item) => item.name == name || item.cartItemId == id,
+      (item) =>
+          item.name == name ||
+          item.cartItemId == id ||
+          item.productId.toString() == id ||
+          item.id == id,
     );
     if (index != -1) {
       cartItems[index].quantity = (cartItems[index].quantity ?? 0) + quantity;
+      cartItems.refresh();
     } else {
       cartItems.add(
         CartItem(
           cartItemId: id,
+          productId: int.tryParse(id),
           name: name.capitalizeWords(),
           sellPrice: newPrice,
           mrp: oldPrice.toInt(),
@@ -152,12 +167,52 @@ class CartController extends GetxController {
       if (response.success) {
         debugPrint('Item added to cart on server: ${response.message}');
       }
+      await fetchCart(showLoading: false);
       return response;
     } catch (e) {
       debugPrint('Add to cart API call error: $e');
+      await fetchCart(showLoading: false);
       return null;
     } finally {
       isApiLoading.value = false;
+    }
+  }
+
+  void addLocalItem({
+    required String id,
+    required String name,
+    required double oldPrice,
+    required double newPrice,
+    required String image,
+    bool isVeg = true,
+    int quantity = 1,
+  }) {
+    final parsedId = int.tryParse(id);
+    final index = cartItems.indexWhere(
+      (item) =>
+          (parsedId != null && item.productId == parsedId) ||
+          item.id == id ||
+          item.cartItemId == id ||
+          (item.name != null &&
+              name.isNotEmpty &&
+              item.name!.toLowerCase().trim() == name.toLowerCase().trim()),
+    );
+    if (index != -1) {
+      cartItems[index].quantity = (cartItems[index].quantity ?? 0) + quantity;
+      cartItems.refresh();
+    } else {
+      cartItems.add(
+        CartItem(
+          cartItemId: id,
+          productId: parsedId,
+          name: name.capitalizeWords(),
+          sellPrice: newPrice,
+          mrp: oldPrice.toInt(),
+          imageUrl: image,
+          isVeg: isVeg,
+          quantity: quantity,
+        ),
+      );
     }
   }
 
@@ -171,9 +226,11 @@ class CartController extends GetxController {
         productId: productId,
         quantity: quantity,
       );
+      await fetchCart(showLoading: false);
       return response;
     } catch (e) {
       debugPrint('apiAddToCart error: $e');
+      await fetchCart(showLoading: false);
       return null;
     } finally {
       isApiLoading.value = false;
@@ -190,54 +247,59 @@ class CartController extends GetxController {
         cartId: cartId,
         quantity: quantity,
       );
-      if (response.success) {
-        fetchCart(showLoading: false);
-      }
+      await fetchCart(showLoading: false);
       return response;
     } catch (e) {
       debugPrint('updateCartQuantity error: $e');
+      await fetchCart(showLoading: false);
       return null;
     } finally {
       isApiLoading.value = false;
     }
   }
 
-  void incrementQuantity(int index) {
+  Future<void> incrementQuantity(int index) async {
     if (index >= 0 && index < cartItems.length) {
       final currentQty = cartItems[index].quantity ?? 0;
       cartItems[index].quantity = currentQty + 1;
       cartItems.refresh();
       final item = cartItems[index];
-      updateCartQuantity(cartId: item.productId, quantity: item.qty);
+      final idToUse = (item.productId?.toString() ?? item.id);
+      await updateCartQuantity(cartId: idToUse, quantity: item.qty);
     }
   }
 
-  void decrementQuantity(int index) {
+  Future<void> decrementQuantity(int index) async {
     if (index >= 0 && index < cartItems.length) {
       final currentQty = cartItems[index].quantity ?? 1;
       if (currentQty > 1) {
         cartItems[index].quantity = currentQty - 1;
         cartItems.refresh();
         final item = cartItems[index];
-        updateCartQuantity(cartId: item.productId, quantity: item.qty);
+        final idToUse = (item.productId?.toString() ?? item.id);
+        await updateCartQuantity(cartId: idToUse, quantity: item.qty);
       } else {
-        removeItem(index);
+        await removeItem(index);
       }
     }
   }
 
   Future<RemoveCartItemResponseModel?> removeCartItem({
-    required dynamic cartId,
+    dynamic productId,
+    dynamic cartId,
   }) async {
     try {
       isApiLoading.value = true;
-      final response = await _removeCartItemUseCase(cartId: cartId);
-      if (response.success) {
-        fetchCart(showLoading: false);
-      }
+      final idToUse = productId ?? cartId;
+      final response = await _removeCartItemUseCase(
+        productId: idToUse,
+        cartId: cartId,
+      );
+      await fetchCart(showLoading: false);
       return response;
     } catch (e) {
       debugPrint('removeCartItem error: $e');
+      await fetchCart(showLoading: false);
       return null;
     } finally {
       isApiLoading.value = false;
@@ -248,18 +310,35 @@ class CartController extends GetxController {
     if (index >= 0 && index < cartItems.length) {
       final item = cartItems[index];
       cartItems.removeAt(index);
-      await removeCartItem(cartId: item.productId);
+      // Pass product id not cart id when removing an item
+      final productIdToUse = (item.productId != null && item.productId! > 0)
+          ? item.productId.toString()
+          : (item.cartItemId != null && item.cartItemId!.isNotEmpty)
+          ? item.cartItemId!
+          : item.id;
+      await removeCartItem(productId: productIdToUse);
     }
   }
 
   Future<void> removeItemById(dynamic id) async {
+    final idStr = id?.toString();
     final index = cartItems.indexWhere(
-      (item) => item.productId.toString() == id.toString(),
+      (item) =>
+          item.productId?.toString() == idStr ||
+          item.cartItemId?.toString() == idStr ||
+          item.id.toString() == idStr,
     );
     if (index != -1) {
       final item = cartItems[index];
       cartItems.removeAt(index);
-      await removeCartItem(cartId: item.productId);
+      final productIdToUse = (item.productId != null && item.productId! > 0)
+          ? item.productId.toString()
+          : (item.cartItemId != null && item.cartItemId!.isNotEmpty)
+          ? item.cartItemId!
+          : item.id;
+      await removeCartItem(productId: productIdToUse);
+    } else {
+      await removeCartItem(productId: id);
     }
   }
 
@@ -269,12 +348,11 @@ class CartController extends GetxController {
       cartItems.clear();
       cartData.value = null;
       final response = await _clearCartUseCase();
-      if (response.success) {
-        fetchCart(showLoading: false);
-      }
+      await fetchCart(showLoading: false);
       return response;
     } catch (e) {
       debugPrint('clearCart error: $e');
+      await fetchCart(showLoading: false);
       return null;
     } finally {
       isApiLoading.value = false;
@@ -295,10 +373,9 @@ class CartController extends GetxController {
 
   Future<void> proceedToCheckout() async {
     if (cartItems.isEmpty) {
-      Get.snackbar(
-        'Cart Empty',
+      AppToast.warning(
         'Please add items to cart before proceeding.',
-        snackPosition: SnackPosition.BOTTOM,
+        title: 'Cart Empty',
       );
       return;
     }

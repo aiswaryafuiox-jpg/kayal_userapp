@@ -8,6 +8,7 @@ const String editicon = 'assets/images/edit.svg';
 const String locationIcon = 'assets/images/location.png';
 const String confirmLocation = 'assets/images/confirm_location.png';
 const String hometop = 'assets/images/hometop.svg';
+const String hometopbg = 'assets/images/bg_appbar.svg';
 const String profileImg = 'assets/images/profile.png';
 const String bannerImg = 'assets/images/banner.svg';
 const String menu1 = 'assets/images/menu1.png';

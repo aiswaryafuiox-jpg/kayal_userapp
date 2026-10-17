@@ -14,10 +14,7 @@ class SectionTitle extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Row(
         children: [
-          Text(
-            title,
-            style:TextHelper.heading1
-          ),
+          Text(title, style: TextHelper.heading1),
           const Spacer(),
 
           if (onTap != null)
@@ -27,7 +24,7 @@ class SectionTitle extends StatelessWidget {
                 'View',
                 style: TextStyle(
                   fontSize: 15,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w500,
                   color: AppColors.primary,
                   decoration: TextDecoration.underline,
                   decorationColor: AppColors.primary,

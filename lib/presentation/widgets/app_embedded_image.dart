@@ -1,76 +1,69 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:kayal_userapp/core/const/app_color.dart';
 
-class AppEmbeddedImage extends StatefulWidget {
+
+class AppEmbeddedImage extends StatelessWidget {
   const AppEmbeddedImage({
     required this.asset,
     super.key,
+    this.imageUrl,
     this.width,
     this.height,
     this.fit = BoxFit.contain,
-    this.fallback,
+    this.backgroundColor = AppColors.primary,
+    this.borderRadius = 16,
   });
 
   final String asset;
+  final String? imageUrl;
   final double? width;
   final double? height;
   final BoxFit fit;
-  final Widget? fallback;
+  final double borderRadius;
+  final Color backgroundColor;
 
-  @override
-  State<AppEmbeddedImage> createState() => _AppEmbeddedImageState();
-}
-
-class _AppEmbeddedImageState extends State<AppEmbeddedImage> {
-  late Future<Uint8List> _imageBytes = _loadImage();
-
-  @override
-  void didUpdateWidget(covariant AppEmbeddedImage oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.asset != widget.asset) {
-      _imageBytes = _loadImage();
-    }
-  }
-
-  Future<Uint8List> _loadImage() async {
-    final source = await rootBundle.loadString(widget.asset);
-    final match = RegExp(r'base64,([^"]+)').firstMatch(source);
-
-    if (match == null) {
-      throw FormatException('No embedded image found in ${widget.asset}');
-    }
-
-    return base64Decode(match.group(1)!);
-  }
+  bool get _isSvg => asset.toLowerCase().endsWith('.svg');
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: widget.width,
-      height: widget.height,
-      child: FutureBuilder<Uint8List>(
-        future: _imageBytes,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return Image.memory(
-              snapshot.data!,
-              width: widget.width,
-              height: widget.height,
-              fit: widget.fit,
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(borderRadius),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: imageUrl != null && imageUrl!.isNotEmpty
+          ? Image.network(
+              imageUrl!,
+              width: width,
+              height: height,
+              fit: fit,
               gaplessPlayback: true,
               errorBuilder: (_, _, _) => _fallback(),
-            );
-          }
-
-          return _fallback();
-        },
-      ),
+            )
+          : _isSvg
+          ? SvgPicture.asset(
+              asset,
+              width: width,
+              height: height,
+              fit: fit,
+              placeholderBuilder: (_) => _fallback(),
+            )
+          : Image.asset(
+              asset,
+              width: width,
+              height: height,
+              fit: fit,
+              gaplessPlayback: true,
+              errorBuilder: (_, _, _) => _fallback(),
+            ),
     );
   }
 
   Widget _fallback() {
-    return widget.fallback ?? const ColoredBox(color: Color(0xFFF7F3EF));
+    return ColoredBox(color: backgroundColor, child: const SizedBox.expand());
   }
 }

@@ -6,8 +6,6 @@ import 'package:kayal_userapp/core/utils/helper/texthelper.dart';
 import 'package:kayal_userapp/presentation/controller/onboarding_controller.dart';
 import 'package:kayal_userapp/presentation/widgets/app_button.dart';
 
-
-
 class OnboardingScreen extends GetView<OnboardingController> {
   const OnboardingScreen({super.key});
 
@@ -94,7 +92,7 @@ class _SkipButton extends StatelessWidget {
                     style: TextStyle(
                       color: AppColors.background,
                       fontSize: 10,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
                   SizedBox(width: 3),
@@ -129,7 +127,7 @@ class _OnboardingPage extends StatelessWidget {
       child: Column(
         children: [
           const Spacer(flex: 1),
-         Image.asset(
+          Image.asset(
             data.image,
             width: imageSize,
             height: imageSize,
@@ -211,7 +209,7 @@ class _NavigationButtons extends StatelessWidget {
                     foregroundColor: AppColors.primary,
                     textStyle: const TextStyle(
                       fontSize: 14,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
                   child: const Text('Back'),

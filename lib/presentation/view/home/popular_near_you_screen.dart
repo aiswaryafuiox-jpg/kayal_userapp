@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:kayal_userapp/presentation/controller/popular_near_you_controller.dart';
 import 'package:kayal_userapp/presentation/view/home/widgets/restaurant_card.dart';
 import 'package:kayal_userapp/presentation/widgets/app_bar.dart';
@@ -9,8 +8,9 @@ import 'package:kayal_userapp/presentation/widgets/view_cart_bottom_bar.dart';
 class PopularNearYouScreen extends StatelessWidget {
   PopularNearYouScreen({super.key});
 
-  final PopularNearYouController controller =
-      Get.put(PopularNearYouController());
+  final PopularNearYouController controller = Get.put(
+    PopularNearYouController(),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -29,9 +29,9 @@ class PopularNearYouScreen extends StatelessWidget {
               child: Obx(
                 () => Text(
                   controller.radiusText.value,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
                     fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                     color: const Color(0xFFFF823E),
                   ),
                 ),
@@ -42,7 +42,8 @@ class PopularNearYouScreen extends StatelessWidget {
                 color: const Color(0xFFFF823E),
                 onRefresh: () => controller.fetchPopularRestaurants(),
                 child: Obx(() {
-                  if (controller.isLoading.value && controller.restaurants.isEmpty) {
+                  if (controller.isLoading.value &&
+                      controller.restaurants.isEmpty) {
                     return const Center(
                       child: CircularProgressIndicator(
                         color: Color(0xFFFF823E),
@@ -79,16 +80,16 @@ class PopularNearYouScreen extends StatelessWidget {
                               const SizedBox(height: 16),
                               Text(
                                 'No Data',
-                                style: GoogleFonts.inter(
+                                style: TextStyle(
                                   fontSize: 18,
-                                  fontWeight: FontWeight.w700,
+                                  fontWeight: FontWeight.w500,
                                   color: const Color(0xFF252B35),
                                 ),
                               ),
                               const SizedBox(height: 6),
                               Text(
                                 'No popular restaurants found near you.',
-                                style: GoogleFonts.inter(
+                                style: TextStyle(
                                   fontSize: 13,
                                   color: const Color(0xFF6B7280),
                                 ),

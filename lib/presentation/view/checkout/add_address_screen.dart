@@ -25,40 +25,60 @@ class AddAddressScreen extends StatelessWidget {
             child: Stack(
               children: [
                 SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 20,
+                  ),
                   physics: const BouncingScrollPhysics(),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildInputField('Full Name', controller.nameController),
                       const SizedBox(height: 16),
-                      _buildInputField('Phone number', controller.phoneController, keyboardType: TextInputType.phone),
+                      _buildInputField(
+                        'Phone number',
+                        controller.phoneController,
+                        keyboardType: TextInputType.phone,
+                      ),
                       const SizedBox(height: 16),
-                      _buildInputField('Pincode', controller.pincodeController, keyboardType: TextInputType.number),
+                      _buildInputField(
+                        'Pincode',
+                        controller.pincodeController,
+                        keyboardType: TextInputType.number,
+                      ),
                       const SizedBox(height: 16),
-                      _buildInputField('Address', controller.addressController, maxLines: 4),
+                      _buildInputField(
+                        'Address',
+                        controller.addressController,
+                        maxLines: 4,
+                      ),
                       const SizedBox(height: 16),
-                      _buildInputField('Landmark (Optional)', controller.landmarkController),
+                      _buildInputField(
+                        'Landmark (Optional)',
+                        controller.landmarkController,
+                      ),
                       const SizedBox(height: 16),
                       _buildInputField('City', controller.cityController),
                       const SizedBox(height: 16),
                       _buildInputField('State', controller.stateController),
                       const SizedBox(height: 16),
                       _buildLocationTypeDropdown(),
-                      
+
                       // Space for bottom button
                       const SizedBox(height: 100),
                     ],
                   ),
                 ),
-                
+
                 // Save Button at bottom
                 Positioned(
                   left: 24,
                   right: 24,
                   bottom: 24,
                   child: CustomButton(
-                    text: controller.isEdit.value ? 'Update Address' : 'Save Address',
+                    text: controller.isEdit.value
+                        ? 'Update Address'
+                        : 'Save Address',
                     onPressed: controller.saveAddress,
                     isLoading: controller.isLoading.value,
                     height: 56,
@@ -83,7 +103,7 @@ class AddAddressScreen extends StatelessWidget {
           'Location Type',
           style: TextStyle(
             fontSize: 14,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w400,
             color: AppColors.grey,
           ),
         ),
@@ -93,7 +113,10 @@ class AddAddressScreen extends StatelessWidget {
             decoration: InputDecoration(
               filled: true,
               fillColor: Colors.white,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 4,
+              ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: const BorderSide(
@@ -134,17 +157,13 @@ class AddAddressScreen extends StatelessWidget {
                     value: type,
                     child: Row(
                       children: [
-                        Icon(
-                          iconData,
-                          size: 18,
-                          color: AppColors.primary,
-                        ),
+                        Icon(iconData, size: 18, color: AppColors.primary),
                         const SizedBox(width: 10),
                         Text(
                           type,
                           style: const TextStyle(
                             fontSize: 14,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w400,
                             color: AppColors.grey,
                           ),
                         ),
@@ -162,10 +181,7 @@ class AddAddressScreen extends StatelessWidget {
                   color: AppColors.primary,
                 ),
                 dropdownColor: Colors.white,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: AppColors.grey,
-                ),
+                style: const TextStyle(fontSize: 14, color: AppColors.grey),
               ),
             ),
           ),
@@ -175,7 +191,7 @@ class AddAddressScreen extends StatelessWidget {
   }
 
   Widget _buildInputField(
-    String label, 
+    String label,
     TextEditingController textController, {
     int maxLines = 1,
     TextInputType keyboardType = TextInputType.text,
@@ -187,7 +203,7 @@ class AddAddressScreen extends StatelessWidget {
           label,
           style: const TextStyle(
             fontSize: 14,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w400,
             color: AppColors.grey,
           ),
         ),
@@ -196,14 +212,14 @@ class AddAddressScreen extends StatelessWidget {
           controller: textController,
           maxLines: maxLines,
           keyboardType: keyboardType,
-          style: const TextStyle(
-            fontSize: 14,
-            color: AppColors.grey,
-          ),
+          style: const TextStyle(fontSize: 14, color: AppColors.grey),
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.white,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
+            ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: const BorderSide(
@@ -213,24 +229,15 @@ class AddAddressScreen extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(
-                color: AppColors.primary,
-                width: 1,
-              ),
+              borderSide: const BorderSide(color: AppColors.primary, width: 1),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(
-                color: AppColors.red,
-                width: 1,
-              ),
+              borderSide: const BorderSide(color: AppColors.red, width: 1),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(
-                color: AppColors.red,
-                width: 1,
-              ),
+              borderSide: const BorderSide(color: AppColors.red, width: 1),
             ),
           ),
           validator: (value) {

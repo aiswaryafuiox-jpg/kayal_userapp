@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:kayal_userapp/core/const/app_images.dart';
 import 'package:kayal_userapp/core/di/service_locator.dart';
 import 'package:kayal_userapp/core/service/api_service.dart';
+import 'package:kayal_userapp/core/utils/helper/app_toast.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
 import 'package:kayal_userapp/data/model/get_order_details_response_model.dart';
 import 'package:kayal_userapp/data/model/get_orders_response_model.dart';
@@ -16,11 +17,13 @@ class ViewOrderController extends GetxController {
   final GetOrderDetailsUseCase _getOrderDetailsUseCase;
 
   ViewOrderController({GetOrderDetailsUseCase? getOrderDetailsUseCase})
-      : _getOrderDetailsUseCase = getOrderDetailsUseCase ??
-            (sl.isRegistered<GetOrderDetailsUseCase>()
-                ? sl<GetOrderDetailsUseCase>()
-                : GetOrderDetailsUseCase(
-                    GetOrderDetailsRepositoryImpl(ApiService())));
+    : _getOrderDetailsUseCase =
+          getOrderDetailsUseCase ??
+          (sl.isRegistered<GetOrderDetailsUseCase>()
+              ? sl<GetOrderDetailsUseCase>()
+              : GetOrderDetailsUseCase(
+                  GetOrderDetailsRepositoryImpl(ApiService()),
+                ));
 
   final orderDetails = Rxn<OrderDetailsDataModel>();
   final orderItemsList = <OrderDetailsItemModel>[].obs;
@@ -85,7 +88,9 @@ class ViewOrderController extends GetxController {
     if (args is UserOrderItemModel) {
       targetOrderId = args.orderId;
       currentOrderId = targetOrderId;
-      orderId.value = args.orderId.startsWith('#') ? args.orderId : '#${args.orderId}';
+      orderId.value = args.orderId.startsWith('#')
+          ? args.orderId
+          : '#${args.orderId}';
       orderDate.value = args.date;
       orderTotal.value = args.totalAmount.toInt();
       itemName.value = args.productName;
@@ -100,7 +105,8 @@ class ViewOrderController extends GetxController {
         itemImageUrl.value = args.imageUrl!;
       }
       if (args.isOutForDelivery || args.isDelivered || args.isCancelled) {
-        isCancellationUnavailable.value = args.isOutForDelivery || args.isDelivered;
+        isCancellationUnavailable.value =
+            args.isOutForDelivery || args.isDelivered;
       }
     } else if (args is OrderItem) {
       targetOrderId = args.orderId;
@@ -150,7 +156,9 @@ class ViewOrderController extends GetxController {
 
         orderId.value = data.customOrderId.isNotEmpty
             ? data.customOrderId
-            : (data.orderId.startsWith('#') ? data.orderId : '#${data.orderId}');
+            : (data.orderId.startsWith('#')
+                  ? data.orderId
+                  : '#${data.orderId}');
 
         if (data.orderDate.isNotEmpty) {
           orderDate.value = data.orderDate;
@@ -202,7 +210,10 @@ class ViewOrderController extends GetxController {
 
   void onCancelOrderButtonTap() {
     if (orderStatus.value.toLowerCase() == 'cancelled') {
-      Get.snackbar('Order Cancelled', 'This order is already cancelled.');
+      AppToast.warning(
+        'This order is already cancelled.',
+        title: 'Order Cancelled',
+      );
       return;
     }
     openCancelBottomSheet();
@@ -227,10 +238,7 @@ class ViewOrderController extends GetxController {
   }
 
   void showOtherReasonDialog() {
-    Get.dialog(
-      const OtherReasonDialog(),
-      barrierDismissible: false,
-    );
+    Get.dialog(const OtherReasonDialog(), barrierDismissible: false);
   }
 
   void confirmCancellation() {
@@ -247,10 +255,9 @@ class ViewOrderController extends GetxController {
   }
 
   void openSupport() {
-    Get.snackbar(
-      'Support',
+    AppToast.info(
       'Connecting to customer support...',
-      snackPosition: SnackPosition.BOTTOM,
+      title: 'Support',
     );
   }
 

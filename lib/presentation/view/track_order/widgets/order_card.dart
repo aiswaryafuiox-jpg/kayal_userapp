@@ -69,7 +69,8 @@ class OrderCard extends StatelessWidget {
             child: SizedBox(
               width: 86,
               height: 86,
-              child: (order.imageUrl != null &&
+              child:
+                  (order.imageUrl != null &&
                       order.imageUrl!.trim().startsWith('http'))
                   ? Image.network(
                       order.imageUrl!.trim(),
@@ -112,7 +113,7 @@ class OrderCard extends StatelessWidget {
                               order.productName.capitalizeWords(),
                               style: const TextStyle(
                                 fontSize: 14,
-                                fontWeight: FontWeight.w700,
+                                fontWeight: FontWeight.w500,
                                 color: AppColors.textprimary,
                               ),
                               maxLines: 1,
@@ -154,7 +155,7 @@ class OrderCard extends StatelessWidget {
                         'View',
                         style: TextStyle(
                           fontSize: 13,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w400,
                           color: AppColors.primary,
                           decoration: TextDecoration.underline,
                           decorationColor: AppColors.primary,
@@ -172,7 +173,7 @@ class OrderCard extends StatelessWidget {
                       order.type.capitalizeWords(),
                       style: const TextStyle(
                         fontSize: 13,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w400,
                         color: Color(0xFF6B7280),
                       ),
                     ),
@@ -182,7 +183,7 @@ class OrderCard extends StatelessWidget {
                         '#${order.orderId}',
                         style: const TextStyle(
                           fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                           color: Color(0xFF9CA3AF),
                         ),
                       ),
@@ -196,7 +197,7 @@ class OrderCard extends StatelessWidget {
                   order.date,
                   style: const TextStyle(
                     fontSize: 12,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w400,
                     color: Color(0xFF9CA3AF),
                   ),
                 ),
@@ -207,7 +208,7 @@ class OrderCard extends StatelessWidget {
                   '₹${order.totalAmount.toInt()}',
                   style: const TextStyle(
                     fontSize: 15,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w500,
                     color: AppColors.primary,
                   ),
                 ),
@@ -219,7 +220,9 @@ class OrderCard extends StatelessWidget {
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 5),
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
                       decoration: BoxDecoration(
                         color: statusBgColor,
                         borderRadius: BorderRadius.circular(6),
@@ -228,7 +231,7 @@ class OrderCard extends StatelessWidget {
                         order.displayStatus,
                         style: TextStyle(
                           fontSize: 11,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                           color: statusTextColor,
                         ),
                       ),
@@ -239,10 +242,13 @@ class OrderCard extends StatelessWidget {
                         if (order.isOutForDelivery) {
                           Get.toNamed('/liveTracking');
                         } else if (order.isTrackable) {
-                          Get.toNamed('/trackOrder', arguments: {
-                            'order_id': order.orderId,
-                            'custom_order_id': '#${order.orderId}',
-                          });
+                          Get.toNamed(
+                            '/trackOrder',
+                            arguments: {
+                              'order_id': order.orderId,
+                              'custom_order_id': '#${order.orderId}',
+                            },
+                          );
                         } else {
                           onReorderTap();
                         }
@@ -250,7 +256,9 @@ class OrderCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(6),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 6),
+                          horizontal: 14,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.primary,
                           borderRadius: BorderRadius.circular(6),
@@ -258,10 +266,12 @@ class OrderCard extends StatelessWidget {
                         child: Text(
                           order.isOutForDelivery
                               ? 'Live Track'
-                              : (order.isTrackable ? 'Track Order' : 'Re-Order'),
+                              : (order.isTrackable
+                                    ? 'Track Order'
+                                    : 'Re-Order'),
                           style: const TextStyle(
                             fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                             color: Colors.white,
                           ),
                         ),

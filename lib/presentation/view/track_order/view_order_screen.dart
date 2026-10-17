@@ -15,10 +15,7 @@ class ViewOrderScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFFFFFCFA),
-      appBar: const CustomAppBar(
-        title: 'View Orders',
-        showBackButton: true,
-      ),
+      appBar: const CustomAppBar(title: 'View Orders', showBackButton: true),
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -53,7 +50,7 @@ class ViewOrderScreen extends StatelessWidget {
                                 'Cancellation is Unavailable',
                                 style: TextStyle(
                                   fontSize: 13,
-                                  fontWeight: FontWeight.w700,
+                                  fontWeight: FontWeight.w500,
                                   color: Color(0xFFE53935),
                                 ),
                               ),
@@ -90,7 +87,7 @@ class ViewOrderScreen extends StatelessWidget {
                             'Support',
                             style: TextStyle(
                               fontSize: 14,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                               color: Color(0xFF374151),
                             ),
                           ),
@@ -131,242 +128,563 @@ class ViewOrderScreen extends StatelessWidget {
             parent: BouncingScrollPhysics(),
           ),
           child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Order ID Card
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFFFF0E6), width: 1.2),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.02),
-                    blurRadius: 8,
-                    offset: const Offset(0, 3),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Order ID Card
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: const Color(0xFFFFF0E6),
+                    width: 1.2,
                   ),
-                ],
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Obx(
-                        () => Text(
-                          'Oder ID ${controller.orderId.value}',
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF252B35),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.02),
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Obx(
+                          () => Text(
+                            'Oder ID ${controller.orderId.value}',
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF252B35),
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      const Text(
-                        'Items',
-                        style: TextStyle(
-                          fontSize: 13,
+                        const SizedBox(height: 4),
+                        const Text(
+                          'Items',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
+                            color: Color(0xFF6B7280),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Obx(
+                          () => Text(
+                            controller.orderDate.value,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                              color: Color(0xFF9CA3AF),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Obx(
+                      () => Text(
+                        '₹${controller.orderTotal.value}',
+                        style: const TextStyle(
+                          fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color: Color(0xFF6B7280),
+                          color: Color(0xFF252B35),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Obx(
-                        () => Text(
-                          controller.orderDate.value,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: Color(0xFF9CA3AF),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Obx(
-                    () => Text(
-                      '₹${controller.orderTotal.value}',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF252B35),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-            // Order Items
-            const Text(
-              'Order Items',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF252B35),
+              // Order Items
+              const Text(
+                'Order Items',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF252B35),
+                ),
               ),
-            ),
-            const SizedBox(height: 10),
-            Obx(() {
-              if (controller.orderItemsList.isNotEmpty) {
-                return Column(
-                  children: controller.orderItemsList.map((item) {
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 10),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: const Color(0xFFFFF0E6),
-                          width: 1.2,
+              const SizedBox(height: 10),
+              Obx(() {
+                if (controller.orderItemsList.isNotEmpty) {
+                  return Column(
+                    children: controller.orderItemsList.map((item) {
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: const Color(0xFFFFF0E6),
+                            width: 1.2,
+                          ),
                         ),
-                      ),
-                      child: Row(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: SizedBox(
-                              width: 76,
-                              height: 76,
-                              child: (item.imageUrl != null &&
-                                      item.imageUrl!.startsWith('http'))
-                                  ? Image.network(
-                                      item.imageUrl!,
-                                      width: 76,
-                                      height: 76,
-                                      fit: BoxFit.cover,
-                                      errorBuilder:
-                                          (context, error, stackTrace) =>
-                                              Image.asset(
+                        child: Row(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: SizedBox(
+                                width: 76,
+                                height: 76,
+                                child:
+                                    (item.imageUrl != null &&
+                                        item.imageUrl!.startsWith('http'))
+                                    ? Image.network(
+                                        item.imageUrl!,
+                                        width: 76,
+                                        height: 76,
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) =>
+                                                Image.asset(
+                                                  productImg1,
+                                                  width: 76,
+                                                  height: 76,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                      )
+                                    : Image.asset(
                                         productImg1,
                                         width: 76,
                                         height: 76,
                                         fit: BoxFit.cover,
                                       ),
-                                    )
-                                  : Image.asset(
-                                      productImg1,
-                                      width: 76,
-                                      height: 76,
-                                      fit: BoxFit.cover,
-                                    ),
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  item.name,
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w700,
-                                    color: Color(0xFF252B35),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    item.name,
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w500,
+                                      color: Color(0xFF252B35),
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    Container(
-                                      width: 12,
-                                      height: 12,
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                          color: item.isVeg
-                                              ? AppColors.green
-                                              : AppColors.red,
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(3),
-                                      ),
-                                      child: Center(
-                                        child: Container(
-                                          width: 6,
-                                          height: 6,
-                                          decoration: BoxDecoration(
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Container(
+                                        width: 12,
+                                        height: 12,
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
                                             color: item.isVeg
                                                 ? AppColors.green
                                                 : AppColors.red,
-                                            shape: BoxShape.circle,
+                                            width: 1,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            3,
+                                          ),
+                                        ),
+                                        child: Center(
+                                          child: Container(
+                                            width: 6,
+                                            height: 6,
+                                            decoration: BoxDecoration(
+                                              color: item.isVeg
+                                                  ? AppColors.green
+                                                  : AppColors.red,
+                                              shape: BoxShape.circle,
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      item.foodType,
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                        color: Color(0xFF6B7280),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 6),
-                                Row(
-                                  children: [
-                                    if (item.mrp > item.sellPrice) ...[
+                                      const SizedBox(width: 6),
                                       Text(
-                                        '₹${item.mrp.toInt()}',
+                                        item.foodType,
                                         style: const TextStyle(
                                           fontSize: 12,
-                                          fontWeight: FontWeight.w500,
-                                          color: Color(0xFF9CA3AF),
-                                          decoration: TextDecoration.lineThrough,
+                                          fontWeight: FontWeight.w400,
+                                          color: Color(0xFF6B7280),
                                         ),
                                       ),
-                                      const SizedBox(width: 6),
                                     ],
-                                    Text(
-                                      '₹${item.sellPrice.toInt()}',
-                                      style: const TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w700,
-                                        color: Color(0xFFFF823E),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Row(
+                                    children: [
+                                      if (item.mrp > item.sellPrice) ...[
+                                        Text(
+                                          '₹${item.mrp.toInt()}',
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w400,
+                                            color: Color(0xFF9CA3AF),
+                                            decoration:
+                                                TextDecoration.lineThrough,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 6),
+                                      ],
+                                      Text(
+                                        '₹${item.sellPrice.toInt()}',
+                                        style: const TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w500,
+                                          color: Color(0xFFFF823E),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFF823E),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                'Qty: ${item.qty}',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  );
+                }
+
+                // Single Item Fallback
+                return Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: const Color(0xFFFFF0E6),
+                      width: 1.2,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Obx(() {
+                          final url = controller.itemImageUrl.value;
+                          if (url.isNotEmpty && url.startsWith('http')) {
+                            return Image.network(
+                              url,
+                              width: 76,
+                              height: 76,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Image.asset(
+                                    controller.itemImage,
+                                    width: 76,
+                                    height: 76,
+                                    fit: BoxFit.cover,
+                                  ),
+                            );
+                          }
+                          return Image.asset(
+                            controller.itemImage,
+                            width: 76,
+                            height: 76,
+                            fit: BoxFit.cover,
+                          );
+                        }),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Obx(
+                              () => Text(
+                                controller.itemName.value,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xFF252B35),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Container(
+                                  width: 12,
+                                  height: 12,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: controller.itemIsVeg.value
+                                          ? AppColors.green
+                                          : AppColors.red,
+                                      width: 1,
+                                    ),
+                                    borderRadius: BorderRadius.circular(3),
+                                  ),
+                                  child: Center(
+                                    child: Container(
+                                      width: 6,
+                                      height: 6,
+                                      decoration: BoxDecoration(
+                                        color: controller.itemIsVeg.value
+                                            ? AppColors.green
+                                            : AppColors.red,
+                                        shape: BoxShape.circle,
                                       ),
                                     ),
-                                  ],
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Obx(
+                                  () => Text(
+                                    controller.itemIsVeg.value
+                                        ? 'Veg'
+                                        : 'Non-Veg',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400,
+                                      color: Color(0xFF6B7280),
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFF823E),
-                              borderRadius: BorderRadius.circular(8),
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                Obx(
+                                  () => Text(
+                                    '₹${controller.itemOriginalPrice.value}',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400,
+                                      color: Color(0xFF9CA3AF),
+                                      decoration: TextDecoration.lineThrough,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Obx(
+                                  () => Text(
+                                    '₹${controller.itemDiscountPrice.value}',
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w500,
+                                      color: Color(0xFFFF823E),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            child: Text(
-                              'Qty: ${item.qty}',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    );
-                  }).toList(),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF823E),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Obx(
+                          () => Text(
+                            'Qty: ${controller.itemQty.value}',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 );
-              }
+              }),
+              const SizedBox(height: 20),
 
-              // Single Item Fallback
-              return Container(
-                padding: const EdgeInsets.all(12),
+              // Delivery Address
+              const Text(
+                'Delivery Address',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF252B35),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: const Color(0xFFFFF0E6),
+                    width: 1.2,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Obx(
+                      () => Text(
+                        controller.addressType.value,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF252B35),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Obx(
+                      () => Text(
+                        controller.addressDetails.value,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w400,
+                          color: Color(0xFF6B7280),
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Order Summary
+              const Text(
+                'Order Summary',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF252B35),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: const Color(0xFFFFF0E6),
+                    width: 1.2,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Item Total',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: Color(0xFF4B5563),
+                          ),
+                        ),
+                        Obx(
+                          () => Text(
+                            '₹${controller.itemTotalAmount.value}',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFFFF823E),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Delivery Charge',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: Color(0xFF4B5563),
+                          ),
+                        ),
+                        Obx(
+                          () => Text(
+                            '₹${controller.deliveryChargeAmount.value}',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFFFF823E),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Total paid',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF252B35),
+                          ),
+                        ),
+                        Obx(
+                          () => Text(
+                            '₹${controller.totalPaidAmount.value}',
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFFFF823E),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Payment Details
+              const Text(
+                'payment Details',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF252B35),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
@@ -377,32 +695,10 @@ class ViewOrderScreen extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Obx(() {
-                        final url = controller.itemImageUrl.value;
-                        if (url.isNotEmpty && url.startsWith('http')) {
-                          return Image.network(
-                            url,
-                            width: 76,
-                            height: 76,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                Image.asset(
-                              controller.itemImage,
-                              width: 76,
-                              height: 76,
-                              fit: BoxFit.cover,
-                            ),
-                          );
-                        }
-                        return Image.asset(
-                          controller.itemImage,
-                          width: 76,
-                          height: 76,
-                          fit: BoxFit.cover,
-                        );
-                      }),
+                    const Icon(
+                      Icons.account_balance_wallet_outlined,
+                      color: Color(0xFFFF823E),
+                      size: 24,
                     ),
                     const SizedBox(width: 14),
                     Expanded(
@@ -411,350 +707,73 @@ class ViewOrderScreen extends StatelessWidget {
                         children: [
                           Obx(
                             () => Text(
-                              controller.itemName.value,
+                              controller.paymentMethod.value,
                               style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
                                 color: Color(0xFF252B35),
                               ),
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              Container(
-                                width: 12,
-                                height: 12,
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: controller.itemIsVeg.value
-                                        ? AppColors.green
-                                        : AppColors.red,
-                                    width: 1,
-                                  ),
-                                  borderRadius: BorderRadius.circular(3),
-                                ),
-                                child: Center(
-                                  child: Container(
-                                    width: 6,
-                                    height: 6,
-                                    decoration: BoxDecoration(
-                                      color: controller.itemIsVeg.value
-                                          ? AppColors.green
-                                          : AppColors.red,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                ),
+                          const SizedBox(height: 2),
+                          Obx(
+                            () => Text(
+                              controller.paymentType.value,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400,
+                                color: Color(0xFF6B7280),
                               ),
-                              const SizedBox(width: 6),
-                              Obx(
-                                () => Text(
-                                  controller.itemIsVeg.value
-                                      ? 'Veg'
-                                      : 'Non-Veg',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    color: Color(0xFF6B7280),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-                          Row(
-                            children: [
-                              Obx(
-                                () => Text(
-                                  '₹${controller.itemOriginalPrice.value}',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    color: Color(0xFF9CA3AF),
-                                    decoration: TextDecoration.lineThrough,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              Obx(
-                                () => Text(
-                                  '₹${controller.itemDiscountPrice.value}',
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w700,
-                                    color: Color(0xFFFF823E),
-                                  ),
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                         ],
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFF823E),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Obx(
-                        () => Text(
-                          'Qty: ${controller.itemQty.value}',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
-            const SizedBox(height: 20),
-
-            // Delivery Address
-            const Text(
-              'Delivery Address',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF252B35),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFFFF0E6), width: 1.2),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Obx(
-                    () => Text(
-                      controller.addressType.value,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF252B35),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Obx(
-                    () => Text(
-                      controller.addressDetails.value,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w400,
-                        color: Color(0xFF6B7280),
-                        height: 1.4,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Order Summary
-            const Text(
-              'Order Summary',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF252B35),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFFFF0E6), width: 1.2),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Item Total',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF4B5563),
-                        ),
-                      ),
-                      Obx(
-                        () => Text(
-                          '₹${controller.itemTotalAmount.value}',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFFFF823E),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Delivery Charge',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF4B5563),
-                        ),
-                      ),
-                      Obx(
-                        () => Text(
-                          '₹${controller.deliveryChargeAmount.value}',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFFFF823E),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Total paid',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF252B35),
-                        ),
-                      ),
-                      Obx(
-                        () => Text(
-                          '₹${controller.totalPaidAmount.value}',
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFFFF823E),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Payment Details
-            const Text(
-              'payment Details',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF252B35),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFFFF0E6), width: 1.2),
-              ),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.account_balance_wallet_outlined,
-                    color: Color(0xFFFF823E),
-                    size: 24,
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Obx(
-                          () => Text(
-                            controller.paymentMethod.value,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF252B35),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE8F5E9),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Obx(
+                            () => Text(
+                              controller.paymentStatus.value,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xFF2E7D32),
+                              ),
                             ),
                           ),
                         ),
-                        const SizedBox(height: 2),
+                        const SizedBox(height: 4),
                         Obx(
                           () => Text(
-                            controller.paymentType.value,
+                            '₹${controller.paymentAmount.value}',
                             style: const TextStyle(
-                              fontSize: 12,
+                              fontSize: 15,
                               fontWeight: FontWeight.w500,
-                              color: Color(0xFF6B7280),
+                              color: Color(0xFF252B35),
                             ),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFE8F5E9),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Obx(
-                          () => Text(
-                            controller.paymentStatus.value,
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF2E7D32),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Obx(
-                        () => Text(
-                          '₹${controller.paymentAmount.value}',
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF252B35),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-          ],
+              const SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
-    ),
-  );
+    );
   }
 }
 
@@ -802,7 +821,7 @@ class CancelOrderBottomSheet extends StatelessWidget {
             'Cancel Order',
             style: TextStyle(
               fontSize: 18,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w500,
               color: Color(0xFF1F2937),
             ),
           ),
@@ -819,16 +838,17 @@ class CancelOrderBottomSheet extends StatelessWidget {
               ),
               children: [
                 const TextSpan(
-                    text: 'Please let us know the reason for cancelling\n'),
+                  text: 'Please let us know the reason for cancelling\n',
+                ),
                 const TextSpan(
                   text: 'Order No: ',
-                  style: TextStyle(fontWeight: FontWeight.w500),
+                  style: TextStyle(fontWeight: FontWeight.w400),
                 ),
                 TextSpan(
                   text: '#0101025',
                   style: const TextStyle(
                     color: Color(0xFFFF823E),
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -843,7 +863,7 @@ class CancelOrderBottomSheet extends StatelessWidget {
               'Select Reason',
               style: TextStyle(
                 fontSize: 14,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
                 color: Color(0xFF252B35),
               ),
             ),
@@ -859,8 +879,10 @@ class CancelOrderBottomSheet extends StatelessWidget {
                 onTap: () => controller.selectCancelReason(reason),
                 child: Container(
                   margin: const EdgeInsets.only(bottom: 10),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
@@ -887,7 +909,7 @@ class CancelOrderBottomSheet extends StatelessWidget {
                         reason,
                         style: const TextStyle(
                           fontSize: 13,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w400,
                           color: Color(0xFF252B35),
                         ),
                       ),
@@ -915,7 +937,7 @@ class CancelOrderBottomSheet extends StatelessWidget {
                 'Cancel order',
                 style: TextStyle(
                   fontSize: 15,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                   color: Colors.white,
                 ),
               ),
@@ -939,7 +961,7 @@ class CancelOrderBottomSheet extends StatelessWidget {
                 'Back to Home',
                 style: TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                   color: Color(0xFFFF823E),
                 ),
               ),
@@ -964,9 +986,7 @@ class OtherReasonDialog extends StatelessWidget {
 
     return Dialog(
       backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       insetPadding: const EdgeInsets.symmetric(horizontal: 24),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -978,7 +998,7 @@ class OtherReasonDialog extends StatelessWidget {
               'Please tell us why you want to cancel ?',
               style: TextStyle(
                 fontSize: 15,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w500,
                 color: Color(0xFF252B35),
               ),
             ),
@@ -987,7 +1007,7 @@ class OtherReasonDialog extends StatelessWidget {
               'Description',
               style: TextStyle(
                 fontSize: 13,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w400,
                 color: Color(0xFF6B7280),
               ),
             ),
@@ -997,10 +1017,7 @@ class OtherReasonDialog extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color(0xFFFFE0D2),
-                  width: 1.2,
-                ),
+                border: Border.all(color: const Color(0xFFFFE0D2), width: 1.2),
               ),
               child: TextField(
                 controller: controller.otherReasonTextController,
@@ -1009,10 +1026,7 @@ class OtherReasonDialog extends StatelessWidget {
                 textAlignVertical: TextAlignVertical.top,
                 decoration: const InputDecoration(
                   hintText: 'Enter..',
-                  hintStyle: TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFFB0B7C3),
-                  ),
+                  hintStyle: TextStyle(fontSize: 13, color: Color(0xFFB0B7C3)),
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.all(12),
                 ),
@@ -1035,7 +1049,7 @@ class OtherReasonDialog extends StatelessWidget {
                       'Keep Order',
                       style: TextStyle(
                         fontSize: 13,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         color: Color(0xFF6B7280),
                       ),
                     ),
@@ -1057,7 +1071,7 @@ class OtherReasonDialog extends StatelessWidget {
                       'Confirm Cancellation',
                       style: TextStyle(
                         fontSize: 13,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         color: Colors.white,
                       ),
                     ),

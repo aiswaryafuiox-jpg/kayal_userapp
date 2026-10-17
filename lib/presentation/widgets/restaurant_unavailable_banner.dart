@@ -26,7 +26,7 @@ class RestaurantUnavailableBanner extends StatelessWidget {
             'Notes:',
             style: TextStyle(
               fontSize: 14,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w500,
               color: AppColors.red,
             ),
           ),
@@ -35,7 +35,7 @@ class RestaurantUnavailableBanner extends StatelessWidget {
             notes,
             style: const TextStyle(
               fontSize: 13,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w400,
               color: AppColors.red,
               height: 1.35,
             ),

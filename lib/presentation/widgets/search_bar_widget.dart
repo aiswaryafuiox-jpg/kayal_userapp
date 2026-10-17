@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ionicons/flutter_ionicons.dart';
 
 class SearchBarWidget extends StatelessWidget {
   final TextEditingController? controller;
@@ -42,7 +43,7 @@ class SearchBarWidget extends StatelessWidget {
               children: [
                 const SizedBox(width: 16),
                 const Icon(
-                  Icons.search,
+                  Ionicons.search_outline,
                   color: Color(0xFFFF6F2C),
                   size: 20,
                 ),

@@ -14,10 +14,7 @@ class RatingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: const CustomAppBar(
-        title: 'Ratings',
-        showBackButton: true,
-      ),
+      appBar: const CustomAppBar(title: 'Ratings', showBackButton: true),
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -31,7 +28,7 @@ class RatingsScreen extends StatelessWidget {
                 'Order Delivered Successfully',
                 style: TextStyle(
                   fontSize: 18,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w500,
                   color: AppColors.grey,
                 ),
               ),
@@ -40,7 +37,7 @@ class RatingsScreen extends StatelessWidget {
                 'Hope you enjoyed your meal',
                 style: TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w400,
                   color: Color(0xFF6B7280),
                 ),
               ),
@@ -79,13 +76,16 @@ class RatingsScreen extends StatelessWidget {
                             'Kayal Restaurant',
                             style: TextStyle(
                               fontSize: 16,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w500,
                               color: AppColors.grey,
                             ),
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: const Color(0xFFDCFCE7),
                             borderRadius: BorderRadius.circular(6),
@@ -94,7 +94,7 @@ class RatingsScreen extends StatelessWidget {
                             'Completed',
                             style: TextStyle(
                               fontSize: 12,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                               color: Color(0xFF22C55E),
                             ),
                           ),
@@ -109,7 +109,7 @@ class RatingsScreen extends StatelessWidget {
                           'Order #FD10248',
                           style: TextStyle(
                             fontSize: 14,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w400,
                             color: Color(0xFF6B7280),
                           ),
                         ),
@@ -117,7 +117,7 @@ class RatingsScreen extends StatelessWidget {
                           '10:30:33 AM',
                           style: TextStyle(
                             fontSize: 13,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w400,
                             color: Color(0xFF9CA3AF),
                           ),
                         ),
@@ -131,7 +131,7 @@ class RatingsScreen extends StatelessWidget {
                           '2 Items',
                           style: TextStyle(
                             fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                             color: AppColors.grey,
                           ),
                         ),
@@ -139,7 +139,7 @@ class RatingsScreen extends StatelessWidget {
                           '₹ 420',
                           style: TextStyle(
                             fontSize: 14,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w500,
                             color: AppColors.grey,
                           ),
                         ),
@@ -158,14 +158,11 @@ class RatingsScreen extends StatelessWidget {
                     'How was Your Order ? ',
                     style: TextStyle(
                       fontSize: 15,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                       color: AppColors.grey,
                     ),
                   ),
-                  Text(
-                    '⭐',
-                    style: TextStyle(fontSize: 16),
-                  ),
+                  Text('⭐', style: TextStyle(fontSize: 16)),
                 ],
               ),
               const SizedBox(height: 16),
@@ -183,7 +180,9 @@ class RatingsScreen extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 6),
                         child: Icon(
                           isSelected ? Icons.star : Icons.star_border,
-                          color: isSelected ? const Color(0xFFFF8A3D) : const Color(0xFF9CA3AF),
+                          color: isSelected
+                              ? const Color(0xFFFF8A3D)
+                              : const Color(0xFF9CA3AF),
                           size: 36,
                         ),
                       ),
@@ -192,15 +191,106 @@ class RatingsScreen extends StatelessWidget {
                 }),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Tap to rate your experience',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF1F2937),
+              Obx(
+                () => Text(
+                  controller.ratingLabel,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF1F2937),
+                  ),
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
+
+              // Suggested Review Chips (Visible when star rating is selected)
+              Obx(() {
+                if (controller.rating.value == 0) {
+                  return const SizedBox.shrink();
+                }
+
+                final chips = controller.suggestedChips;
+                final selected = controller.selectedChips;
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      controller.suggestedChipsTitle,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 10,
+                      children: chips.map((chip) {
+                        final isChipSelected = selected.contains(chip);
+                        return InkWell(
+                          onTap: () => controller.toggleChip(chip),
+                          borderRadius: BorderRadius.circular(20),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isChipSelected
+                                  ? const Color(0xFFFFF2E8)
+                                  : Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: isChipSelected
+                                    ? AppColors.primary
+                                    : const Color(0xFFE5E7EB),
+                                width: isChipSelected ? 1.5 : 1.0,
+                              ),
+                              boxShadow: [
+                                if (!isChipSelected)
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.03),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 1),
+                                  ),
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (isChipSelected) ...[
+                                  const Icon(
+                                    Icons.check_circle_rounded,
+                                    size: 15,
+                                    color: AppColors.primary,
+                                  ),
+                                  const SizedBox(width: 6),
+                                ],
+                                Text(
+                                  chip,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: isChipSelected
+                                        ? FontWeight.w600
+                                        : FontWeight.w400,
+                                    color: isChipSelected
+                                        ? AppColors.primary
+                                        : const Color(0xFF374151),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                );
+              }),
 
               // Review Input Box
               Align(
@@ -209,7 +299,7 @@ class RatingsScreen extends StatelessWidget {
                   'Write a review...',
                   style: TextStyle(
                     fontSize: 13,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w400,
                     color: AppColors.grey,
                   ),
                 ),
@@ -219,10 +309,7 @@ class RatingsScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: const Color(0xFFFFE3D3),
-                    width: 1,
-                  ),
+                  border: Border.all(color: const Color(0xFFFFE3D3), width: 1),
                 ),
                 child: TextField(
                   controller: controller.reviewTextController,
@@ -246,10 +333,14 @@ class RatingsScreen extends StatelessWidget {
                   width: double.infinity,
                   height: 56,
                   child: ElevatedButton(
-                    onPressed: controller.isLoading.value ? null : controller.submitReview,
+                    onPressed: controller.isLoading.value
+                        ? null
+                        : controller.submitReview,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
-                      disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.6),
+                      disabledBackgroundColor: AppColors.primary.withValues(
+                        alpha: 0.6,
+                      ),
                       foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
@@ -269,7 +360,7 @@ class RatingsScreen extends StatelessWidget {
                             'Submit Review',
                             style: TextStyle(
                               fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                   ),
@@ -284,10 +375,7 @@ class RatingsScreen extends StatelessWidget {
                 child: OutlinedButton(
                   onPressed: controller.skip,
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(
-                      color: AppColors.primary,
-                      width: 1,
-                    ),
+                    side: const BorderSide(color: AppColors.primary, width: 1),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -296,7 +384,7 @@ class RatingsScreen extends StatelessWidget {
                     'Skip for now',
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                       color: AppColors.primary,
                     ),
                   ),

@@ -18,9 +18,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
         child: Obx(() {
           if (controller.isLoading.value && controller.policyContent.isEmpty) {
             return const Center(
-              child: CircularProgressIndicator(
-                color: AppColors.primary,
-              ),
+              child: CircularProgressIndicator(color: AppColors.primary),
             );
           }
 
@@ -39,7 +37,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                     controller.policyTitle.value,
                     style: const TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       color: AppColors.primary,
                     ),
                   ),

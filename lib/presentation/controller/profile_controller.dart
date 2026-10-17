@@ -27,14 +27,16 @@ class ProfileController extends GetxController {
   ProfileController({
     GetProfileUseCase? getProfileUseCase,
     LogoutUseCase? logoutUseCase,
-  })  : _getProfileUseCase = getProfileUseCase ??
-            (sl.isRegistered<GetProfileUseCase>()
-                ? sl<GetProfileUseCase>()
-                : GetProfileUseCase(GetProfileRepositoryImpl(ApiService()))),
-        _logoutUseCase = logoutUseCase ??
-            (sl.isRegistered<LogoutUseCase>()
-                ? sl<LogoutUseCase>()
-                : LogoutUseCase(LogoutRepositoryImpl(ApiService())));
+  }) : _getProfileUseCase =
+           getProfileUseCase ??
+           (sl.isRegistered<GetProfileUseCase>()
+               ? sl<GetProfileUseCase>()
+               : GetProfileUseCase(GetProfileRepositoryImpl(ApiService()))),
+       _logoutUseCase =
+           logoutUseCase ??
+           (sl.isRegistered<LogoutUseCase>()
+               ? sl<LogoutUseCase>()
+               : LogoutUseCase(LogoutRepositoryImpl(ApiService())));
 
   final profileData = Rxn<ProfileDataModel>();
   final userName = 'User'.obs;
@@ -150,26 +152,20 @@ class ProfileController extends GetxController {
     isLoggingOut.value = false;
     Get.dialog(
       Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         backgroundColor: Colors.white,
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
-                Icons.logout,
-                color: Color(0xFFF03636),
-                size: 32,
-              ),
+              const Icon(Icons.logout, color: Color(0xFFF03636), size: 32),
               const SizedBox(height: 16),
               const Text(
                 'Are you Sure !!',
                 style: TextStyle(
                   fontSize: 18,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w500,
                   color: Color(0xFF1F2937),
                 ),
               ),
@@ -178,7 +174,7 @@ class ProfileController extends GetxController {
                 'Are you Confirm to Logout ?',
                 style: TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w400,
                   color: Color(0xFF9CA3AF),
                 ),
                 textAlign: TextAlign.center,
@@ -204,7 +200,7 @@ class ProfileController extends GetxController {
                         'Cancel',
                         style: TextStyle(
                           fontSize: 14,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                           color: Color(0xFFF03636),
                         ),
                       ),
@@ -238,19 +234,33 @@ class ProfileController extends GetxController {
                                     Get.find<HomeController>().loadUserInfo();
                                   }
                                   if (Get.isRegistered<CartController>()) {
-                                    Get.find<CartController>().cartItems.clear();
-                                    Get.find<CartController>().cartData.value = null;
+                                    Get.find<CartController>().cartItems
+                                        .clear();
+                                    Get.find<CartController>().cartData.value =
+                                        null;
                                   }
                                   if (Get.isRegistered<WishlistController>()) {
-                                    Get.find<WishlistController>().wishlistItems.clear();
+                                    Get.find<WishlistController>().wishlistItems
+                                        .clear();
                                   }
                                   if (Get.isRegistered<OrdersController>()) {
-                                    Get.find<OrdersController>().ordersList.clear();
-                                    Get.find<OrdersController>().isLoggedIn.value = false;
+                                    Get.find<OrdersController>().ordersList
+                                        .clear();
+                                    Get.find<OrdersController>()
+                                            .isLoggedIn
+                                            .value =
+                                        false;
                                   }
-                                  if (Get.isRegistered<NotificationController>()) {
-                                    Get.find<NotificationController>().notifications.clear();
-                                    Get.find<NotificationController>().isLoggedIn.value = false;
+                                  if (Get.isRegistered<
+                                    NotificationController
+                                  >()) {
+                                    Get.find<NotificationController>()
+                                        .notifications
+                                        .clear();
+                                    Get.find<NotificationController>()
+                                            .isLoggedIn
+                                            .value =
+                                        false;
                                   }
 
                                   if (Get.isDialogOpen ?? false) {
@@ -261,7 +271,9 @@ class ProfileController extends GetxController {
                               },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFF03636),
-                          disabledBackgroundColor: const Color(0xFFF03636).withValues(alpha: 0.6),
+                          disabledBackgroundColor: const Color(
+                            0xFFF03636,
+                          ).withValues(alpha: 0.6),
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -274,14 +286,16 @@ class ProfileController extends GetxController {
                                 width: 18,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
                                 ),
                               )
                             : const Text(
                                 'Yes, Sure',
                                 style: TextStyle(
                                   fontSize: 14,
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.w500,
                                   color: Colors.white,
                                 ),
                               ),

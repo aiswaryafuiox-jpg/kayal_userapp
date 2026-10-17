@@ -4,8 +4,8 @@ abstract class UpdateProfileRepository {
   Future<UpdateProfileResponseModel> updateProfile({
     required String fullName,
     required String email,
-    required String address,
-    String? locationType,
+    // String? address,
+    // String? locationType,
     dynamic profileImageFile,
   });
 }

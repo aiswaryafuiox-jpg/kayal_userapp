@@ -2,8 +2,8 @@ import 'package:cached_network_image_ce/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:kayal_userapp/core/const/api_routes.dart';
+import 'package:kayal_userapp/core/const/app_color.dart';
 import 'package:kayal_userapp/core/const/app_images.dart';
 import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
 import 'package:kayal_userapp/presentation/controller/product_detail_controller.dart';
@@ -64,23 +64,26 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     final screenHeight = mediaQuery.size.height;
     final imageHeight = (screenHeight * 0.44).clamp(280.0, 420.0);
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Obx(() {
-        // 1. Shimmer loading state while fetching detailed data from API
-        if (controller.isLoading.value &&
-            controller.productDetail.value == null) {
-          return const ProductDetailShimmer();
-        }
+    return Obx(() {
+      // 1. Shimmer loading state while fetching detailed data from API
+      if (controller.isLoading.value &&
+          controller.productDetail.value == null) {
+        return const ProductDetailShimmer();
+      }
 
-        // 2. Error / Not found state when loading completed but no data available
-        if (controller.product.value == null &&
-            controller.productDetail.value == null) {
-          return _buildErrorOrNotFoundState(context);
-        }
+      // 2. Error / Not found state when loading completed but no data available
+      if (controller.product.value == null &&
+          controller.productDetail.value == null) {
+        return Scaffold(
+          backgroundColor: Colors.white,
+          body: _buildErrorOrNotFoundState(context),
+        );
+      }
 
-        // 3. Render full dynamic product details
-        return Stack(
+      // 3. Render full dynamic product details
+      return Scaffold(
+        backgroundColor: Colors.white,
+        body: Stack(
           children: [
             Column(
               children: [
@@ -171,31 +174,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ),
                   ),
                 ),
-
-                // Bottom Pinned Action Bar
-                _buildBottomActionBar(context),
               ],
             ),
 
             // Top Floating Header (Back + Favorite)
             _buildFloatingHeader(context),
-
-            // Floating View Cart Bar when cart has items
-            Positioned.fill(
-              bottom: 130,
-
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                child: SizedBox(
-                  width: 290,
-                  child: ViewCartBottomBar(isFloating: true),
-                ),
-              ),
-            ),
           ],
-        );
-      }),
-    );
+        ),
+        bottomNavigationBar: _buildBottomActionBar(context),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: ViewCartBottomBar(isFloating: true),
+      );
+    });
   }
 
   Widget _buildHeroImage() {
@@ -286,9 +276,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           const SizedBox(height: 10),
           Text(
             'Kayal Delights',
-            style: GoogleFonts.poppins(
+            style: TextStyle(
               fontSize: 13,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
               color: const Color(0xFF9CA3AF),
             ),
           ),
@@ -406,9 +396,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           Expanded(
             child: Text(
               title.isNotEmpty ? title : 'Product Details',
-              style: GoogleFonts.poppins(
+              style: TextStyle(
                 fontSize: 22,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w500,
                 color: const Color(0xFF202733),
                 height: 1.25,
               ),
@@ -421,9 +411,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               if (oldPrice > price && price > 0) ...[
                 Text(
                   '₹$oldPriceStr',
-                  style: GoogleFonts.poppins(
+                  style: TextStyle(
                     fontSize: 14,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w400,
                     color: const Color(0xFF9E9E9E),
                     decoration: TextDecoration.lineThrough,
                   ),
@@ -432,9 +422,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               ],
               Text(
                 '₹$priceStr',
-                style: GoogleFonts.poppins(
+                style: TextStyle(
                   fontSize: 22,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w500,
                   color: const Color(0xFFFF823E),
                 ),
               ),
@@ -489,9 +479,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           const SizedBox(width: 8),
           Text(
             type,
-            style: GoogleFonts.poppins(
+            style: TextStyle(
               fontSize: 13,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w400,
               color: const Color(0xFF6B7280),
             ),
           ),
@@ -539,9 +529,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   const SizedBox(width: 5),
                   Text(
                     displayText,
-                    style: GoogleFonts.poppins(
+                    style: TextStyle(
                       fontSize: 12,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       color: const Color(0xFF2E7D32),
                     ),
                   ),
@@ -570,16 +560,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           const SizedBox(height: 8),
           Text(
             'Description',
-            style: GoogleFonts.poppins(
+            style: TextStyle(
               fontSize: 16,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w500,
               color: const Color(0xFF202733),
             ),
           ),
           const SizedBox(height: 8),
           Text(
             desc,
-            style: GoogleFonts.poppins(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w400,
               color: const Color(0xFF6B7280),
@@ -626,23 +616,23 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         width: 54,
                         height: 54,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFFECE0),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: const Color(0xFFFFDCC9),
-                            width: 1.2,
-                          ),
+                          color: AppColors.primary,
+                          shape: .circle,
                         ),
-                        child: Center(
-                          child: SvgPicture.asset(
-                            carticon,
-                            width: 24,
-                            height: 24,
-                            colorFilter: const ColorFilter.mode(
-                              Color(0xFFFF823E),
-                              BlendMode.srcIn,
+                        child: Stack(
+                          children: [
+                            Center(
+                              child: SvgPicture.asset(
+                                carticon,
+                                width: 24,
+                                height: 24,
+                                colorFilter: const ColorFilter.mode(
+                                  AppColors.white,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
                             ),
-                          ),
+                          ],
                         ),
                       ),
                     ),
@@ -697,9 +687,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               const SizedBox(height: 20),
               Text(
                 'Product Details Unavailable',
-                style: GoogleFonts.poppins(
+                style: TextStyle(
                   fontSize: 18,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w500,
                   color: const Color(0xFF252B35),
                 ),
                 textAlign: TextAlign.center,
@@ -711,7 +701,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     : 'The requested product could not be found or loaded.';
                 return Text(
                   msg,
-                  style: GoogleFonts.poppins(
+                  style: TextStyle(
                     fontSize: 13,
                     color: const Color(0xFF6B7280),
                     height: 1.4,
@@ -737,9 +727,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ),
                     child: Text(
                       'Go Back',
-                      style: GoogleFonts.poppins(
+                      style: TextStyle(
                         color: const Color(0xFF4B5563),
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         fontSize: 14,
                       ),
                     ),
@@ -754,9 +744,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ),
                     label: Text(
                       'Retry',
-                      style: GoogleFonts.poppins(
+                      style: TextStyle(
                         color: Colors.white,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         fontSize: 14,
                       ),
                     ),

@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:kayal_userapp/core/utils/helper/app_toast.dart';
 
 class TrackOrderController extends GetxController {
   final tipAmount = 0.obs;
@@ -31,7 +32,7 @@ class TrackOrderController extends GetxController {
   }
   
   void callRestaurant() {
-    Get.snackbar('Calling', 'Calling Saravana Bavan...');
+    AppToast.info('Calling Saravana Bavan...', title: 'Calling');
   }
 
   void addTip() async {

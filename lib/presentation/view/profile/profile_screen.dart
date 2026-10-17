@@ -28,7 +28,9 @@ class ProfileScreen extends StatelessWidget {
           },
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.only(bottom: 100), // Padding for bottom nav
+            padding: const EdgeInsets.only(
+              bottom: 100,
+            ), // Padding for bottom nav
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -52,9 +54,12 @@ class ProfileScreen extends StatelessWidget {
                             fit: StackFit.expand,
                             children: [
                               const AppEmbeddedImage(
-                                asset: hometop,
+                                asset: hometopbg,
+                                width: double.infinity,
+                                height: 140,
+
                                 fit: BoxFit.cover,
-                                fallback: ColoredBox(color: AppColors.primary),
+                                backgroundColor: AppColors.primary,
                               ),
                               SafeArea(
                                 child: Padding(
@@ -63,16 +68,36 @@ class ProfileScreen extends StatelessWidget {
                                     vertical: 12,
                                   ),
                                   child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: const [
-                                      Padding(
-                                        padding: EdgeInsets.only(top: 10),
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.transparent,
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.white.withValues(
+                                                alpha: 0.32,
+                                              ),
+                                              blurRadius: 16,
+                                              spreadRadius: 4,
+                                              offset: const Offset(
+                                                0,
+                                                4,
+                                              ), // changes position of shadow
+                                            ),
+                                          ],
+                                        ),
+                                        padding: const EdgeInsets.only(top: 10),
                                         child: Text(
                                           'Profile',
                                           style: TextStyle(
-                                            color: Colors.white,
+                                            color: AppColors.black,
                                             fontSize: 22,
-                                            fontWeight: FontWeight.w800,
+                                            fontWeight: FontWeight.w700,
                                           ),
                                         ),
                                       ),
@@ -117,7 +142,9 @@ class ProfileScreen extends StatelessWidget {
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.1),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.1,
+                                      ),
                                       blurRadius: 8,
                                       offset: const Offset(0, 3),
                                     ),
@@ -125,28 +152,34 @@ class ProfileScreen extends StatelessWidget {
                                 ),
                                 child: ClipOval(
                                   child: Obx(() {
-                                    final imgUrl = controller.profileImageUrl.value;
-                                    if (imgUrl.isNotEmpty && imgUrl.startsWith('http')) {
+                                    final imgUrl =
+                                        controller.profileImageUrl.value;
+                                    if (imgUrl.isNotEmpty &&
+                                        imgUrl.startsWith('http')) {
                                       return Image.network(
                                         imgUrl,
                                         fit: BoxFit.cover,
-                                        errorBuilder: (context, error, stackTrace) => Image.asset(
-                                          controller.profileImage.value,
-                                          fit: BoxFit.cover,
-                                        ),
+                                        errorBuilder:
+                                            (context, error, stackTrace) =>
+                                                Image.asset(
+                                                  controller.profileImage.value,
+                                                  fit: BoxFit.cover,
+                                                ),
                                       );
                                     }
                                     return Image.asset(
                                       controller.profileImage.value,
                                       fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) => const ColoredBox(
-                                        color: Colors.grey,
-                                        child: Icon(
-                                          Icons.person,
-                                          color: Colors.white,
-                                          size: 40,
-                                        ),
-                                      ),
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              const ColoredBox(
+                                                color: Colors.grey,
+                                                child: Icon(
+                                                  Icons.person,
+                                                  color: Colors.white,
+                                                  size: 40,
+                                                ),
+                                              ),
                                     );
                                   }),
                                 ),
@@ -163,7 +196,7 @@ class ProfileScreen extends StatelessWidget {
                                         controller.userName.value,
                                         style: const TextStyle(
                                           fontSize: 18,
-                                          fontWeight: FontWeight.w700,
+                                          fontWeight: FontWeight.w500,
                                           color: AppColors.textprimary,
                                         ),
                                       ),
@@ -174,11 +207,11 @@ class ProfileScreen extends StatelessWidget {
                                         controller.phoneNumber.value.isNotEmpty
                                             ? controller.phoneNumber.value
                                             : (controller.email.value.isNotEmpty
-                                                ? controller.email.value
-                                                : ''),
+                                                  ? controller.email.value
+                                                  : ''),
                                         style: const TextStyle(
                                           fontSize: 14,
-                                          fontWeight: FontWeight.w500,
+                                          fontWeight: FontWeight.w400,
                                           color: Color(0xFF6B7280),
                                         ),
                                       ),
@@ -208,7 +241,7 @@ class ProfileScreen extends StatelessWidget {
                                                 'Edit Profile',
                                                 style: TextStyle(
                                                   fontSize: 12,
-                                                  fontWeight: FontWeight.w500,
+                                                  fontWeight: FontWeight.w400,
                                                   color: AppColors.primary,
                                                 ),
                                               ),
@@ -219,9 +252,9 @@ class ProfileScreen extends StatelessWidget {
                                                 height: 14,
                                                 colorFilter:
                                                     const ColorFilter.mode(
-                                                  AppColors.primary,
-                                                  BlendMode.srcIn,
-                                                ),
+                                                      AppColors.primary,
+                                                      BlendMode.srcIn,
+                                                    ),
                                               ),
                                             ],
                                           ),
@@ -249,7 +282,7 @@ class ProfileScreen extends StatelessWidget {
                         'My Activity',
                         style: TextStyle(
                           fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                           color: AppColors.textprimary,
                         ),
                       ),
@@ -263,14 +296,13 @@ class ProfileScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
 
-                      _menuItem(
-                        svgAsset: carticon,
-                        iconColor: AppColors.primary,
-                        title: 'Cart',
-                        onTap: controller.openCart,
-                      ),
-                      const SizedBox(height: 12),
-
+                      // _menuItem(
+                      //   svgAsset: carticon,
+                      //   iconColor: AppColors.primary,
+                      //   title: 'Cart',
+                      //   onTap: controller.openCart,
+                      // ),
+                      // const SizedBox(height: 12),
                       _menuItem(
                         svgAsset: savedAddressicon,
                         iconColor: AppColors.primary,
@@ -279,14 +311,13 @@ class ProfileScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
 
-                      _menuItem(
-                        svgAsset: wishlistIcon,
-                        iconColor: AppColors.primary,
-                        title: 'Wishlist',
-                        onTap: controller.openWishlist,
-                      ),
-                      const SizedBox(height: 12),
-
+                      // _menuItem(
+                      //   svgAsset: wishlistIcon,
+                      //   iconColor: AppColors.primary,
+                      //   title: 'Wishlist',
+                      //   onTap: controller.openWishlist,
+                      // ),
+                      // const SizedBox(height: 12),
                       _menuItem(
                         svgAsset: feedbackicon,
                         iconColor: AppColors.primary,
@@ -393,7 +424,7 @@ class ProfileScreen extends StatelessWidget {
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 14,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
@@ -445,7 +476,7 @@ class ProfileScreen extends StatelessWidget {
                 title,
                 style: TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w400,
                   color: titleColor,
                 ),
               ),

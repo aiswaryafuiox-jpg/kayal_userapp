@@ -1,11 +1,13 @@
 import 'package:dio/dio.dart';
 import 'package:kayal_userapp/core/const/api_routes.dart';
 import 'package:kayal_userapp/core/service/api_service.dart';
+import 'package:kayal_userapp/core/service/local_storage_service.dart';
 import 'package:kayal_userapp/data/model/add_to_cart_from_wishlist_response_model.dart';
 import 'package:kayal_userapp/domain/repository/add_to_cart_from_wishlist_repository.dart';
 
 class AddToCartFromWishlistRepositoryImpl implements AddToCartFromWishlistRepository {
   final ApiService _apiService;
+  final LocalStorageService _storage = LocalStorageService();
 
   AddToCartFromWishlistRepositoryImpl(this._apiService);
 
@@ -17,9 +19,11 @@ class AddToCartFromWishlistRepositoryImpl implements AddToCartFromWishlistReposi
     try {
       final int? parsedId = int.tryParse(productId.toString());
       final dynamic validProductId = (parsedId != null && parsedId > 0) ? parsedId : productId;
+      final session = _storage.getOrCreateSessionId();
 
       final Map<String, dynamic> data = {
         'product_id': validProductId.toString(),
+        'session_id': session,
       };
       if (quantity != null) {
         final int? parsedQty = int.tryParse(quantity.toString());
@@ -32,6 +36,9 @@ class AddToCartFromWishlistRepositoryImpl implements AddToCartFromWishlistReposi
         ApiRoutes.addToCartFromWishlist,
         useFormData: true,
         data: data,
+        queryParameters: {
+          'session_id': session,
+        },
       );
 
       return AddToCartFromWishlistResponseModel.fromJson(response);

@@ -14,17 +14,12 @@ class NotificationScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFFFFFCFA),
-      appBar: const CustomAppBar(
-        title: 'Notifications',
-        showBackButton: true,
-      ),
+      appBar: const CustomAppBar(title: 'Notifications', showBackButton: true),
       body: SafeArea(
         child: Obx(() {
           if (controller.isLoading.value && controller.notifications.isEmpty) {
             return const Center(
-              child: CircularProgressIndicator(
-                color: AppColors.primary,
-              ),
+              child: CircularProgressIndicator(color: AppColors.primary),
             );
           }
 
@@ -52,7 +47,8 @@ class NotificationScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton(
-                      onPressed: () => controller.fetchNotifications(isRefresh: true),
+                      onPressed: () =>
+                          controller.fetchNotifications(isRefresh: true),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         shape: RoundedRectangleBorder(
@@ -100,7 +96,7 @@ class NotificationScreen extends StatelessWidget {
                           'No notifications yet',
                           style: TextStyle(
                             fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                             color: Color(0xFF374151),
                           ),
                         ),
@@ -218,8 +214,9 @@ class NotificationScreen extends StatelessWidget {
                           item.title,
                           style: TextStyle(
                             fontSize: 15,
-                            fontWeight:
-                                isUnread ? FontWeight.w800 : FontWeight.w700,
+                            fontWeight: isUnread
+                                ? FontWeight.w700
+                                : FontWeight.w500,
                             color: const Color(0xFF252B35),
                           ),
                         ),
@@ -261,7 +258,7 @@ class NotificationScreen extends StatelessWidget {
                     item.time,
                     style: const TextStyle(
                       fontSize: 12,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w400,
                       color: Color(0xFFD9777F),
                     ),
                   ),

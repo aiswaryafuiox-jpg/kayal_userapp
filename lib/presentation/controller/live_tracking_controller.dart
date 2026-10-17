@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:kayal_userapp/core/utils/helper/app_toast.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
@@ -30,6 +31,6 @@ class LiveTrackingController extends GetxController {
   ];
 
   void callDeliveryPartner() {
-    Get.snackbar('Calling', 'Calling Miller at +91 9856345239...');
+    AppToast.info('Calling Miller at +91 9856345239...', title: 'Calling');
   }
 }

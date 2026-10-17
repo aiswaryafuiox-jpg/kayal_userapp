@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kayal_userapp/core/di/service_locator.dart';
 import 'package:kayal_userapp/core/service/api_service.dart';
 import 'package:kayal_userapp/core/service/local_storage_service.dart';
+import 'package:kayal_userapp/core/utils/helper/app_toast.dart';
 import 'package:kayal_userapp/data/model/get_notifications_response_model.dart';
 import 'package:kayal_userapp/data/repository/delete_notification_repository_impl.dart';
 import 'package:kayal_userapp/data/repository/get_notifications_repository_impl.dart';
@@ -20,21 +20,25 @@ class NotificationController extends GetxController {
     GetNotificationsUseCase? getNotificationsUseCase,
     DeleteNotificationUseCase? deleteNotificationUseCase,
     MarkAsReadUseCase? markAsReadUseCase,
-  })  : _getNotificationsUseCase = getNotificationsUseCase ??
-            (sl.isRegistered<GetNotificationsUseCase>()
-                ? sl<GetNotificationsUseCase>()
-                : GetNotificationsUseCase(
-                    GetNotificationsRepositoryImpl(ApiService()))),
-        _deleteNotificationUseCase = deleteNotificationUseCase ??
-            (sl.isRegistered<DeleteNotificationUseCase>()
-                ? sl<DeleteNotificationUseCase>()
-                : DeleteNotificationUseCase(
-                    DeleteNotificationRepositoryImpl(ApiService()))),
-        _markAsReadUseCase = markAsReadUseCase ??
-            (sl.isRegistered<MarkAsReadUseCase>()
-                ? sl<MarkAsReadUseCase>()
-                : MarkAsReadUseCase(
-                    MarkAsReadRepositoryImpl(ApiService())));
+  }) : _getNotificationsUseCase =
+           getNotificationsUseCase ??
+           (sl.isRegistered<GetNotificationsUseCase>()
+               ? sl<GetNotificationsUseCase>()
+               : GetNotificationsUseCase(
+                   GetNotificationsRepositoryImpl(ApiService()),
+                 )),
+       _deleteNotificationUseCase =
+           deleteNotificationUseCase ??
+           (sl.isRegistered<DeleteNotificationUseCase>()
+               ? sl<DeleteNotificationUseCase>()
+               : DeleteNotificationUseCase(
+                   DeleteNotificationRepositoryImpl(ApiService()),
+                 )),
+       _markAsReadUseCase =
+           markAsReadUseCase ??
+           (sl.isRegistered<MarkAsReadUseCase>()
+               ? sl<MarkAsReadUseCase>()
+               : MarkAsReadUseCase(MarkAsReadRepositoryImpl(ApiService())));
 
   final notifications = <NotificationItemModel>[].obs;
   final isLoading = false.obs;
@@ -61,7 +65,10 @@ class NotificationController extends GetxController {
     }
   }
 
-  Future<void> fetchNotifications({bool isRefresh = false, int page = 1}) async {
+  Future<void> fetchNotifications({
+    bool isRefresh = false,
+    int page = 1,
+  }) async {
     if (!isRefresh) {
       isLoading.value = true;
     }
@@ -124,29 +131,24 @@ class NotificationController extends GetxController {
 
     if (removedItem.id.isNotEmpty) {
       try {
-        final response =
-            await _deleteNotificationUseCase(notificationId: removedItem.id);
+        final response = await _deleteNotificationUseCase(
+          notificationId: removedItem.id,
+        );
         if (!response.success) {
           // Restore item if server returned error
           notifications.insert(index, removedItem);
-          Get.snackbar(
-            'Failed',
+          AppToast.error(
             response.formattedErrorMessage.isNotEmpty
                 ? response.formattedErrorMessage
                 : 'Failed to delete notification',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.redAccent,
-            colorText: Colors.white,
+            title: 'Failed',
           );
         }
       } catch (e) {
         notifications.insert(index, removedItem);
-        Get.snackbar(
-          'Error',
+        AppToast.error(
           e.toString().replaceAll('Exception: ', ''),
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white,
+          title: 'Error',
         );
       }
     }

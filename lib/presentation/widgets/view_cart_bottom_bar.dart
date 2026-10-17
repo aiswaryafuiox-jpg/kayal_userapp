@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:kayal_userapp/core/const/app_images.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
 import 'package:kayal_userapp/presentation/controller/cart_controller.dart';
@@ -31,7 +30,7 @@ class ViewCartBottomBar extends StatelessWidget {
           duration: const Duration(milliseconds: 260),
           curve: hasItems ? Curves.easeOutBack : Curves.easeInBack,
           child: AnimatedOpacity(
-            opacity: hasItems ? .8 : 0.0,
+            opacity: hasItems ? 1 : 0.0,
             duration: const Duration(milliseconds: 180),
             child: hasItems
                 ? _buildBar(context, cartController, totalItems)
@@ -63,17 +62,19 @@ class ViewCartBottomBar extends StatelessWidget {
     final String itemsStr = totalItems == 1 ? '1 ITEM' : '$totalItems ITEMS';
 
     final screenWidth = MediaQuery.of(context).size.width;
+
     final double barWidth = isFloating
-        ? 280
+        ? (screenWidth * 0.72).clamp(120.0, 300.0)
         : screenWidth > 450
         ? 420.0
         : (screenWidth - 32);
 
     final Widget barContent = Material(
       color: Colors.transparent,
+
       child: InkWell(
         onTap: () => Get.toNamed(AppRoutes.cart),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(30),
         splashColor: Colors.white.withValues(alpha: 0.15),
         highlightColor: Colors.white.withValues(alpha: 0.08),
         child: Ink(
@@ -85,7 +86,7 @@ class ViewCartBottomBar extends StatelessWidget {
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
             ),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(30),
             boxShadow: [
               BoxShadow(
                 color: const Color(
@@ -98,6 +99,7 @@ class ViewCartBottomBar extends StatelessWidget {
           ),
           child: Row(
             mainAxisSize: .min,
+            mainAxisAlignment: .spaceBetween,
             children: [
               // Icon badge
               Container(
@@ -130,9 +132,9 @@ class ViewCartBottomBar extends StatelessWidget {
                     children: [
                       Text(
                         itemsStr,
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontSize: 12,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w500,
                           color: Colors.white,
                           letterSpacing: 0.4,
                         ),
@@ -148,9 +150,9 @@ class ViewCartBottomBar extends StatelessWidget {
                       ),
                       Text(
                         '₹$priceStr',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontSize: 15,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                           color: Colors.white,
                         ),
                       ),
@@ -160,7 +162,7 @@ class ViewCartBottomBar extends StatelessWidget {
                   if (isFloating == false)
                     Text(
                       'Extra charges may apply',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w400,
                         color: Colors.white.withValues(alpha: 0.88),
@@ -176,9 +178,9 @@ class ViewCartBottomBar extends StatelessWidget {
                   children: [
                     Text(
                       'VIEW CART',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         fontSize: 13,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                         color: Colors.white,
                         letterSpacing: 0.6,
                       ),

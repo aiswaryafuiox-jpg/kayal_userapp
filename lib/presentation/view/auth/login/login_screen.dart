@@ -7,7 +7,6 @@ import 'package:kayal_userapp/core/utils/helper/texthelper.dart';
 import 'package:kayal_userapp/presentation/controller/auth/login_controller.dart';
 import 'package:kayal_userapp/presentation/widgets/app_button.dart';
 
-
 class LoginScreen extends GetView<LoginController> {
   const LoginScreen({super.key});
 
@@ -28,23 +27,16 @@ class LoginScreen extends GetView<LoginController> {
                   children: [
                     Text('Login', style: TextHelper.heading3),
                     const SizedBox(height: 26),
-                    Center(
-                      child: Image.asset(
-                        appLogo,
-                        width: 121,
-                        height: 86,
-                      ),
-                    ),
+                    Center(child: Image.asset(appLogo, width: 121, height: 86)),
                     const SizedBox(height: 22),
                     Center(
-  child: Text(
-    'Get Start now',
-    style: TextHelper.heading1.copyWith(
-      fontWeight: FontWeight.w400,
-      
-    ),
-  ),
-),
+                      child: Text(
+                        'Get Start now',
+                        style: TextHelper.heading1.copyWith(
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     Center(
                       child: Text(
@@ -136,7 +128,7 @@ class LoginScreen extends GetView<LoginController> {
                     //       style: TextHelper.heading2.copyWith(
                     //         color: AppColors.primary,
                     //         fontSize: 14,
-                    //         fontWeight: FontWeight.w600,
+                    //         fontWeight: FontWeight.w500,
                     //       ),
                     //     ),
                     //   ),

@@ -10,12 +10,13 @@ class HelpSupportController extends GetxController {
   final SubmitSupportUseCase _submitSupportUseCase;
 
   HelpSupportController({SubmitSupportUseCase? submitSupportUseCase})
-      : _submitSupportUseCase = submitSupportUseCase ??
-            (sl.isRegistered<SubmitSupportUseCase>()
-                ? sl<SubmitSupportUseCase>()
-                : SubmitSupportUseCase(
-                    SubmitSupportRepositoryImpl(ApiService()),
-                  ));
+    : _submitSupportUseCase =
+          submitSupportUseCase ??
+          (sl.isRegistered<SubmitSupportUseCase>()
+              ? sl<SubmitSupportUseCase>()
+              : SubmitSupportUseCase(
+                  SubmitSupportRepositoryImpl(ApiService()),
+                ));
 
   final titleController = TextEditingController();
   final descriptionController = TextEditingController();
@@ -82,7 +83,7 @@ class HelpSupportController extends GetxController {
                     'Thank You!',
                     style: TextStyle(
                       fontSize: 18,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       color: Color(0xFF1F2937),
                     ),
                   ),
@@ -117,7 +118,7 @@ class HelpSupportController extends GetxController {
                         'Done',
                         style: TextStyle(
                           color: Colors.white,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
@@ -133,8 +134,9 @@ class HelpSupportController extends GetxController {
             : response.message;
         AppNotification.showError(
           title: 'Submission Failed',
-          message:
-              errorMsg.isNotEmpty ? errorMsg : 'Failed to submit support query',
+          message: errorMsg.isNotEmpty
+              ? errorMsg
+              : 'Failed to submit support query',
         );
       }
     } catch (e) {

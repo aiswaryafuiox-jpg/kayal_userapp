@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:kayal_userapp/core/di/service_locator.dart';
 import 'package:kayal_userapp/core/service/api_service.dart';
 import 'package:kayal_userapp/core/service/local_storage_service.dart';
+import 'package:kayal_userapp/core/utils/helper/app_toast.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
 import 'package:kayal_userapp/data/model/order_summary_response_model.dart';
 import 'package:kayal_userapp/data/repository/order_summary_repository_impl.dart';
@@ -106,9 +107,8 @@ class OrderSummaryController extends GetxController {
         if (response.data!.items.isNotEmpty) {
           items.assignAll(response.data!.items);
         }
-        if (response.data!.specialInstructions != null &&
-            response.data!.specialInstructions!.isNotEmpty) {
-          specialInstructions.value = response.data!.specialInstructions!;
+        if (response.data!.specialInstructions.isNotEmpty) {
+          specialInstructions.value = response.data!.specialInstructions;
         }
       }
     } catch (e) {
@@ -166,20 +166,16 @@ class OrderSummaryController extends GetxController {
 
   void continueToPayment() {
     if (items.isEmpty) {
-      Get.snackbar(
-        'Order Empty',
+      AppToast.warning(
         'Please add items before continuing to payment.',
-        snackPosition: SnackPosition.BOTTOM,
+        title: 'Order Empty',
       );
       return;
     }
 
     final storage = LocalStorageService();
     if (!storage.isLoggedIn()) {
-      Get.toNamed(
-        AppRoutes.login,
-        arguments: {'redirect': AppRoutes.checkout},
-      );
+      Get.toNamed(AppRoutes.login, arguments: {'redirect': AppRoutes.checkout});
       return;
     }
 
@@ -195,7 +191,7 @@ class OrderSummaryController extends GetxController {
       title: 'Special Instructions',
       titleStyle: const TextStyle(
         fontSize: 16,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w500,
         color: Color(0xFF252B35),
       ),
       content: Padding(

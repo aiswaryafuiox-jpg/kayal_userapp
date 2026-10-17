@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kayal_userapp/core/di/service_locator.dart';
 import 'package:kayal_userapp/core/service/api_service.dart';
+import 'package:kayal_userapp/core/utils/helper/app_toast.dart';
 import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
 import 'package:kayal_userapp/data/model/product_details_response_model.dart';
@@ -236,7 +237,11 @@ class ProductDetailController extends GetxController {
       final prod = product.value;
       if (prod != null) {
         final cartItem = cartController.cartItems.firstWhereOrNull(
-          (item) => item.id == prod.id || item.name == prod.name,
+          (item) =>
+              item.id == prod.id ||
+              item.productId?.toString() == prod.id ||
+              item.cartItemId == prod.id ||
+              item.name?.toLowerCase() == prod.name.toLowerCase(),
         );
         if (cartItem != null) {
           return cartItem.qty;
@@ -248,10 +253,9 @@ class ProductDetailController extends GetxController {
 
   void incrementQuantity() {
     if (isRestaurantClosed.value) {
-      Get.snackbar(
-        'Restaurant Unavailable',
+      AppToast.warning(
         'Cannot add items to cart while restaurant is closed.',
-        snackPosition: SnackPosition.BOTTOM,
+        title: 'Restaurant Unavailable',
       );
       return;
     }
@@ -260,7 +264,11 @@ class ProductDetailController extends GetxController {
       final cartController = Get.find<CartController>();
       final prod = product.value!;
       final cartIndex = cartController.cartItems.indexWhere(
-        (item) => item.name == prod.name || item.id == prod.id,
+        (item) =>
+            item.id == prod.id ||
+            item.productId?.toString() == prod.id ||
+            item.cartItemId == prod.id ||
+            item.name?.toLowerCase() == prod.name.toLowerCase(),
       );
       if (cartIndex != -1) {
         cartController.incrementQuantity(cartIndex);
@@ -288,7 +296,11 @@ class ProductDetailController extends GetxController {
       final cartController = Get.find<CartController>();
       final prod = product.value!;
       final cartIndex = cartController.cartItems.indexWhere(
-        (item) => item.name == prod.name || item.id == prod.id,
+        (item) =>
+            item.id == prod.id ||
+            item.productId?.toString() == prod.id ||
+            item.cartItemId == prod.id ||
+            item.name?.toLowerCase() == prod.name.toLowerCase(),
       );
       if (cartIndex != -1) {
         cartController.decrementQuantity(cartIndex);
@@ -315,10 +327,9 @@ class ProductDetailController extends GetxController {
 
   Future<void> placeOrder() async {
     if (isRestaurantClosed.value) {
-      Get.snackbar(
-        'Restaurant Closed',
+      AppToast.warning(
         'Ordering is disabled as this restaurant is currently closed.',
-        snackPosition: SnackPosition.BOTTOM,
+        title: 'Restaurant Closed',
       );
       return;
     }
@@ -327,7 +338,11 @@ class ProductDetailController extends GetxController {
       final cartController = Get.find<CartController>();
       final prod = product.value!;
       final cartIndex = cartController.cartItems.indexWhere(
-        (item) => item.name == prod.name || item.id == prod.id,
+        (item) =>
+            item.id == prod.id ||
+            item.productId?.toString() == prod.id ||
+            item.cartItemId == prod.id ||
+            item.name?.toLowerCase() == prod.name.toLowerCase(),
       );
       if (cartIndex == -1) {
         await cartController.addItem(

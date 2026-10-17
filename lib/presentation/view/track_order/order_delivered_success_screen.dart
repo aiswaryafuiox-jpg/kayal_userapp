@@ -8,7 +8,9 @@ import 'package:kayal_userapp/presentation/controller/order_delivered_success_co
 class OrderDeliveredSuccessScreen extends StatelessWidget {
   OrderDeliveredSuccessScreen({super.key});
 
-  final OrderDeliveredSuccessController controller = Get.put(OrderDeliveredSuccessController());
+  final OrderDeliveredSuccessController controller = Get.put(
+    OrderDeliveredSuccessController(),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -21,10 +23,7 @@ class OrderDeliveredSuccessScreen extends StatelessWidget {
             children: [
               const Spacer(),
               // Green Checkmark Illustration
-              SvgPicture.asset(
-                successIllustration,
-                height: 120,
-              ),
+              SvgPicture.asset(successIllustration, height: 120),
               const SizedBox(height: 32),
               // Success Message Title
               const Text(
@@ -32,7 +31,7 @@ class OrderDeliveredSuccessScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 22,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w500,
                   color: AppColors.grey,
                   height: 1.3,
                 ),
@@ -44,17 +43,17 @@ class OrderDeliveredSuccessScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFF2E8),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: const Color(0xFFFFE3D3),
-                    width: 1,
-                  ),
+                  border: Border.all(color: const Color(0xFFFFE3D3), width: 1),
                 ),
                 child: Row(
                   children: [
                     GestureDetector(
                       onTap: controller.addTips,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(8),
@@ -67,7 +66,7 @@ class OrderDeliveredSuccessScreen extends StatelessWidget {
                           'Add Tips',
                           style: TextStyle(
                             fontSize: 14,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w500,
                             color: AppColors.primary,
                           ),
                         ),
@@ -82,7 +81,7 @@ class OrderDeliveredSuccessScreen extends StatelessWidget {
                             'Enjoying our service',
                             style: TextStyle(
                               fontSize: 14,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w500,
                               color: AppColors.grey,
                             ),
                           ),
@@ -91,7 +90,7 @@ class OrderDeliveredSuccessScreen extends StatelessWidget {
                             'Thank You Delivery Partner With A Tip',
                             style: TextStyle(
                               fontSize: 12,
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w400,
                               color: Color(0xFF6B7280),
                             ),
                           ),
@@ -109,10 +108,7 @@ class OrderDeliveredSuccessScreen extends StatelessWidget {
                 child: OutlinedButton(
                   onPressed: controller.skipForNow,
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(
-                      color: AppColors.primary,
-                      width: 1,
-                    ),
+                    side: const BorderSide(color: AppColors.primary, width: 1),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -121,7 +117,7 @@ class OrderDeliveredSuccessScreen extends StatelessWidget {
                     'Skip for now',
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                       color: AppColors.primary,
                     ),
                   ),

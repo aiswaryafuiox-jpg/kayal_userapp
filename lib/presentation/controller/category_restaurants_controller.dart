@@ -12,12 +12,15 @@ import 'package:kayal_userapp/presentation/controller/home_controller.dart';
 class CategoryRestaurantsController extends GetxController {
   final PopularRestaurantsUseCase _popularRestaurantsUseCase;
 
-  CategoryRestaurantsController({PopularRestaurantsUseCase? popularRestaurantsUseCase})
-      : _popularRestaurantsUseCase = popularRestaurantsUseCase ??
-            (sl.isRegistered<PopularRestaurantsUseCase>()
-                ? sl<PopularRestaurantsUseCase>()
-                : PopularRestaurantsUseCase(
-                    PopularRestaurantsRepositoryImpl(ApiService())));
+  CategoryRestaurantsController({
+    PopularRestaurantsUseCase? popularRestaurantsUseCase,
+  }) : _popularRestaurantsUseCase =
+           popularRestaurantsUseCase ??
+           (sl.isRegistered<PopularRestaurantsUseCase>()
+               ? sl<PopularRestaurantsUseCase>()
+               : PopularRestaurantsUseCase(
+                   PopularRestaurantsRepositoryImpl(ApiService()),
+                 ));
 
   final RxString categoryName = 'Category'.obs;
   dynamic categoryId;
@@ -45,7 +48,9 @@ class CategoryRestaurantsController extends GetxController {
       final oldId = categoryId;
       if (currentArgs is Map) {
         if (currentArgs['category'] != null) {
-          categoryName.value = currentArgs['category'].toString().capitalizeWords();
+          categoryName.value = currentArgs['category']
+              .toString()
+              .capitalizeWords();
         }
         if (currentArgs['categoryId'] != null) {
           categoryId = currentArgs['categoryId'];
@@ -80,23 +85,26 @@ class CategoryRestaurantsController extends GetxController {
         lng: lng,
       );
       if (response.success && response.data.isNotEmpty) {
-        final fetched = response.data.map(
-          (item) => RestaurantItem(
-            id: item.id,
-            name: item.name.capitalizeWords(),
-            image: (item.image != null && item.image!.isNotEmpty)
-                ? item.image!
-                : 'assets/images/homeimg.png',
-            cuisine: (item.cuisine != null && item.cuisine!.isNotEmpty)
-                ? item.cuisine!.capitalizeWords()
-                : '${categoryName.value} Special'.capitalizeWords(),
-            deliveryTime: item.deliveryTime ?? '25-30 mins',
-            distance: item.distance ?? '2.8 Km',
-            openingTime: item.openingTime ?? '10:00 Am - 11:00 Pm',
-            isOpen: item.isOpen,
-          ),
-        ).toList();
+        final fetched = response.data
+            .map(
+              (item) => RestaurantItem(
+                id: item.id,
+                name: item.name.capitalizeWords(),
+                image: (item.image != null && item.image!.isNotEmpty)
+                    ? item.image!
+                    : 'assets/images/homeimg.png',
+                cuisine: (item.cuisine != null && item.cuisine!.isNotEmpty)
+                    ? item.cuisine!.capitalizeWords()
+                    : '${categoryName.value} Special'.capitalizeWords(),
+                deliveryTime: item.deliveryTime ?? '25-30 mins',
+                distance: item.distance ?? '2.8 Km',
+                openingTime: item.openingTime ?? '10:00 Am - 11:00 Pm',
+                isOpen: item.isOpen,
+              ),
+            )
+            .toList();
 
+        fetched.sort((a, b) => (b.isOpen ? 1 : 0).compareTo(a.isOpen ? 1 : 0));
         allRestaurants.assignAll(fetched);
       } else {
         allRestaurants.clear();
@@ -111,11 +119,43 @@ class CategoryRestaurantsController extends GetxController {
 
   List<RestaurantItem> get filteredRestaurants {
     final query = searchQuery.value.trim().toLowerCase();
-    return allRestaurants.where((r) {
+    final list = allRestaurants.where((r) {
       if (query.isEmpty) return true;
       return r.name.toLowerCase().contains(query) ||
           r.cuisine.toLowerCase().contains(query);
     }).toList();
+
+    switch (selectedSort.value) {
+      case 'Ratings':
+        list.sort((a, b) {
+          final rA = double.tryParse(a.rating.toString()) ?? 0.0;
+          final rB = double.tryParse(b.rating.toString()) ?? 0.0;
+          return rB.compareTo(rA);
+        });
+        break;
+      case 'Delivery Time':
+        list.sort((a, b) {
+          final timeA =
+              int.tryParse(
+                RegExp(r'\d+').firstMatch(a.deliveryTime)?.group(0) ?? '999',
+              ) ??
+              999;
+          final timeB =
+              int.tryParse(
+                RegExp(r'\d+').firstMatch(b.deliveryTime)?.group(0) ?? '999',
+              ) ??
+              999;
+          return timeA.compareTo(timeB);
+        });
+        break;
+      case 'Popularity':
+      default:
+        break;
+    }
+
+    // Open restaurants should always show first
+    list.sort((a, b) => (b.isOpen ? 1 : 0).compareTo(a.isOpen ? 1 : 0));
+    return list;
   }
 
   void onSearchChanged(String val) {
@@ -161,7 +201,7 @@ class CategoryRestaurantsController extends GetxController {
                   'Filter Restaurants',
                   style: TextStyle(
                     fontSize: 20,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     color: AppColors.textprimary,
                   ),
                 ),
@@ -169,11 +209,7 @@ class CategoryRestaurantsController extends GetxController {
                   onTap: () => Get.back(),
                   child: const Padding(
                     padding: EdgeInsets.all(6),
-                    child: Icon(
-                      Icons.close,
-                      color: AppColors.red,
-                      size: 24,
-                    ),
+                    child: Icon(Icons.close, color: AppColors.red, size: 24),
                   ),
                 ),
               ],
@@ -183,7 +219,7 @@ class CategoryRestaurantsController extends GetxController {
               'Sort By',
               style: TextStyle(
                 fontSize: 16,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w500,
                 color: AppColors.textprimary,
               ),
             ),
@@ -199,7 +235,9 @@ class CategoryRestaurantsController extends GetxController {
                     selectedSort.value = val;
                   }),
                   const SizedBox(height: 8),
-                  _buildFilterOption('Delivery Time', selectedSort.value, (val) {
+                  _buildFilterOption('Delivery Time', selectedSort.value, (
+                    val,
+                  ) {
                     selectedSort.value = val;
                   }),
                 ],
@@ -227,7 +265,7 @@ class CategoryRestaurantsController extends GetxController {
                         style: TextStyle(
                           color: AppColors.primary,
                           fontSize: 14,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
@@ -251,7 +289,7 @@ class CategoryRestaurantsController extends GetxController {
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 14,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
@@ -281,10 +319,7 @@ class CategoryRestaurantsController extends GetxController {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: const Color(0xFFFFEBE3),
-            width: 1.2,
-          ),
+          border: Border.all(color: const Color(0xFFFFEBE3), width: 1.2),
         ),
         child: Row(
           children: [
@@ -315,7 +350,7 @@ class CategoryRestaurantsController extends GetxController {
               option,
               style: const TextStyle(
                 fontSize: 14,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w400,
                 color: AppColors.textprimary,
               ),
             ),

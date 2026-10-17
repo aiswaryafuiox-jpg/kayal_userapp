@@ -1,10 +1,14 @@
+import 'dart:async';
 import 'package:get/get.dart';
+import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
 
 class SuccessController extends GetxController {
   final orderId = ''.obs;
   final customOrderId = ''.obs;
   final estimatedDelivery = '25 - 35 Minutes'.obs;
   final totalAmount = 0.0.obs;
+
+  Timer? _autoNavigateTimer;
 
   @override
   void onInit() {
@@ -42,10 +46,20 @@ class SuccessController extends GetxController {
         }
       }
     }
+
+    _startAutoNavigateTimer();
+  }
+
+  void _startAutoNavigateTimer() {
+    _autoNavigateTimer = Timer(const Duration(seconds: 8), () {
+      trackOrder();
+    });
   }
 
   void trackOrder() {
-    Get.toNamed('/trackOrder', arguments: {
+    _autoNavigateTimer?.cancel();
+    _autoNavigateTimer = null;
+    Get.offNamed(AppRoutes.trackOrder, arguments: {
       'order_id': orderId.value,
       'custom_order_id': customOrderId.value,
       'estimated_delivery': estimatedDelivery.value,
@@ -54,6 +68,15 @@ class SuccessController extends GetxController {
   }
 
   void goHome() {
-    Get.offAllNamed('/home');
+    _autoNavigateTimer?.cancel();
+    _autoNavigateTimer = null;
+    Get.offAllNamed(AppRoutes.home);
+  }
+
+  @override
+  void onClose() {
+    _autoNavigateTimer?.cancel();
+    _autoNavigateTimer = null;
+    super.onClose();
   }
 }

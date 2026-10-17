@@ -14,10 +14,7 @@ class PaymentMethodScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: CustomAppBar(
-        title: 'Payment Method',
-        showBackButton: true,
-      ),
+      appBar: CustomAppBar(title: 'Payment Method', showBackButton: true),
       body: SafeArea(
         child: Stack(
           children: [
@@ -31,89 +28,97 @@ class PaymentMethodScreen extends StatelessWidget {
                     'Payment Method',
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       color: AppColors.grey,
                     ),
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Payment Methods List
-                  Obx(
-                    () {
-                      final selectedIndex = controller.selectedMethodIndex.value;
-                      
-                      return ListView.separated(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: controller.paymentMethods.length,
-                        separatorBuilder: (context, index) => const SizedBox(height: 16),
-                        itemBuilder: (context, index) {
-                          final method = controller.paymentMethods[index];
-                          final isSelected = selectedIndex == index;
-                          
-                          return GestureDetector(
-                            onTap: () => controller.selectMethod(index),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                              decoration: BoxDecoration(
-                                color: isSelected 
-                                    ? AppColors.checkoutbackground 
-                                    : AppColors.white,
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: isSelected 
-                                      ? const Color(0xFFFDECEC) 
-                                      : const Color(0xFFF0F0F0),
-                                  width: 1.5,
-                                ),
-                                boxShadow: isSelected ? [] : [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.02),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 4),
-                                  )
-                                ],
+                  Obx(() {
+                    final selectedIndex = controller.selectedMethodIndex.value;
+
+                    return ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: controller.paymentMethods.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 16),
+                      itemBuilder: (context, index) {
+                        final method = controller.paymentMethods[index];
+                        final isSelected = selectedIndex == index;
+
+                        return GestureDetector(
+                          onTap: () => controller.selectMethod(index),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 20,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? AppColors.checkoutbackground
+                                  : AppColors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: isSelected
+                                    ? const Color(0xFFFDECEC)
+                                    : const Color(0xFFF0F0F0),
+                                width: 1.5,
                               ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    method['icon'] == 'online' 
-                                        ? Icons.receipt_long_outlined 
-                                        : Icons.payments_outlined,
-                                    color: AppColors.primary,
-                                    size: 24,
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: Text(
-                                      method['title']!,
-                                      style: const TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w500,
-                                        color: AppColors.grey,
+                              boxShadow: isSelected
+                                  ? []
+                                  : [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(
+                                          alpha: 0.02,
+                                        ),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
                                       ),
+                                    ],
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  method['icon'] == 'online'
+                                      ? Icons.receipt_long_outlined
+                                      : Icons.payments_outlined,
+                                  color: AppColors.primary,
+                                  size: 24,
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Text(
+                                    method['title']!,
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w400,
+                                      color: AppColors.grey,
                                     ),
                                   ),
-                                  Icon(
-                                    isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
-                                    color: AppColors.primary,
-                                    size: 24,
-                                  ),
-                                ],
-                              ),
+                                ),
+                                Icon(
+                                  isSelected
+                                      ? Icons.radio_button_checked
+                                      : Icons.radio_button_off,
+                                  color: AppColors.primary,
+                                  size: 24,
+                                ),
+                              ],
                             ),
-                          );
-                        },
-                      );
-                    },
-                  ),
-                  
+                          ),
+                        );
+                      },
+                    );
+                  }),
+
                   // Space for bottom button
                   const SizedBox(height: 100),
                 ],
               ),
             ),
-            
+
             // Pay Now Button at bottom
             Positioned(
               left: 24,

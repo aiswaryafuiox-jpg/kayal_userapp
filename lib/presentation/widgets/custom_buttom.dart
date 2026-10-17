@@ -23,7 +23,7 @@ class CustomButton extends StatelessWidget {
     this.textColor = Colors.white,
     this.borderRadius = 10,
     this.fontSize = 16,
-    this.fontWeight = FontWeight.w600,
+    this.fontWeight = FontWeight.w500,
     this.icon,
     this.isLoading = false,
   });
@@ -57,10 +57,7 @@ class CustomButton extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (icon != null) ...[
-                    icon!,
-                    const SizedBox(width: 8),
-                  ],
+                  if (icon != null) ...[icon!, const SizedBox(width: 8)],
                   Text(
                     text,
                     style: TextStyle(

@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:kayal_userapp/core/const/app_images.dart';
 import 'package:kayal_userapp/presentation/controller/auth/signin_controller.dart';
 
-
 class SignupScreen extends StatelessWidget {
   SignupScreen({super.key});
 
@@ -22,9 +21,7 @@ class SignupScreen extends StatelessWidget {
             SliverFillRemaining(
               hasScrollBody: false,
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -37,7 +34,7 @@ class SignupScreen extends StatelessWidget {
                       'Sign up',
                       style: TextStyle(
                         fontSize: 21,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w500,
                         color: Color(0xFF202733),
                       ),
                     ),
@@ -61,9 +58,7 @@ class SignupScreen extends StatelessWidget {
                     // ==========================================
                     // FULL NAME
                     // ==========================================
-                    const _FieldLabel(
-                      text: 'Full Name',
-                    ),
+                    const _FieldLabel(text: 'Full Name'),
 
                     const SizedBox(height: 6),
 
@@ -77,24 +72,18 @@ class SignupScreen extends StatelessWidget {
                     // ==========================================
                     // PHONE
                     // ==========================================
-                    const _FieldLabel(
-                      text: 'Phone No',
-                    ),
+                    const _FieldLabel(text: 'Phone No'),
 
                     const SizedBox(height: 6),
 
-                    _PhoneField(
-                      controller: controller.phoneController,
-                    ),
+                    _PhoneField(controller: controller.phoneController),
 
                     const SizedBox(height: 11),
 
                     // ==========================================
                     // EMAIL
                     // ==========================================
-                    const _FieldLabel(
-                      text: 'Email',
-                    ),
+                    const _FieldLabel(text: 'Email'),
 
                     const SizedBox(height: 6),
 
@@ -143,7 +132,7 @@ class SignupScreen extends StatelessWidget {
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 16,
-                                    fontWeight: FontWeight.w500,
+                                    fontWeight: FontWeight.w400,
                                   ),
                                 ),
                         ),
@@ -173,7 +162,7 @@ class SignupScreen extends StatelessWidget {
                                 style: TextStyle(
                                   color: Color(0xFFFF823E),
                                   fontSize: 12,
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ],
@@ -195,9 +184,7 @@ class SignupScreen extends StatelessWidget {
 }
 
 class _FieldLabel extends StatelessWidget {
-  const _FieldLabel({
-    required this.text,
-  });
+  const _FieldLabel({required this.text});
 
   final String text;
 
@@ -232,16 +219,10 @@ class _SignupTextField extends StatelessWidget {
       child: TextField(
         controller: controller,
         keyboardType: keyboardType,
-        style: const TextStyle(
-          fontSize: 14,
-          color: Color(0xFF202733),
-        ),
+        style: const TextStyle(fontSize: 14, color: Color(0xFF202733)),
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: const TextStyle(
-            color: Color(0xFFB7BAC0),
-            fontSize: 14,
-          ),
+          hintStyle: const TextStyle(color: Color(0xFFB7BAC0), fontSize: 14),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 15,
             vertical: 14,
@@ -250,21 +231,15 @@ class _SignupTextField extends StatelessWidget {
           fillColor: Colors.transparent,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(
-              color: Color(0xFFF0D8D3),
-            ),
+            borderSide: const BorderSide(color: Color(0xFFF0D8D3)),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(
-              color: Color(0xFFF0D8D3),
-            ),
+            borderSide: const BorderSide(color: Color(0xFFF0D8D3)),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(
-              color: Color(0xFFFF823E),
-            ),
+            borderSide: const BorderSide(color: Color(0xFFFF823E)),
           ),
         ),
       ),
@@ -273,9 +248,7 @@ class _SignupTextField extends StatelessWidget {
 }
 
 class _PhoneField extends StatelessWidget {
-  const _PhoneField({
-    required this.controller,
-  });
+  const _PhoneField({required this.controller});
 
   final TextEditingController controller;
 
@@ -286,30 +259,18 @@ class _PhoneField extends StatelessWidget {
       child: TextField(
         controller: controller,
         keyboardType: TextInputType.phone,
-        style: const TextStyle(
-          fontSize: 14,
-          color: Color(0xFF202733),
-        ),
+        style: const TextStyle(fontSize: 14, color: Color(0xFF202733)),
         decoration: InputDecoration(
           hintText: '0000 000 000',
-          hintStyle: const TextStyle(
-            color: Color(0xFFB7BAC0),
-            fontSize: 14,
-          ),
+          hintStyle: const TextStyle(color: Color(0xFFB7BAC0), fontSize: 14),
           prefixIcon: const Padding(
-            padding: EdgeInsets.only(
-              left: 15,
-              right: 8,
-            ),
+            padding: EdgeInsets.only(left: 15, right: 8),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   '+91',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF202733),
-                  ),
+                  style: TextStyle(fontSize: 14, color: Color(0xFF202733)),
                 ),
                 SizedBox(width: 4),
                 Icon(
@@ -335,21 +296,15 @@ class _PhoneField extends StatelessWidget {
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(
-              color: Color(0xFFF0D8D3),
-            ),
+            borderSide: const BorderSide(color: Color(0xFFF0D8D3)),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(
-              color: Color(0xFFF0D8D3),
-            ),
+            borderSide: const BorderSide(color: Color(0xFFF0D8D3)),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(
-              color: Color(0xFFFF823E),
-            ),
+            borderSide: const BorderSide(color: Color(0xFFFF823E)),
           ),
         ),
       ),

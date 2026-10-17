@@ -13,19 +13,22 @@ class RemoveCartItemRepositoryImpl implements RemoveCartItemRepository {
 
   @override
   Future<RemoveCartItemResponseModel> removeCartItem({
-    required dynamic cartId,
+    dynamic productId,
+    dynamic cartId,
     dynamic sessionId,
   }) async {
     try {
+      final idToUse = productId ?? cartId;
       final session = (sessionId != null && sessionId.toString().trim().isNotEmpty)
           ? sessionId.toString().trim()
           : _storage.getOrCreateSessionId();
 
-      final endpoint = '${ApiRoutes.removeCartItem}/$cartId';
+      final endpoint = '${ApiRoutes.removeCartItem}/$idToUse';
       final response = await _apiService.post(
         endpoint,
         useFormData: true,
         data: {
+          if (idToUse != null) 'product_id': idToUse.toString(),
           'session_id': session,
         },
         queryParameters: {

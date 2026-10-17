@@ -334,7 +334,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
                 style: TextStyle(
                   color: AppColors.textprimary,
                   fontSize: 18,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 8),
@@ -365,7 +365,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
                   ),
                   child: const Text(
                     'Enable Location',
-                    style: TextStyle(fontWeight: FontWeight.w700),
+                    style: TextStyle(fontWeight: FontWeight.w500),
                   ),
                 ),
               ),
@@ -479,6 +479,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
               ),
             )
             .toList();
+        fetched.sort((a, b) => (b.isOpen ? 1 : 0).compareTo(a.isOpen ? 1 : 0));
         restaurants.assignAll(fetched);
         if (categoryId == null) {
           allRestaurants.assignAll(fetched);

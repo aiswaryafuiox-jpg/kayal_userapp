@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ionicons/flutter_ionicons.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:kayal_userapp/presentation/controller/product_controller.dart';
 
 class ProductFilterSection extends StatelessWidget {
@@ -40,7 +40,7 @@ class ProductFilterSection extends StatelessWidget {
                 child: Row(
                   children: [
                     const Icon(
-                      Icons.search,
+                      Ionicons.search_outline,
                       color: Color(0xFFFF823E),
                       size: 20,
                     ),
@@ -49,14 +49,14 @@ class ProductFilterSection extends StatelessWidget {
                       child: TextField(
                         controller: controller.searchController,
                         onChanged: controller.onSearchChanged,
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
                           fontSize: 13,
                           color: const Color(0xFF252B35),
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w400,
                         ),
                         decoration: InputDecoration(
                           hintText: 'Search in menu...',
-                          hintStyle: GoogleFonts.inter(
+                          hintStyle: TextStyle(
                             fontSize: 13,
                             color: const Color(0xFF9E9E9E),
                           ),
@@ -115,7 +115,7 @@ class ProductFilterSection extends StatelessWidget {
                     alignment: Alignment.center,
                     children: [
                       Icon(
-                        Icons.tune_rounded,
+                        Ionicons.options_outline,
                         color: hasActive
                             ? const Color(0xFFFF823E)
                             : const Color(0xFF6B7280),
@@ -150,7 +150,8 @@ class ProductFilterSection extends StatelessWidget {
         Obx(() {
           final isVegSelected = controller.selectedDietary.value == 'Veg';
           final isNonVegSelected =
-              controller.selectedDietary.value == 'Non-Veg';
+              controller.selectedDietary.value == 'Non-Veg' ||
+              controller.selectedDietary.value == 'Non - Veg';
           final bool hasActive = controller.hasActiveFilters;
 
           return SingleChildScrollView(
@@ -252,9 +253,9 @@ class ProductFilterSection extends StatelessWidget {
                           const SizedBox(width: 4),
                           Text(
                             'Reset',
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
                               fontSize: 12,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w500,
                               color: const Color(0xFFFF823E),
                             ),
                           ),
@@ -282,17 +283,17 @@ class ProductFilterSection extends StatelessWidget {
             children: [
               Text(
                 hasActive ? 'Filtered Dishes' : 'Menu Items',
-                style: GoogleFonts.inter(
+                style: TextStyle(
                   fontSize: 15,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w500,
                   color: const Color(0xFF252B35),
                 ),
               ),
               Text(
                 '$count dishes',
-                style: GoogleFonts.inter(
+                style: TextStyle(
                   fontSize: 13,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                   color: const Color(0xFFFF823E),
                 ),
               ),
@@ -376,9 +377,9 @@ class ProductFilterSection extends StatelessWidget {
             const SizedBox(width: 5),
             Text(
               isCustomSort ? currentSort : 'Sort By',
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 fontSize: 12,
-                fontWeight: isCustomSort ? FontWeight.w700 : FontWeight.w500,
+                fontWeight: isCustomSort ? FontWeight.w500 : FontWeight.w400,
                 color: isCustomSort
                     ? const Color(0xFFFF823E)
                     : const Color(0xFF4B5563),
@@ -419,9 +420,9 @@ class ProductFilterSection extends StatelessWidget {
           Expanded(
             child: Text(
               value,
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 fontSize: 13,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
                 color: isSelected
                     ? const Color(0xFFFF823E)
                     : const Color(0xFF252B35),
@@ -473,9 +474,9 @@ class ProductFilterSection extends StatelessWidget {
             const SizedBox(width: 3),
             Text(
               label,
-              style: GoogleFonts.inter(
+              style: TextStyle(
                 fontSize: 12,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
                 color: isSelected ? selectedColor : const Color(0xFF4B5563),
               ),
             ),

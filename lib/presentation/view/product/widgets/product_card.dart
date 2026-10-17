@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:kayal_userapp/core/const/api_routes.dart';
 import 'package:kayal_userapp/core/utils/helper/string_extensions.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
@@ -92,29 +91,29 @@ class ProductCard extends StatelessWidget {
                             ),
                     ),
                   ),
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: GestureDetector(
-                      onTap: () => controller.toggleFavorite(product.id),
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Obx(
-                          () => Icon(
-                            product.isFavorite.value
-                                ? Icons.favorite
-                                : Icons.favorite_border,
-                            size: 14,
-                            color: const Color(0xFFE53935),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  // Positioned(
+                  //   top: 8,
+                  //   right: 8,
+                  //   child: GestureDetector(
+                  //     onTap: () => controller.toggleFavorite(product.id),
+                  //     child: Container(
+                  //       padding: const EdgeInsets.all(4),
+                  //       decoration: const BoxDecoration(
+                  //         color: Colors.white,
+                  //         shape: BoxShape.circle,
+                  //       ),
+                  //       child: Obx(
+                  //         () => Icon(
+                  //           product.isFavorite.value
+                  //               ? Icons.favorite
+                  //               : Icons.favorite_border,
+                  //           size: 14,
+                  //           color: const Color(0xFFE53935),
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
             ),
@@ -133,9 +132,9 @@ class ProductCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           product.name.capitalizeWords(),
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             fontSize: 12,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w500,
                             color: isClosed
                                 ? const Color(0xFF8C9199)
                                 : const Color(0xFF202733),
@@ -171,7 +170,7 @@ class ProductCard extends StatelessWidget {
 
                   Text(
                     product.type.capitalizeWords(),
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w400,
                       color: isClosed
@@ -194,18 +193,18 @@ class ProductCard extends StatelessWidget {
                                 product.newPrice > 0)
                               Text(
                                 '₹${product.oldPrice % 1 == 0 ? product.oldPrice.toInt() : product.oldPrice.toStringAsFixed(2)}',
-                                style: GoogleFonts.inter(
+                                style: TextStyle(
                                   fontSize: 10,
-                                  fontWeight: FontWeight.w500,
+                                  fontWeight: FontWeight.w400,
                                   color: const Color(0xFFB0B3BA),
                                   decoration: TextDecoration.lineThrough,
                                 ),
                               ),
                             Text(
                               '₹${((product.newPrice > 0 ? product.newPrice : product.oldPrice) % 1 == 0) ? (product.newPrice > 0 ? product.newPrice : product.oldPrice).toInt() : (product.newPrice > 0 ? product.newPrice : product.oldPrice).toStringAsFixed(2)}',
-                              style: GoogleFonts.inter(
+                              style: TextStyle(
                                 fontSize: 13,
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w700,
                                 color: isClosed
                                     ? const Color(0xFF8C9199)
                                     : const Color(0xFF202733),
@@ -241,9 +240,9 @@ class ProductCard extends StatelessWidget {
                                   children: [
                                     Text(
                                       'ADD',
-                                      style: GoogleFonts.inter(
+                                      style: TextStyle(
                                         fontSize: 12,
-                                        fontWeight: FontWeight.w700,
+                                        fontWeight: FontWeight.w500,
                                         color: Colors.white,
                                         letterSpacing: 0.5,
                                       ),
@@ -286,9 +285,9 @@ class ProductCard extends StatelessWidget {
                               ),
                               Text(
                                 '$count',
-                                style: GoogleFonts.inter(
+                                style: TextStyle(
                                   fontSize: 13,
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.w500,
                                   color: Colors.white,
                                 ),
                               ),

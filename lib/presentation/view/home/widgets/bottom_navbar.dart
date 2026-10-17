@@ -155,7 +155,7 @@ class _BottomNavigationItem extends StatelessWidget {
                               style: TextHelper.button.copyWith(
                                 color: AppColors.white,
                                 fontSize: 13,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),

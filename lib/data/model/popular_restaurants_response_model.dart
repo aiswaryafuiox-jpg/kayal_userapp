@@ -112,6 +112,17 @@ class PopularRestaurantsResponseModel {
       allRest = restaurantList;
     }
 
+    // Open restaurants should show first
+    void sortByOpenFirst(List<PopularRestaurantItemModel> list) {
+      list.sort((a, b) => (b.isOpen ? 1 : 0).compareTo(a.isOpen ? 1 : 0));
+    }
+
+    sortByOpenFirst(restaurantList);
+    sortByOpenFirst(w20);
+    sortByOpenFirst(w40);
+    sortByOpenFirst(w60);
+    sortByOpenFirst(allRest);
+
     return PopularRestaurantsResponseModel(
       success: json['success'] ?? true,
       message: json['message']?.toString() ?? '',
@@ -237,13 +248,24 @@ class PopularRestaurantItemModel {
       computedCuisine = '$fallbackCategory Special';
     }
 
-    final rawIsOpen = json['is_open'];
+    final rawIsOpen = json['is_open'] ??
+        json['is_online'] ??
+        json['open_status'] ??
+        json['is_active'];
     bool parsedIsOpen = true;
     if (rawIsOpen is bool) {
       parsedIsOpen = rawIsOpen;
     } else if (rawIsOpen != null) {
-      final s = rawIsOpen.toString().toLowerCase();
-      parsedIsOpen = s == '1' || s == 'true';
+      final s = rawIsOpen.toString().toLowerCase().trim();
+      parsedIsOpen = s == '1' || s == 'true' || s == 'open' || s == 'opened';
+    } else if (json['is_closed'] != null) {
+      final s = json['is_closed'].toString().toLowerCase().trim();
+      parsedIsOpen = !(s == '1' || s == 'true' || s == 'closed');
+    } else if (json['status'] != null) {
+      final s = json['status'].toString().toLowerCase().trim();
+      if (s == 'closed' || s == '0' || s == 'false') {
+        parsedIsOpen = false;
+      }
     }
 
     final rawFreeDelivery = json['free_delivery'];

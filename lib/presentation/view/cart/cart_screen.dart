@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ionicons/flutter_ionicons.dart';
 import 'package:get/get.dart';
+import 'package:kayal_userapp/core/const/app_color.dart';
+import 'package:kayal_userapp/core/const/app_images.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
 import 'package:kayal_userapp/presentation/controller/cart_controller.dart';
+import 'package:kayal_userapp/presentation/controller/home_controller.dart';
 import 'package:kayal_userapp/presentation/view/cart/widgets/animated_cart_item_card.dart';
-import 'package:kayal_userapp/presentation/widgets/app_bar.dart';
+import 'package:kayal_userapp/presentation/view/home/widgets/home_header.dart';
+import 'package:kayal_userapp/presentation/widgets/app_embedded_image.dart';
 import 'package:kayal_userapp/presentation/widgets/custom_buttom.dart';
 
 class CartScreen extends StatelessWidget {
@@ -13,9 +18,98 @@ class CartScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final homecontroller = Get.find<HomeController>();
     return Scaffold(
       backgroundColor: const Color(0xFFFFFCFA),
-      appBar: const CustomAppBar(title: 'Cart', showBackButton: true),
+      // appBar: const CustomAppBar(title: 'Cart', showBackButton: true,),
+      appBar: AppBar(
+        leadingWidth: 50,
+        toolbarHeight: 70,
+        title: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Obx(
+                () => Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Deliver to',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Color(0xFF1F2937),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        height: 1.1,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    GestureDetector(
+                      onTap: homecontroller.isLocationEnabled.value
+                          ? null
+                          : homecontroller.showEnableLocationDialog,
+                      child: Row(
+                        children: [
+                          Icon(
+                            homecontroller.isLocationEnabled.value
+                                ? Ionicons.location_sharp
+                                : Ionicons.location_outline,
+                            size: 16,
+                            color: const Color(0xFF1F2937),
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: homecontroller.isLocationEnabled.value
+                                ? Text(
+                                    homecontroller.userLocation.value,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: AppColors.black,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  )
+                                : const LocationNewsTicker(
+                                    text:
+                                        'Please enable location  •  Tap here to enable location',
+                                  ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 16),
+          child: InkWell(
+            onTap: () => Navigator.pop(context),
+            borderRadius: BorderRadius.circular(12),
+            child: CircleAvatar(
+              backgroundColor: Colors.white,
+              radius: 22,
+              child: const Icon(
+                Icons.arrow_back_ios_new,
+                size: 20,
+                color: Color(0xff3A4A7A),
+              ),
+            ),
+          ),
+        ),
+        flexibleSpace: AppEmbeddedImage(
+          asset: hometopbg,
+          width: double.infinity,
+          height: 210,
+          fit: BoxFit.cover,
+          backgroundColor: AppColors.splashBackground.withValues(alpha: .6),
+        ),
+      ),
       body: SafeArea(
         child: Obx(() {
           if (controller.isLoadingCart.value && controller.cartItems.isEmpty) {
@@ -59,24 +153,56 @@ class CartScreen extends StatelessWidget {
                                   key: ValueKey('cart_item_${item.id}'),
                                   item: item,
                                   onIncrement: () {
-                                    final idx = controller.cartItems.indexWhere(
-                                       (i) => i.productId == item.productId,
-                                    );
+                                    final idx =
+                                        (index < controller.cartItems.length &&
+                                            controller.cartItems[index].id ==
+                                                item.id)
+                                        ? index
+                                        : controller.cartItems.indexWhere(
+                                            (i) =>
+                                                (item.cartItemId != null &&
+                                                    i.cartItemId ==
+                                                        item.cartItemId) ||
+                                                (item.productId != null &&
+                                                    i.productId ==
+                                                        item.productId) ||
+                                                i.id == item.id,
+                                          );
                                     if (idx != -1) {
                                       controller.incrementQuantity(idx);
                                     }
                                   },
                                   onDecrement: () {
-                                    final idx = controller.cartItems.indexWhere(
-                                      (i) => i.productId == item.productId,
-                                    );
+                                    final idx =
+                                        (index < controller.cartItems.length &&
+                                            controller.cartItems[index].id ==
+                                                item.id)
+                                        ? index
+                                        : controller.cartItems.indexWhere(
+                                            (i) =>
+                                                (item.cartItemId != null &&
+                                                    i.cartItemId ==
+                                                        item.cartItemId) ||
+                                                (item.productId != null &&
+                                                    i.productId ==
+                                                        item.productId) ||
+                                                i.id == item.id,
+                                          );
                                     if (idx != -1) {
                                       controller.decrementQuantity(idx);
                                     }
                                   },
                                   onRemove: () async {
+                                    final productIdToRemove =
+                                        (item.productId != null &&
+                                            item.productId! > 0)
+                                        ? item.productId.toString()
+                                        : (item.cartItemId != null &&
+                                              item.cartItemId!.isNotEmpty)
+                                        ? item.cartItemId!
+                                        : item.id;
                                     await controller.removeItemById(
-                                      item.productId,
+                                      productIdToRemove,
                                     );
                                   },
                                 );
@@ -112,7 +238,7 @@ class CartScreen extends StatelessWidget {
                                         'Total Amount',
                                         style: TextStyle(
                                           fontSize: 18,
-                                          fontWeight: FontWeight.w700,
+                                          fontWeight: FontWeight.w500,
                                           color: Color(0xFF252B35),
                                         ),
                                       ),
@@ -128,13 +254,13 @@ class CartScreen extends StatelessWidget {
                                                     child: child,
                                                   ),
                                           child: Text(
-                                            '₹${controller.totalAmount.toInt()}',
+                                            '₹${controller.totalAmount.toStringAsFixed(2)}',
                                             key: ValueKey(
                                               'total_${controller.totalAmount.toInt()}',
                                             ),
                                             style: const TextStyle(
                                               fontSize: 18,
-                                              fontWeight: FontWeight.w700,
+                                              fontWeight: FontWeight.w500,
                                               color: Color(0xFFFF823E),
                                             ),
                                           ),
@@ -191,7 +317,7 @@ class CartScreen extends StatelessWidget {
                       'Your Cart Is Empty !',
                       style: TextStyle(
                         fontSize: 18,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w500,
                         color: Color(0xFF1F2937),
                       ),
                       textAlign: TextAlign.center,
@@ -201,7 +327,7 @@ class CartScreen extends StatelessWidget {
                       'Your perfect look starts here',
                       style: TextStyle(
                         fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         color: Color(0xFF80142C),
                       ),
                       textAlign: TextAlign.center,
@@ -229,7 +355,7 @@ class CartScreen extends StatelessWidget {
                           'Continue Ordering',
                           style: TextStyle(
                             fontSize: 15,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                             color: Colors.white,
                           ),
                         ),

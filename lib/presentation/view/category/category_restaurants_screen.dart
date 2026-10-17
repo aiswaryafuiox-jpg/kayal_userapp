@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ionicons/flutter_ionicons.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:kayal_userapp/core/const/app_images.dart';
 import 'package:kayal_userapp/presentation/controller/cart_controller.dart';
 import 'package:kayal_userapp/presentation/controller/category_restaurants_controller.dart';
@@ -18,8 +18,7 @@ class CategoryRestaurantsScreen extends StatefulWidget {
       _CategoryRestaurantsScreenState();
 }
 
-class _CategoryRestaurantsScreenState
-    extends State<CategoryRestaurantsScreen> {
+class _CategoryRestaurantsScreenState extends State<CategoryRestaurantsScreen> {
   late final CategoryRestaurantsController controller;
 
   @override
@@ -93,10 +92,10 @@ class _CategoryRestaurantsScreenState
                                 child: Center(
                                   child: Text(
                                     '$count',
-                                    style: GoogleFonts.inter(
+                                    style: TextStyle(
                                       color: const Color(0xFFFF823E),
                                       fontSize: 10,
-                                      fontWeight: FontWeight.w800,
+                                      fontWeight: FontWeight.w700,
                                       height: 1.0,
                                     ),
                                   ),
@@ -139,11 +138,11 @@ class _CategoryRestaurantsScreenState
                           ),
                         ],
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Row(
                         children: [
                           const Icon(
-                            Icons.search,
+                            Ionicons.search_circle,
                             color: Color(0xFFFF823E),
                             size: 20,
                           ),
@@ -155,7 +154,7 @@ class _CategoryRestaurantsScreenState
                               decoration: InputDecoration(
                                 hintText:
                                     'Search ${controller.categoryName.value} restaurants...',
-                                hintStyle: GoogleFonts.inter(
+                                hintStyle: TextStyle(
                                   fontSize: 13,
                                   color: const Color(0xFF9E9E9E),
                                 ),
@@ -192,7 +191,7 @@ class _CategoryRestaurantsScreenState
                       ),
                       child: const Center(
                         child: Icon(
-                          Icons.tune,
+                          Ionicons.options_outline,
                           color: Color(0xFFFF823E),
                           size: 22,
                         ),
@@ -224,17 +223,17 @@ class _CategoryRestaurantsScreenState
                   children: [
                     Text(
                       'Available Restaurants',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         fontSize: 15,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w500,
                         color: const Color(0xFF252B35),
                       ),
                     ),
                     Text(
                       '${controller.filteredRestaurants.length} found',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
                         fontSize: 13,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         color: const Color(0xFFFF823E),
                       ),
                     ),
@@ -288,9 +287,9 @@ class _CategoryRestaurantsScreenState
                                 const SizedBox(height: 16),
                                 Text(
                                   'No Data',
-                                  style: GoogleFonts.inter(
+                                  style: TextStyle(
                                     fontSize: 18,
-                                    fontWeight: FontWeight.w700,
+                                    fontWeight: FontWeight.w500,
                                     color: const Color(0xFF252B35),
                                   ),
                                 ),
@@ -298,7 +297,7 @@ class _CategoryRestaurantsScreenState
                                 Text(
                                   'No restaurants currently offering ${controller.categoryName.value} were found.',
                                   textAlign: TextAlign.center,
-                                  style: GoogleFonts.inter(
+                                  style: TextStyle(
                                     fontSize: 13,
                                     color: const Color(0xFF6B7280),
                                   ),
@@ -320,8 +319,7 @@ class _CategoryRestaurantsScreenState
                     separatorBuilder: (context, index) =>
                         const SizedBox(height: 14),
                     itemBuilder: (context, index) {
-                      final restaurant =
-                          controller.filteredRestaurants[index];
+                      final restaurant = controller.filteredRestaurants[index];
                       return GestureDetector(
                         onTap: () => controller.onRestaurantTap(restaurant),
                         child: RestaurantCard(restaurant: restaurant),

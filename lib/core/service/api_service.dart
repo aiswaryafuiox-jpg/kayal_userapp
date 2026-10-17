@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart' as g;
 import '../const/api_routes.dart';
+import '../utils/helper/app_toast.dart';
 import '../utils/navigation/app_routes.dart';
 import 'local_storage_service.dart';
 
@@ -246,14 +247,7 @@ class ApiService {
 
     try {
       g.Get.offAllNamed(AppRoutes.login);
-      if (g.Get.context != null) {
-        g.Get.snackbar(
-          "Session Expired",
-          "Please login to continue.",
-          snackPosition: g.SnackPosition.BOTTOM,
-          duration: const Duration(milliseconds: 2500),
-        );
-      }
+      AppToast.warning("Please login to continue.", title: "Session Expired");
     } catch (_) {
     } finally {
       Future.delayed(const Duration(seconds: 2), () {

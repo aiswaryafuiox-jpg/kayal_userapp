@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kayal_userapp/core/di/service_locator.dart';
 import 'package:kayal_userapp/core/service/api_service.dart';
+import 'package:kayal_userapp/core/utils/helper/app_toast.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
 import 'package:kayal_userapp/data/model/initiate_payment_response_model.dart';
 import 'package:kayal_userapp/data/repository/initiate_payment_repository_impl.dart';
@@ -144,23 +145,17 @@ class PaymentMethodController extends GetxController {
           },
         );
       } else {
-        Get.snackbar(
-          'Order Failed',
+        AppToast.error(
           response.formattedErrorMessage.isNotEmpty
               ? response.formattedErrorMessage
               : 'Failed to place order. Please try again.',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white,
+          title: 'Order Failed',
         );
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
+      AppToast.error(
         e.toString().replaceAll('Exception: ', ''),
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.redAccent,
-        colorText: Colors.white,
+        title: 'Error',
       );
     } finally {
       isLoading.value = false;

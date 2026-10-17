@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ionicons/flutter_ionicons.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:kayal_userapp/core/const/app_color.dart';
 import 'package:kayal_userapp/core/const/app_images.dart';
+import 'package:kayal_userapp/core/di/service_locator.dart';
+import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
 import 'package:kayal_userapp/presentation/controller/cart_controller.dart';
 import 'package:kayal_userapp/presentation/controller/home_controller.dart';
+import 'package:kayal_userapp/presentation/controller/profile_controller.dart';
 import 'package:kayal_userapp/presentation/widgets/app_embedded_image.dart';
 
 class HomeHeader extends StatelessWidget {
@@ -12,6 +17,9 @@ class HomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<HomeController>();
+    final profcontroller = Get.put(
+      ProfileController(getProfileUseCase: sl(), logoutUseCase: sl()),
+    );
 
     return SizedBox(
       height: 171,
@@ -25,9 +33,10 @@ class HomeHeader extends StatelessWidget {
           fit: StackFit.expand,
           children: [
             const AppEmbeddedImage(
-              asset: hometop,
+              asset: hometopbg,
+
               fit: BoxFit.cover,
-              fallback: ColoredBox(color: Color(0xFFFF8A3D)),
+              backgroundColor: Color(0xFFFF8A3D),
             ),
             Positioned(
               left: 24,
@@ -55,9 +64,12 @@ class HomeHeader extends StatelessWidget {
                           ),
                         ],
                       ),
-                      child: ClipOval(
-                        child: Image.asset(profileImg, fit: BoxFit.cover),
-                      ),
+                      child: profcontroller.profileImageUrl.isNotEmpty
+                          ? AppEmbeddedImage(
+                              asset: profcontroller.profileImageUrl.value,
+                              fit: BoxFit.cover,
+                            )
+                          : Icon(Ionicons.person_circle, size: 30),
                     ),
                   ),
                   const SizedBox(width: 7),
@@ -74,7 +86,7 @@ class HomeHeader extends StatelessWidget {
                             style: const TextStyle(
                               color: Color(0xFF1F2937),
                               fontSize: 15,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w600,
                               height: 1.1,
                             ),
                           ),
@@ -87,8 +99,8 @@ class HomeHeader extends StatelessWidget {
                               children: [
                                 Icon(
                                   controller.isLocationEnabled.value
-                                      ? Icons.location_on
-                                      : Icons.location_off_rounded,
+                                      ? Ionicons.location_sharp
+                                      : Ionicons.location_outline,
                                   size: 16,
                                   color: const Color(0xFF1F2937),
                                 ),
@@ -101,7 +113,7 @@ class HomeHeader extends StatelessWidget {
                                           overflow: TextOverflow.ellipsis,
                                           style: _locationTextStyle,
                                         )
-                                      : const _LocationNewsTicker(
+                                      : const LocationNewsTicker(
                                           text:
                                               'Please enable location  •  Tap here to enable location',
                                         ),
@@ -141,9 +153,9 @@ class HomeHeader extends StatelessWidget {
   }
 
   static const TextStyle _locationTextStyle = TextStyle(
-    color: Color(0xFF1F2937),
-    fontSize: 9,
-    fontWeight: FontWeight.w500,
+    color: AppColors.black,
+    fontSize: 11,
+    fontWeight: FontWeight.w400,
   );
 
   Widget _headerButton({
@@ -197,7 +209,7 @@ class HomeHeader extends StatelessWidget {
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 9,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       height: 1.0,
                     ),
                   ),
@@ -210,16 +222,16 @@ class HomeHeader extends StatelessWidget {
   }
 }
 
-class _LocationNewsTicker extends StatefulWidget {
+class LocationNewsTicker extends StatefulWidget {
   final String text;
 
-  const _LocationNewsTicker({required this.text});
+  const LocationNewsTicker({super.key, required this.text});
 
   @override
-  State<_LocationNewsTicker> createState() => _LocationNewsTickerState();
+  State<LocationNewsTicker> createState() => _LocationNewsTickerState();
 }
 
-class _LocationNewsTickerState extends State<_LocationNewsTicker>
+class _LocationNewsTickerState extends State<LocationNewsTicker>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 

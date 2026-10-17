@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:kayal_userapp/core/const/app_images.dart';
 import 'package:kayal_userapp/core/utils/helper/texthelper.dart';
 import 'package:kayal_userapp/presentation/controller/auth/notification_update_controller.dart';
@@ -9,8 +8,9 @@ import 'package:kayal_userapp/presentation/widgets/custom_buttom.dart';
 class NotificationUpdateScreen extends StatelessWidget {
   NotificationUpdateScreen({super.key});
 
-  final NotificationUpdateController controller =
-      Get.put(NotificationUpdateController());
+  final NotificationUpdateController controller = Get.put(
+    NotificationUpdateController(),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -23,9 +23,7 @@ class NotificationUpdateScreen extends StatelessWidget {
             builder: (context, constraints) {
               return SingleChildScrollView(
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: constraints.maxHeight,
-                  ),
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
                   child: IntrinsicHeight(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,7 +70,7 @@ class NotificationUpdateScreen extends StatelessWidget {
                             backgroundColor: const Color(0xFFFF823E),
                             textColor: Colors.white,
                             fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                             isLoading: controller.isLoading.value,
                             onPressed: controller.onContinue,
                           ),
@@ -97,9 +95,9 @@ class NotificationUpdateScreen extends StatelessWidget {
                             ),
                             child: Text(
                               'Not Now',
-                              style: GoogleFonts.inter(
+                              style: TextStyle(
                                 fontSize: 16,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w500,
                                 color: const Color(0xFF1E2430),
                               ),
                             ),

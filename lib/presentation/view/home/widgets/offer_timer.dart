@@ -29,7 +29,7 @@ class OfferTimer extends StatelessWidget {
             style: TextStyle(
               color: Colors.white,
               fontSize: 10,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w500,
             ),
           ),
 
@@ -47,7 +47,7 @@ class OfferTimer extends StatelessWidget {
                 style: const TextStyle(
                   color: Color(0xFFFF823E),
                   fontSize: 10,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
@@ -62,7 +62,7 @@ class OfferTimer extends StatelessWidget {
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 10,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w500,
                 decoration: TextDecoration.underline,
               ),
             ),

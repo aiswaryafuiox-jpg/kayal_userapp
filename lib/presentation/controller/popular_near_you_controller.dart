@@ -37,22 +37,24 @@ class PopularNearYouController extends GetxController {
       isLoading.value = true;
       final response = await _popularRestaurantsUseCase(lat: lat, lng: lng);
       if (response.success && response.data.isNotEmpty) {
-        restaurants.assignAll(
-          response.data.map(
-            (item) => RestaurantItem(
-              id: item.id,
-              name: item.name.capitalizeWords(),
-              image: (item.image != null && item.image!.isNotEmpty)
-                  ? item.image!
-                  : 'assets/images/homeimg.png',
-              cuisine: (item.cuisine ?? 'Italian Pizza').capitalizeWords(),
-              deliveryTime: item.deliveryTime ?? '25-30 mins',
-              distance: item.distance ?? '2.8 Km',
-              openingTime: item.openingTime ?? '10:00 Am - 11:00 Pm',
-              isOpen: item.isOpen,
-            ),
-          ),
-        );
+        final fetched = response.data
+            .map(
+              (item) => RestaurantItem(
+                id: item.id,
+                name: item.name.capitalizeWords(),
+                image: (item.image != null && item.image!.isNotEmpty)
+                    ? item.image!
+                    : 'assets/images/homeimg.png',
+                cuisine: (item.cuisine ?? 'Italian Pizza').capitalizeWords(),
+                deliveryTime: item.deliveryTime ?? '25-30 mins',
+                distance: item.distance ?? '2.8 Km',
+                openingTime: item.openingTime ?? '10:00 Am - 11:00 Pm',
+                isOpen: item.isOpen,
+              ),
+            )
+            .toList();
+        fetched.sort((a, b) => (b.isOpen ? 1 : 0).compareTo(a.isOpen ? 1 : 0));
+        restaurants.assignAll(fetched);
       } else {
         restaurants.clear();
       }

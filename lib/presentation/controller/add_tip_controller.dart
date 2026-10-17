@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:kayal_userapp/core/utils/helper/app_toast.dart';
 import 'package:kayal_userapp/core/utils/navigation/app_routes.dart';
 import 'package:kayal_userapp/presentation/controller/track_order_controller.dart';
 
@@ -29,9 +30,9 @@ class AddTipController extends GetxController {
   void continueToNext() {
     final tip = selectedTip.value ?? (int.tryParse(customTipController.text) ?? 0);
     if (tip > 0) {
-      Get.snackbar('Tip Added', '\$$tip added as tip for the delivery partner');
+      AppToast.success('₹$tip added as tip for the delivery partner', title: 'Tip Added');
     } else {
-      Get.snackbar('Info', 'Proceeding without a tip');
+      AppToast.info('Proceeding without a tip', title: 'Info');
     }
     
     // Safely update the TrackOrderController if it exists

@@ -13,10 +13,7 @@ class HelpSupportScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFFFCFA),
-      appBar: const CustomAppBar(
-        title: 'Help & Support',
-        showBackButton: true,
-      ),
+      appBar: const CustomAppBar(title: 'Help & Support', showBackButton: true),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -27,19 +24,16 @@ class HelpSupportScreen extends StatelessWidget {
                 'Title',
                 style: TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w400,
                   color: Color(0xFF252B35),
                 ),
               ),
               const SizedBox(height: 8),
-              
+
               // Title text field
               TextField(
                 controller: controller.titleController,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF252B35),
-                ),
+                style: const TextStyle(fontSize: 14, color: Color(0xFF252B35)),
                 decoration: InputDecoration(
                   hintText: 'Enter',
                   hintStyle: const TextStyle(
@@ -76,26 +70,23 @@ class HelpSupportScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 18),
-              
+
               const Text(
                 'Description',
                 style: TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w400,
                   color: Color(0xFF252B35),
                 ),
               ),
               const SizedBox(height: 8),
-              
+
               // Description text field
               TextField(
                 controller: controller.descriptionController,
                 maxLines: 6,
                 minLines: 5,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF252B35),
-                ),
+                style: const TextStyle(fontSize: 14, color: Color(0xFF252B35)),
                 decoration: InputDecoration(
                   hintText: 'Enter',
                   hintStyle: const TextStyle(
@@ -128,9 +119,9 @@ class HelpSupportScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              
+
               const Spacer(),
-              
+
               // Submit Button
               Obx(
                 () => CustomButton(

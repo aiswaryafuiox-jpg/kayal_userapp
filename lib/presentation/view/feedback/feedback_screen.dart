@@ -13,10 +13,7 @@ class FeedbackScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFFFCFA),
-      appBar: const CustomAppBar(
-        title: 'Feedback',
-        showBackButton: true,
-      ),
+      appBar: const CustomAppBar(title: 'Feedback', showBackButton: true),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -28,7 +25,7 @@ class FeedbackScreen extends StatelessWidget {
                 'How was your experience?',
                 style: TextStyle(
                   fontSize: 18,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w500,
                   color: Color(0xFF252B35),
                 ),
               ),
@@ -37,7 +34,7 @@ class FeedbackScreen extends StatelessWidget {
                 'Write a review...',
                 style: TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w400,
                   color: Color(0xFF252B35),
                 ),
               ),
